@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VA vs Medicare Drug Prices</title>
+<meta name="description" content="Percent difference between the VA's Big4 price and the median Medicare Part D plan price, per unit, for 90 of the 100 brand drugs with the most Part D claims in 2024.">
+<style>
+/* Plain white scheme, painted explicitly so the page holds inside the Prismic frame
+   whatever the viewer's OS theme. */
+:root {
+  --bg:    #ffffff;
+  --panel: #ffffff;
+  --ink:   #14181d;
+  --muted: #5b6470;
+  --grid:  #cfd4da;
+  --hair:  #e9ecef;
+  --neg:   #eb6834;   /* drugs with a 2026 Medicare negotiated price (validated: 3.2:1 on white) */
+  --other: #8a929b;   /* all other brands (3.15:1 on white; CVD dE >= 13.6 vs --neg) */
+  --wash:  #f2f4f6;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 980px; margin: 0 auto; padding: 24px 24px 40px;
+  container-type: inline-size;
+  display: flex; flex-direction: column;
+}
+header.masthead { border-bottom: 1px solid var(--grid); padding-bottom: 12px; }
+.logo { height: 24px; width: auto; display: block; margin-bottom: 12px; }
+h1 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+.standfirst { font-size: 15px; color: var(--muted); margin: 0; max-width: 72ch; }
+
+.bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 8px 24px; margin: 12px 0 8px; font-size: 14px;
+}
+.legend { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 0; padding: 0; list-style: none; }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.legend .neg { font-weight: 600; }
+.legend .key { display: inline-block; width: 14px; height: 10px; border-radius: 2px; flex: 0 0 14px; }
+.legend .neg .key { background: var(--neg); }
+.legend .other .key { background: var(--other); }
+
+.seg { display: inline-flex; border: 1px solid var(--grid); border-radius: 6px; overflow: hidden; font-size: 13px; }
+.seg span { padding: 5px 10px 5px 10px; color: var(--muted); }
+.seg button {
+  font: inherit; border: 0; border-left: 1px solid var(--grid); background: var(--panel); color: var(--ink);
+  padding: 5px 12px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.seg button:focus-visible { outline: 2px solid var(--neg); outline-offset: -2px; }
+
+.chartbox { position: relative; }
+svg.chart { display: block; width: 100%; background: var(--panel); }
+.chart text { font-family: var(--sans); fill: var(--muted); font-size: 12px; }
+.chart .tick { font-variant-numeric: tabular-nums; }
+.chart .grid { stroke: var(--hair); stroke-width: 1; }
+.chart .zero { stroke: var(--ink); stroke-width: 1; }
+.chart .name { fill: var(--ink); font-size: 12px; }
+.chart .name.isneg { font-weight: 700; }
+.chart .val { fill: var(--ink); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.chart .val.isneg { font-weight: 700; }
+.chart.narrow .val { font-size: 10.5px; }
+.chart.narrow .name { font-size: 11.5px; }
+.chart .dir { fill: var(--muted); font-size: 12px; font-weight: 600; }
+.chart .row.hover .band { fill: var(--wash); }
+.chart .band { fill: transparent; }
+.chart .bar-neg { fill: var(--neg); }
+.chart .bar-other { fill: var(--other); }
+
+.tip {
+  position: absolute; pointer-events: none; z-index: 5;
+  min-width: 230px; max-width: 320px; padding: 10px 12px;
+  background: var(--ink); color: #fff;
+  border-radius: 6px; font-size: 13.5px; line-height: 1.4;
+  box-shadow: 0 6px 20px rgba(20,24,29,.25);
+  opacity: 0; transition: opacity .1s;
+}
+.tip.on { opacity: 1; }
+.tip .tname { font-weight: 700; display: block; }
+.tip .tgen { color: #b8c0c9; font-size: 12.5px; display: block; margin-bottom: 6px; }
+.tip .big { font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; }
+.tip .tag { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 600; color: #f4a077; }
+.tip .row { margin: 3px 0 0; font-variant-numeric: tabular-nums; }
+.tip .note { color: #b8c0c9; font-size: 12px; margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+
+.source { font-size: 12.5px; color: var(--muted); margin: 12px 0 0; max-width: 90ch; }
+.source a { color: var(--ink); }
+
+details.tbl { margin-top: 16px; font-size: 13.5px; }
+details.tbl summary { cursor: pointer; color: var(--muted); }
+details.tbl summary:focus-visible { outline: 2px solid var(--neg); }
+.tblwrap { overflow-x: auto; margin-top: 8px; max-height: 420px; overflow-y: auto; border: 1px solid var(--grid); }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 4px 10px; border-bottom: 1px solid var(--hair); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { position: sticky; top: 0; background: var(--panel); font-weight: 700; }
+
+/* Inside the Prismic frame: fill the frame, trim the chrome; the chart scrolls inside its box. */
+html.embed, html.embed body { height: 100%; overflow: hidden; }
+html.embed .wrap { height: 100%; padding: 12px 14px 10px; }
+html.embed .logo { height: 18px; margin-bottom: 6px; }
+html.embed h1 { font-size: 20px; margin-bottom: 4px; }
+html.embed .standfirst { font-size: 13px; }
+html.embed .bar { margin: 8px 0 6px; font-size: 13px; }
+html.embed .chartbox { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+html.embed details.tbl { display: none; }
+html.embed .source { font-size: 11.5px; margin-top: 6px; line-height: 1.35; }
+
+@container (max-width: 640px) {
+  h1 { font-size: 20px; }
+  .standfirst { font-size: 13.5px; }
+  .legend { gap: 2px 14px; font-size: 13px; }
+}
+@container (max-width: 640px) {
+  html.embed .standfirst { display: none; }
+  html.embed .source { font-size: 10.5px; }
+}
+@media (max-width: 640px) {
+  .wrap { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <a href="https://www.data4thepeople.com" aria-label="Data 4 The People"><img class="logo" alt="Data 4 The People" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJMYXllcl8yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODk0LjA2IDI5MS4wOCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiNmZmY7fTwvc3R5bGU+PC9kZWZzPjxnIGlkPSJMYXllcl8xIj48ZyBpZD0iZGFyayI+PHJlY3QgeD0iNzIwLjQ2IiB5PSIwIiB3aWR0aD0iMTE3My42IiBoZWlnaHQ9IjI5MS4wOCIvPjxwYXRoIGQ9Ik03MTYuNzYsOHYyNzUuMDhINy42MlY4aDcwOS4xNE03MjQuMzgsMEgwdjI5MS4wOGg3MjQuMzhWMGgwWiIvPjxnIGlkPSJ0aGVwZW9wbGUiPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTkxMS4zNiwzNS45NWMtNS43MSw2LjAyLTExLjUxLDExLjkyLTE3LjcyLDE3LjQ2LTYuNTgsNS44Ny0xNC4xNCw5Ljc0LTIyLjI2LDEyLjc3LS44OS4zMy0xLjgyLjc0LTIuNzUuNzctNC44OC4xMy05LjMsMi4xNS0xMy45NiwzLjIxLTMuMTMuNzItNi4yNCwxLjM0LTkuMDgsMS4yNy03LjE0LjEyLTEzLjY4LTEuNTEtMjAuMjgtMi41OC0yLjgzLS40Ni01LjYyLTEuMjYtOC4zNS0yLjE0LTguNTEtMi43MS0xNy4zLTQuMzEtMjUuOTMtNi41LTcuOS0yLjAxLTE1LjkxLTEuNTEtMjMuOC0uMzctNC4zOC42My04LjM3LDIuOTUtMTIuMDQsNS41NC0xLjMuOTItMi41MiwxLjk1LTMuNzksMi45MS0uNjIuNDctMS45Ni4xLTIuNTEtLjY4LS44NS0xLjE5LTEtMi43MS0uMzctMy41Ny4zNy0uNTEuNjQtMS4xMywxLjA5LTEuNTUsNy40My03LDE0LjQ1LTE0LjQ1LDIyLjUtMjAuNzgsMS40OS0xLjE4LDMuMDgtMi4yNyw0Ljc1LTMuMTcsNC40Ni0yLjQ0LDkuMDktNC41MywxMi45NS03Ljk5LDEuNC0xLjI2LDMuMzQtMS41OSw1LjQtMS4zNywzLjQ4LjM3LDcsLjU3LDEwLjUxLjUzLDYuMTctLjA3LDEyLjAxLjg1LDE3LjU1LDMuODIsMy4wNywxLjY1LDYuNDgsMi42OSw5Ljc1LDMuOTUsNi41NiwyLjUyLDEzLjEyLDUuMDQsMTkuMzcsOC4yNiw1LjIyLDIuNywxMC45MSwzLjUzLDE2LjYxLDQuMTgsNS41NC42MywxMC44My0uOCwxNS44MS0zLjA1LDYuOTgtMy4xNSwxMy43Ni02Ljc1LDIwLjE4LTEwLjk2LDEuMzItLjg2LDIuMzMtMi4xOSwzLjY0LTMuMDcuNzQtLjUsMS44LS42OSwyLjcyLS43MS4zOCwwLC45OS43NywxLjEsMS4yOS4yMiwxLjAxLS40NCwxLjg1LTEuMDksMi41M1pNODk5LjM1LDE4MS40OGMuOTQsNS4zMiwyLjQ3LDEwLjU3LDIuMDYsMTYuMS0uNTMsNy4wNi0xLjY1LDEzLjk4LTQuNTQsMjAuNDctNC45MiwxMS4wNS0xMi4wNSwyMC4xNi0yMi42MiwyNi41OC02LjA0LDMuNjctMTIuMDcsNy4yOS0xOC42Nyw5LjY5LTguNDQsMy4wNy0xNy4xOCw1LjAxLTI2LjI3LDQuODgtMi41Ni0uMDQtNS4xMi4wOC03LjE3LjEyLTQuOTktLjE3LTkuNDYtLjM0LTEzLjk0LS40Ny00Ljg3LS4xMy05LjQxLTEuNDgtMTMuODctMy4zOC03LjExLTMuMDQtMTMuNjMtNy4wNy0xOS41OC0xMS45MS00LjcxLTMuODMtOC43NS04LjQ3LTEyLjA5LTEzLjU0LTQuNDItNi43LTcuNDktMTMuOTctOS4yMS0yMS45NC0yLjE3LTEwLTEuNS0xOS42NywxLjM2LTI5LjMyLDMuMTMtMTAuNTIsOC40LTIwLjA0LDE0LjI0LTI5LjIyLDIuMDQtMy4yMSw0Ljc5LTUuOTksNy4zMy04Ljg1LDUuNTMtNi4yMiwxMS40Ni0xMi4wNywxNy45OC0xNy4yNSw4LjI2LTYuNTcsMTYuNTEtMTMuMTUsMjUuMzQtMTguOTUsMS42LTEuMDUsMy4yNy0yLjAzLDUuMDEtMi43OS44LS4zNSwxLjg2LS4xNiwyLjc5LS4xMS43Ni4wNCwxLjQsMS42NCwxLjA2LDIuMzEtLjg5LDEuNzYtMi4yNiwzLjEyLTMuODEsNC4yMy0yLjYxLDEuODUtNS4zMywzLjUzLTcuOTgsNS4zMi02Ljg5LDQuNjgtMTMuMzIsOS45My0xOS4yNSwxNS43OC0yLjk5LDIuOTUtNS40MSw2LjMxLTcuNDIsOS45Ny0xLjM4LDIuNTItMi43OCw1LjA0LTQuMDcsNy42MS0xLjI5LDIuNTctMi4zMyw1LjIyLTMuMDQsOC4wNS0xLjMxLDUuMjgtMi40MywxMC41OC0zLjQxLDE1LjkzLS43MSwzLjg0LS44LDcuNjUtLjQ0LDExLjQ2LjgsOC42NCwyLjcsMTcuMDIsNi41NiwyNC44OC43MSwxLjQzLDEuNDcsMi44NSwyLjAyLDQuMzUsMS4xMiwzLjA1LDIuNzQsNS43Niw1LjAyLDguMDkuNjcuNjgsMS4zNCwxLjM5LDEuODYsMi4xOSw0Ljg4LDcuNDgsMTIuMDksMTIuMjEsMTkuNjEsMTYuNTIsNSwyLjg3LDEwLjI0LDUuMjcsMTYsNi4yNywzLjc3LjY2LDcuMywyLjI1LDExLjE1LDIuNjgsNS4xNS41NywxMC4zLjI1LDE1LjI4LS43NCw2LjczLTEuMzQsMTIuNDMtNC45MiwxNy4wMi0xMC4xMS40Mi0uNDguODMtMSwxLjEtMS41NywyLjQ2LTUuMjIsNC42MS0xMC41NSw0LjgzLTE2LjQyLjEtMi41NS4wNy01LjEyLS4wMi03LjY3LS4xOC00Ljg2LTEuMzEtOS41MS0zLjU4LTEzLjgyLTEuNzktMy4zOC0zLjA0LTcuMDUtNS41Ni0xMC4wMy0uMjEtLjI0LS4zNy0uNTMtLjU0LS43OS0zLjQ2LTUuMjQtOC45OC04LjEyLTEzLjczLTExLjg0LTMuMjUtMi41NS03LjEtNC4yLTExLjIzLTUuMTktNC4xNC0xLTguMjYtMS4wNC0xMi4zNi0uMzUtMS44My4zMS0zLjYxLDEuMjUtNS4yOCwyLjE1LTEuNjcuODktMy4xNywyLjA5LTQuNzYsMy4xMy0uNTkuMzktMi0uNjEtMS45NC0xLjQ2LjA4LTEuMjYsMC0yLjY1LjUtMy43NCwxLjktNC4wOSw0LjU1LTcuNjIsOC0xMC42Myw0LjYyLTQuMDQsOS44Mi03LjExLDE1LjE2LTEwLjAxLDUuOTMtMy4yMSwxMi4xMS0zLjc4LDE4LjU4LTIuMDksMS4yNC4zMiwyLjUxLjUsMy43NC44NywxMi41OCwzLjc1LDIxLjg0LDExLjU3LDI4LjE0LDIzLjAzLDIuMDEsMy42NiwzLjksNy40MSw0LjYyLDExLjUyWk03NjguNjMsMjAxLjIzbC0uNTEtLjA2LjIuNTYuMzItLjVaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTA0MC42LDIzOS45OWMtNS42NiwyLjk0LTExLjMxLDUuOTEtMTcuMDEsOC43Ni0xLjc3Ljg4LTMuMSwyLjE4LTQuNDUsMy41Ni0xLjYsMS42Ni00LjM2LDEuNjEtNS45Ni4wNy0uMjMtLjIyLS41LS40MS0uNjktLjY3LTMuMzItNC4zNS03LjY1LTcuNjctMTEuNy0xMS4yNy00Ljc4LTQuMjUtOS42MS04LjQ1LTE0LjQ2LTEyLjYzLTEuNjEtMS4zOC0yLjI3LTMuMS0xLjk3LTUuMTEuNzktNS4zOS0uMDktMTAuODEuNTItMTYuMjQuNTktNS4zNy4yLTEwLjg2LjE3LTE2LjMtLjAzLTUuNDQtLjE3LTEwLjg4LS4yMS0xNi4zMi0uMDQtNC44LDAtOS42LDAtMTQuNCwwLTEuOTktLjUyLTMuNzktMi4wMy01LjItNi4zMi01Ljg5LTEyLjYzLTExLjc5LTE5LjQ4LTE3LjA2LTEuNjUtMS4yNy0zLjYxLTEuMzItNS40Mi0uMjktMi43OCwxLjU3LTUuNTIsMy4yMS04LjIxLDQuOTItMS4xLjctMS44NCwxLjgxLTEuOTYsMy4xNS0uMTUsMS41OS0uMjIsMy4xOS0uMiw0Ljc5LjA2LDUuNDQuMjUsMTAuODcuMjUsMTYuMzEsMCwzLjgzLS4yLDcuNjYtLjMyLDExLjUtLjA2LDEuOTItLjE4LDMuODQtLjE3LDUuNzYuMDMsOS41OS4wOCwxOS4xOC4xNCwyOC43NywwLC45Ni4wOCwxLjkyLjE5LDIuODcuMTUsMS4zMi43NywyLjQ2LDEuNzMsMy4zNCwxLjE4LDEuMDcsMi40MywyLjA3LDMuNzMsMi45OSw1LjUxLDMuOSwxMCw4LjkyLDE0Ljk2LDEzLjQzLjYzLjU3LjUsMi4xNy0uMTYsMi42LTEuMDYuNjktMi4xLDEuNDQtMy4yMiwyLjAyLTIuMjcsMS4xOC00LjYyLDIuMjEtNi44OCwzLjQtMi41NCwxLjM0LTUuMTEsMi42Ny03LjUyLDQuMjItMi4zOCwxLjUzLTQuNTgsMy4zMi02LjgsNC45NS0uNDMtLjIxLS43OC0uMjktMS0uNS02LjI5LTUuOTEtMTIuNzItMTEuNjUtMTkuMzgtMTcuMTQtLjk4LS44MS0xLjc2LTEuOTYtMi44Ni0yLjU1LTQuMTItMi4yMS01LjY0LTUuMzQtNS4yMi0xMC4xNC41OC02LjY0LS4wNS0xMy4zNywxLTIwLjAxLjItMS4yNS0uMDEtMi41NS0uMDMtMy44My0uMjQtMTkuNTItLjQ5LTM5LjA0LS43MS01OC41Ni0uMDYtNS43Ni4xMi0xMS41My0uMDYtMTcuMjgtLjExLTMuMTktLjQtNi4zMS4yNS05LjUxLjUtMi40Ny40LTUuMDguMzktNy42My0uMDEtNy45OS0uMTEtMTUuOTktLjE3LTIzLjk4LS4wMS0yLjA1LS43OC0zLjgyLTIuMzItNS4wOC00LjQ1LTMuNjMtOC4zMy03Ljk1LTEzLjM2LTEwLjktMS40NC0uODQtMS4yNS0zLjE1LjE4LTQuMDIuNTUtLjMzLDEuMDUtLjczLDEuNjItMS4wMy41Ni0uMywxLjE4LS40OSwxLjc1LS43NywyLjg3LTEuNCw1LjctMi45LDguNjEtNC4yMiwzLjU3LTEuNjIsNi40Ni00LjA3LDkuMDgtNi45Mi45LS45OCwzLjQ1LS44OSw0LjUtLjA0LjI1LjIuNTkuMzEuNzguNTUsNC42Miw1Ljg0LDEwLjksOS44NCwxNi4zMywxNC43OCwxLjE4LDEuMDcsMi40NywyLjA1LDMuNTUsMy4yMS44Ny45MywxLjY1LDIuMTQsMS4zNiwzLjQ2LTEuMTMsNS4wNy0uNzEsMTAuMTQtLjU1LDE1LjI3LjI1LDcuOTguMTQsMTYtLjEzLDIzLjk4LS4yNiw3LjY4LjMsMTUuMzQuMTksMjMtLjAyLjk1LjIyLDEuOS4zNCwyLjg1LjA5LjcsMS41OSwxLjU3LDIuMjEsMS4yOC41Ny0uMjcsMS4yMS0uNDMsMS43NS0uNzQsOC4yNi00Ljg2LDE2Ljg1LTkuMTgsMjQuNzQtMTQuNjYuNzktLjU1LDEuNjMtMS4wMywyLjM0LTEuNjcsMy42OC0zLjMyLDUuNjctMy4wOSw4LjU4LjgzLjc1LDEuMDIsMS41NCwyLjA1LDIuNTEsMi44NSw3LjM5LDYuMTIsMTQuODMsMTIuMTksMjIuMjcsMTguMjQsMS40MywxLjE2LDIuOTMsMi4yNiw0LjksMi4yNy4wNiwzLjEyLjE0LDYuMjQuMTcsOS4zNi4wMiwyLjU2LS4wOSw1LjEyLS4wNiw3LjY4LjA2LDUuMTIuNSwxMC4yNi4xNiwxNS4zNi0uMzIsNC43OS42LDkuNTgtLjMyLDE0LjMzLDEuMTksNi42OSwwLDEzLjM5LS4wNiwyMC4wOC0uMDMsMi43OC45Niw0Ljk1LDMuMDQsNi43Miw0LjM3LDMuNzQsOC43NSw3LjQ5LDEzLjA4LDExLjI4LDIuODgsMi41Myw1LjcsNS4xMyw4LjUsNy43NCwxLjAzLjk2LjUyLDMuNDYtLjgxLDQuMTZaTTEwMTcuMTYsMTQzLjNjLS4wOCwwLS4xNiwwLS4yNCwwLDAtLjA4LDAtLjE1LDAtLjIybC4yNC4yM1oiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMTQ4LjYzLDIxNi4wOWMtMi4xMiwxLjQyLTQuMTYsMi45OC02LjQxLDQuMTUtOS4wNyw0LjcyLTE3LjkyLDkuODItMjYuODQsMTQuODEtOS4yLDUuMTMtMTguNjYsOS43OS0yNy43NywxNS4wOC0uMjcuMTYtLjYuMjEtLjkuMzEtMS4zMi40My0yLjY3LjIyLTMuNjEtLjYzLTIuMzgtMi4xMi00LjU5LTQuNDItNi44Ny02LjY3LTguODktOC43NS0xOC43NC0xNi40Mi0yNy44OC0yNC45LTEuNC0xLjMtMi44NS0yLjU4LTQuMTMtMy45OS0xLjA5LTEuMjEtMS43LTIuNjktMS40NC00LjYyLDEuMjUtNC4xNi44Ny04LjYyLjc4LTEzLjExLS4yMS0xMC44Ny0uMjMtMjEuNzQtLjM1LTMyLjYxLS4wNS00LjE1LS4yMS04LjMtLjI1LTEyLjQ2LS4wMi0xLjcuNjYtMy4wMywyLjIyLTMuOTIsOC4yOS00Ljc5LDE2LjY0LTkuNDksMjQuODMtMTQuNDcsNS4xNy0zLjE1LDEwLjctNS43MiwxNi4xLTguNDksNC41Ni0yLjMzLDkuMTEtNC42NCwxMi45LTguMi42OC0uNjQsMS42NC0uOTgsMi40OS0xLjQuOTQtLjQ2LDEuODgtLjIyLDIuNzUuMjIuNTYuMjgsMS4xLjY2LDEuNTQsMS4xMSw2LjUyLDYuNiwxNCwxMi4xMiwyMC44MywxOC4zOCw0LDMuNjcsOC4yNyw3LjA1LDEyLjQsMTAuNTcuNDguNDEuODYuOTMsMS4zLDEuNC45NSwxLjAyLjgyLDMuNC0uMjgsNC4zOC0uNzEuNjMtMS4zNywxLjQyLTIuMjEsMS44MS0zLjIzLDEuNDgtNi4wNywzLjUzLTguODEsNS43NC0uNS40LS45Ny44Ny0xLjUyLDEuMTYtNy4xMSwzLjgxLTEzLjAyLDkuMjEtMTkuMSwxNC4zOS0zLjE1LDIuNjgtNi40NCw1LjE1LTEwLjA0LDcuMy00LjM4LDIuNjEtOC4zNSw1LjktMTIuNTEsOC44OC0yLjU5LDEuODUtNS4yNCwzLjYzLTcuODIsNS41LTEuMDkuNzktMS4yMywyLjMyLS40OSwzLjQyLDIuMTUsMy4yMSw0LjYzLDYuMTMsNy44MSw4LjM2LDMuOTUsMi43Niw3LjQ3LDUuOTYsMTAuNzYsOS40OCwzLjQ4LDMuNzQsNy4zLDcuMTYsMTEuMDEsMTAuNjcuOTIuODcsMi4wMSwxLjU4LDMuMDUsMi4zMSwxLjExLjc3LDIuMzguOTksMy42My40OSwxLjE4LS40NywyLjMtMS4xLDMuNDEtMS43Myw4LjYxLTQuODksMTcuMi05LjgyLDI1LjgzLTE0LjY5LDEuMS0uNjIsMi4zNC0xLDMuNTItMS40NS42OC0uMjYsMi4wOC4yNywyLjU3Ljg5LjQ4LjYyLjI0LDIuMDItLjQ5LDIuNTJaTTEwOTMuNDcsMTc5LjU3YzQuOTQtMy40OSw5LjgxLTcuMDgsMTQuNjktMTAuNjQuNzctLjU2LDEuNDYtMS4yMywyLjE3LTEuODcsMS4wNy0uOTcuOTgtMy4xNy0uMTUtNC4zLS4yMy0uMjItLjQxLS41LS42NS0uNy04LjA0LTYuNzYtMTUuODktMTMuNzMtMjMuNjktMjAuNzYtMi4xMi0xLjkxLTQuNTItMy41Mi02LjgzLTUuMjItMS4xMi0uODMtMy4zMi0uMjUtNC4xOCwxLjExLS41Ljc5LTEuMDksMS42Ni0xLjE4LDIuNTUtLjIyLDIuMjEtLjI2LDQuNDUtLjIzLDYuNjcuMDgsNi4zNy4yMywxMi43NC4zNCwxOS4xMS0uMDcsMC0uMTMsMC0uMiwwLC4xNSw3Ljk3LjMsMTUuOTMuNDYsMjMuOSwwLC4zMi4xMS42My4xNC45NS4wNy45LDEuMzcsMS42OCwyLjA2LDEuMiw1Ljc1LTMuOTksMTEuNTMtNy45NCwxNy4yNS0xMS45OVoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMzI0LjI5LDk4LjY5Yy0uMzMsMi4yLS4xNyw0LjQ3LS4zOSw2LjctLjE1LDEuNTgtLjQ2LDMuMTYtLjg3LDQuNjktMS45LDcuMTYtNC44OCwxMy45NC04Ljg2LDIwLjA5LTQuNTEsNi45OC05Ljk5LDEzLjM0LTE2LjQ5LDE4LjYtMy4yLDIuNTktNi44NCw0Ljc5LTEwLjU4LDYuNTQtOC4zNywzLjk0LTE2LjU2LDguMy0yNS4zMSwxMS40LTEuNS41My0yLjk2LDEuMjUtNC4zMSwyLjA4LTMuNjYsMi4yMy01Ljk3LDEuOTgtOS4yNi0xLjQ3LS42Ni0uNy0xLjM1LTEuMzktMi4xMi0xLjk1LTIuNjQtMS45MS01LjUzLTMuMjQtOC44Ny0zLjE1LTIuODcuMDgtNS43NC4yNi04LjYuNDYtLjk1LjA2LTIuNDQsMS41OS0yLjYxLDIuNTYtLjE3Ljk0LS4zOSwxLjg4LS40MSwyLjgyLS4wMywxLjkyLDAsMy44NC4xMiw1Ljc2LjYzLDkuMjYuMTgsMTguNTMuNDQsMjcuOC4yNCw4Ljk1LjM2LDE3LjkxLjUsMjYuODYuMDQsMi41NS4wNSw1LjEyLS4wOSw3LjY3LS4xMSwyLjAzLTEuMDcsMy43OS0yLjk3LDQuNi02LjUsMi43Ny0xMi4yNSw2Ljg4LTE4LjQ5LDEwLjExLTMuNjcsMS45LTcuMjIsNC4xLTkuNzksNy41My0uNjIuODMtMS42OCwxLjA0LTIuNi42NS0yLjA1LS44OC00LjA1LTEuODctNi4wNC0yLjg2LTMuNDQtMS43LTYuODItMy41MS0xMC4yOS01LjEyLTIuNjItMS4yMS01LjM2LTEuOTQtOC4zNi0xLjM3LTQuMi43OS03LjkzLDIuNDEtMTAuOTEsNS41My0xLjA5LDEuMTUtMi4wOSwyLjQtMy4xMywzLjYxLS41My42Mi0xLjEyLjY4LTEuNjcuMDctLjQyLS40Ni0uOTktMS4wMi0xLjAxLTEuNTUtLjAzLS45MS4xOS0xLjg4LjUzLTIuNzQuOTctMi40MywyLjc1LTQuMjksNC41Ny02LjEsMy44NS0zLjgzLDcuNzctNy42MSwxMS41Ny0xMS40OSw0LjY1LTQuNzYsMTAuNC03LjMxLDE2LjgyLTguNDYsMi4xOC0uNCw0LjQ2LS4yOSw2LjY4LS40NSwxLjEtLjA3LDIuNTctMS40OCwyLjYyLTIuNDYuMDQtLjYzLjA3LTEuMjcuMDgtMS45LjA5LTEyLjQ0LjIzLTI0Ljg5LjI2LTM3LjMzLjAyLTEwLjIzLS4wOC0yMC40Ny0uMTItMzAuNy0uMDYsMC0uMTMsMC0uMTksMC0uMTgtMjEuNzUtLjM2LTQzLjQ5LS41NS02NS4yNC0uMDItMS45Mi0uMTUtMy44NC0uMy01Ljc0LS4xLTEuMzEtLjY0LTIuNTgtMS42Ny0zLjM1LTMuNi0yLjcxLTYuNzItNS45LTkuNzgtOS4xOC0uNjQtLjY4LTEuNTEtMS4xOC0yLjM1LTEuNjItMS4xNi0uNjEtMi40LS45MS0zLjY1LS4yMi0zLjkxLDIuMTctNy43OSw0LjM5LTExLjczLDYuNDktMS4xNy42My0yLjUzLjQ1LTMuNjUtLjI2LS40Ny0uMy0uNzMtMS0uOTctMS41Ny0uMDgtLjE5LjE0LS42MS4zNC0uNzguNzQtLjYxLDEuNDYtMS4yNSwyLjI5LTEuNyw0Ljc5LTIuNTUsOS42Mi01LjA2LDE0LjQzLTcuNTcsNC4wNy0yLjEyLDE5LjU3LTExLjYyLDIyLjg0LTE0LjAyLDMuNjYtMi42OCwzLjYtMi42Miw2Ljc4LjUxLDIuMjcsMi4yNCw0LjczLDQuMjksNy4xLDYuNDIsMi44NSwyLjU2LDUuNjksNS4xNSw4LjU3LDcuNjgsMS41MiwxLjMzLDMuMzYsMS43Nyw1LjM2LDEuNTQuNjQtLjA3LDEuMjgtLjE1LDEuODktLjMxLDQuOTUtMS4yNiw5Ljk0LTIuNDIsMTQuODUtMy44Miw5LjgyLTIuODEsMTkuNTktNS44LDI5LjQxLTguNjIsMy4wOC0uODgsNi4wOC0xLjgzLDguODctMy41MSwzLjA2LTEuODUsNi41LTIuNTksMTAuMTEtMi40OCwyLjI0LjA3LDQuNDkuMTEsNi43MS0uMDUsMy4xOS0uMjMsNS42OS41NCw2LjkzLDMuODEuMjEuNTcuNzMsMS4wNiwxLjIsMS40OCwzLjYyLDMuMjQsNi40Myw3LjA4LDguNTUsMTEuNDMsNC43NSw1LjU1LDQuODgsMTAuNjUsNy4xNCwxNS42LjI2LjU3LjQ4LDEuMjMuNDgsMS44NC0uMDUsNS40MywxLjc2LDEwLjc0Ljk0LDE2LjIzWk0xMjk1LjI4LDEwMy41MmMtMS4zMS04Ljk4LTUuMDItMTcuMTMtOC43NC0yNS4yOC0uMTMtLjI5LS4zNS0uNTMtLjU1LS43OS0yLjE0LTIuNzktNC4yMi01LjYzLTYuNDQtOC4zNy0yLjAzLTIuNS00LjUyLTQuNTItNy4xNy02LjM0LTEuNC0uOTYtMi45NS0xLjE1LTQuNTgtLjkyLS45NS4xNC0xLjk1LjItMi44Mi41NS03LjQ0LDIuOTktMTUuNDEsNC4yMS0yMi45Niw2Ljg0LTMuOTEsMS4zNi03LjkyLDIuNTMtMTIuMDksMi45Ni0uNjIuMDYtMS4yMi4zNy0xLjgzLjU1LTEuMzIuMzktMi42OCwyLjE2LTIuNzcsMy42MS0uMDIuMzItLjA2LjY0LS4wNy45Ni0uMDcsNi4wOC0uNTksMTIuMTktLjA3LDE4LjIxLjU2LDYuNDEuMDYsMTIuOC41LDE4LjkxLjA0LDIuNS4wNiw0Ljc0LjE0LDYuOTkuMTYsNC44LS41MSw5LjYxLS4yOSwxNC4zNy4yMyw1LjE0LjA1LDEwLjIyLS4xNywxNS4zMy0uMDMuNjMuMTEsMS4yNy4xNiwxLjkxLjA2Ljc1LDEuNTcsMS43NiwyLjE1LDEuNDEsMS4zNy0uODMsMi43Ni0xLjYyLDQuMDgtMi41MiwzLjczLTIuNTYsNy43OC00LjI0LDEyLjE0LTUuNTQsOS43Ni0yLjkyLDE4LjkzLTIuMTEsMjcuNjUsMy4yMiwxLjA5LjY3LDIuMTQsMS40LDMuMjIsMi4wOS41NC4zNCwxLjEuNjMsMS42Ni45NS44MS40NiwyLjAxLjM2LDIuNy0uMTgsNi41Ni01LjA3LDEwLjYtMTEuODQsMTMuMjYtMTkuNTYsMy4yOS05LjU2LDQuMzUtMTkuMzIsMi45LTI5LjM1WiIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE0MjcuOTMsMjE2LjA5Yy0yLjEyLDEuNDItNC4xNiwyLjk4LTYuNDEsNC4xNS05LjA3LDQuNzItMTcuOTIsOS44Mi0yNi44NCwxNC44MS05LjIsNS4xMy0xOC42Niw5Ljc5LTI3Ljc3LDE1LjA4LS4yNy4xNi0uNi4yMS0uOS4zMS0xLjMyLjQzLTIuNjcuMjItMy42MS0uNjMtMi4zOC0yLjEyLTQuNTktNC40Mi02Ljg3LTYuNjctOC44OS04Ljc1LTE4Ljc0LTE2LjQyLTI3Ljg4LTI0LjktMS40LTEuMy0yLjg1LTIuNTgtNC4xMy0zLjk5LTEuMDktMS4yMS0xLjctMi42OS0xLjQ0LTQuNjIsMS4yNS00LjE2Ljg3LTguNjIuNzgtMTMuMTEtLjIxLTEwLjg3LS4yMy0yMS43NC0uMzUtMzIuNjEtLjA1LTQuMTUtLjIxLTguMy0uMjUtMTIuNDYtLjAyLTEuNy42Ni0zLjAzLDIuMjItMy45Miw4LjI5LTQuNzksMTYuNjQtOS40OSwyNC44My0xNC40Nyw1LjE3LTMuMTUsMTAuNy01LjcyLDE2LjEtOC40OSw0LjU2LTIuMzMsOS4xMS00LjY0LDEyLjktOC4yLjY4LS42NCwxLjY0LS45OCwyLjQ5LTEuNC45NC0uNDYsMS44OC0uMjIsMi43NS4yMi41Ni4yOCwxLjEuNjYsMS41NCwxLjExLDYuNTIsNi42LDE0LDEyLjEyLDIwLjgzLDE4LjM4LDQsMy42Nyw4LjI3LDcuMDUsMTIuNCwxMC41Ny40OC40MS44Ni45MywxLjMsMS40Ljk1LDEuMDIuODIsMy40LS4yOCw0LjM4LS43MS42My0xLjM3LDEuNDItMi4yMSwxLjgxLTMuMjMsMS40OC02LjA3LDMuNTMtOC44MSw1Ljc0LS41LjQtLjk3Ljg3LTEuNTIsMS4xNi03LjExLDMuODEtMTMuMDIsOS4yMS0xOS4xLDE0LjM5LTMuMTUsMi42OC02LjQ0LDUuMTUtMTAuMDQsNy4zLTQuMzgsMi42MS04LjM1LDUuOS0xMi41MSw4Ljg4LTIuNTksMS44NS01LjI0LDMuNjMtNy44Miw1LjUtMS4wOS43OS0xLjIzLDIuMzItLjQ5LDMuNDIsMi4xNSwzLjIxLDQuNjMsNi4xMyw3LjgxLDguMzYsMy45NSwyLjc2LDcuNDcsNS45NiwxMC43Niw5LjQ4LDMuNDgsMy43NCw3LjMsNy4xNiwxMS4wMSwxMC42Ny45Mi44NywyLjAxLDEuNTgsMy4wNSwyLjMxLDEuMTEuNzcsMi4zOC45OSwzLjYzLjQ5LDEuMTgtLjQ3LDIuMy0xLjEsMy40MS0xLjczLDguNjEtNC44OSwxNy4yLTkuODIsMjUuODMtMTQuNjksMS4xLS42MiwyLjM0LTEsMy41Mi0xLjQ1LjY4LS4yNiwyLjA4LjI3LDIuNTcuODkuNDguNjIuMjQsMi4wMi0uNDksMi41MlpNMTM3Mi43NiwxNzkuNTdjNC45NC0zLjQ5LDkuODEtNy4wOCwxNC42OS0xMC42NC43Ny0uNTYsMS40Ni0xLjIzLDIuMTctMS44NywxLjA3LS45Ny45OC0zLjE3LS4xNS00LjMtLjIzLS4yMi0uNDEtLjUtLjY1LS43LTguMDQtNi43Ni0xNS44OS0xMy43My0yMy42OS0yMC43Ni0yLjEyLTEuOTEtNC41Mi0zLjUyLTYuODMtNS4yMi0xLjEyLS44My0zLjMyLS4yNS00LjE4LDEuMTEtLjUuNzktMS4wOSwxLjY2LTEuMTgsMi41NS0uMjIsMi4yMS0uMjYsNC40NS0uMjMsNi42Ny4wOCw2LjM3LjIzLDEyLjc0LjM0LDE5LjExLS4wNywwLS4xMywwLS4yLDAsLjE1LDcuOTcuMywxNS45My40NiwyMy45LDAsLjMyLjExLjYzLjE0Ljk1LjA3LjksMS4zNywxLjY4LDIuMDYsMS4yLDUuNzUtMy45OSwxMS41My03Ljk0LDE3LjI1LTExLjk5WiIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE1NTAuMTYsMTkxLjQyYy0xLjA5LDcuMzItLjUzLDE0LjY3LS40OCwyMi4wMSwwLC4zMi0uMDIuNjQuMDIuOTYuNTEsNS4xMS0xLjk0LDguNTEtNi4xOSwxMC45NS0yLjQ5LDEuNDMtNC44NCwzLjEyLTcuMzksNC40NS0xMS42Miw2LjA1LTIyLjQ3LDEzLjQ2LTM0LjI5LDE5LjE0LTYuNjIsMy4xOC0xMy4xMSw2LjYyLTE5LjksOS40NS0xLjY1LjY5LTMuMTMuNjktNC40NC0uNDYtNC41Ni00LjAxLTkuMDgtOC4wNy0xMy41OS0xMi4xMy0xLjktMS43MS0zLjY0LTMuNi01LjY0LTUuMTgtNS41MS00LjM3LTEwLjE0LTkuNjktMTUuNDYtMTQuMjYtLjk3LS44My0xLjg2LTEuNzctMi43LTIuNzMtMS41My0xLjc0LTIuNDctMy43NS0yLjI3LTYuMTIuNTktNy4wMS0uNDctMTQuMDYuNDEtMjEuMDcuMTItLjk0LS4wMi0xLjktLjA0LTIuODZoLjA0Yy0uMDUtMi44Ny0uMzUtNS43Ni0uMTEtOC42MS40Mi01LjEyLjUtMTAuMi0uMjUtMTUuMjktLjE0LS45My0uMDYtMS45MS4wMi0yLjg1LjE3LTIsLjk0LTMuNzEsMi43MS00LjgxLDIuNDUtMS41MSw0Ljg1LTMuMTEsNy40LTQuNDQsMTEuOTEtNi4xOSwyMy4zNy0xMy4xOCwzNC45Ny0xOS44OSw1LjIzLTMuMDMsMTAuMzMtNi4zMSwxNS40Ni05LjUzLDMuMjQtMi4wMyw2LjQ4LTQuMDgsOS4wNC03LjAyLjc0LS44NSwyLjc5LS44MiwzLjUzLS4xLDQuODIsNC42Nyw5LjczLDkuMjYsMTQuNDQsMTQuMDQsNi45Niw3LjA3LDE0LjI5LDEzLjczLDIyLjA4LDE5Ljg4LDEuOTcsMS41NSwyLjY5LDMuNDUsMi42OCw1LjgxLS4wMiw1LjEyLS4wMywxMC4yMy0uMDUsMTUuMzQtLjAxLDMuNTItLjA0LDcuMDMtLjA0LDEwLjU1LDAsMS42LjI2LDMuMjMuMDMsNC43OVpNMTUxOC40MywyMjkuMDhjLS4wMy04LjY0LS4wOC0xNy4yOC0uMTItMjUuOTJoLS4xNWMuMDctOC42NC4wOS0xNy4yOC4yMi0yNS45MS4wNC0yLjQxLS43LTQuMzgtMi40OC01Ljk3LTkuNzctOC43NC0xOS41NC0xNy40OC0yOS4zMi0yNi4yLS40Ny0uNDItMS4wNC0uODctMS42My0uOTgtLjkxLS4xNy0yLjA3LS40Mi0yLjc3LS4wMi0zLjYsMi4wNi03LjEzLDQuMjYtMTAuNiw2LjU0LTEuMzkuOTItMi4xMiwyLjQ0LTIuMTEsNC4xMi4wNCw0LjguMjYsOS42LjI5LDE0LjQuMDQsOC42NC0uMDMsMTcuMjctLjAxLDI1LjkxLjAxLDMuODQuMTEsNy42Ny4yMSwxMS41MS4wNywyLjM0LjkxLDQuMjQsMi43OSw1LjgzLDUuMzgsNC41NCwxMC42OCw5LjE2LDE1LjkyLDEzLjg1LDQuNTIsNC4wNiw4LjkxLDguMjcsMTMuMzgsMTIuMzkuNy42NCwxLjQ5LDEuMjIsMi4zMiwxLjY3LjUzLjI5LDEuMzUuNTUsMS44MS4zNCwzLjc3LTEuNzMsNy41NS0zLjQ5LDEwLjczLTYuMjEuNjctLjU3LDEuMDQtMS42LDEuMjgtMi41LjI0LS45LjIxLTEuOS4yMS0yLjg1WiIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE2ODYuNzMsMjEzLjNjLjMyLTMuMjEuNDctNi4zNy0uMjYtOS41NS0uMjItLjkyLS4zMS0xLjkzLS4xNi0yLjg2LDEuMDMtNi4zNy4zNy0xMi43OC42MS0xOS4xNi0uMDQtMS45Mi0uMDktMy44NC0uMTEtNS43Ni0uMDItMy44NC4wMi03LjY4LS4wNS0xMS41MS0uMDQtMi4wMS0uODQtMy42Ny0yLjQ5LTQuOTYtNy4zMy01LjctMTQuMzgtMTEuNzQtMjEuMDgtMTguMTgtMi4wNy0xLjk5LTQuMDMtNC4xNS02LjMzLTUuODUtNS4xNy0zLjgyLTkuOTMtOC4wNi0xNC4zNC0xMi43Mi0xLjUtMS41OS0zLjM0LTEuNjctNS4yNy0xLjczLTEuNjQtLjA1LTMuMzkuMDUtNC41MSwxLjI1LTQuNDgsNC43NS0xMC4xMiw3Ljc4LTE1Ljc4LDEwLjc1LTE0LjIsNy40NS05LjQxLDcuOTQtMjEuNTUtMi43OS0zLjM3LTIuOTctNy41Ny00LjgyLTEwLjU0LTguMjgtLjYzLS43My0xLjc0LS42OC0yLjU5LS4xMi03LjI1LDQuNjktMTQuNzUsOC45NS0yMi4yNSwxMy4yMy0xLjEuNjMtMi4wNywxLjQ4LTMuMDgsMi4yNS0uNjEuNDYtLjgzLDEuOTktLjUsMi42NC44OSwxLjc0LDEuOTksMy4zNSwzLjYzLDQuMzksNS43MiwzLjYzLDEwLjEyLDguODEsMTUuNDMsMTIuOTIsMS4wNS44MSwxLjYzLDIuMDEsMS43LDMuMzIuMTUsMi44OC4yMyw1Ljc2LjI0LDguNjQuMDgsMTYuOTcuMTcsMzMuOTQuMTgsNTAuOTEsMCw2LjM4LS4xOCwxMi43Ny0uMjcsMTkuMTUtLjA2LDMuODQtLjE4LDcuNjgtLjE1LDExLjUyLjA2LDYuMDcuMjksMTIuMTMuMzMsMTguMi4wMyw2LjA4LS4xMSwxMi4xNi0uMTQsMTguMjQsMCwxLjI4LDAsMi41Ni4wMSwzLjg0aDI5LjE3Yy43MS0uOTIsMS4xMy0yLjAzLDEuMTYtMy4zMS4wNy0yLjg4LDAtNS43Ni4wMS04LjY0LDAtMi4yNCwwLTQuNDguMDItNi43Mi4wMi0yLjU2LjIzLTUuMTMuMDMtNy42OC0uMTgtMi4yNSwxLjI4LTQuMzMuNS02LjU1LS44Ny0yLjQ2LS45MS01LjAyLTEuMDYtNy41OC0uMDItLjMxLjAzLS42My4wNy0uOTUuMDQtLjMyLjA2LS42NS4xOC0uOTQuMTItLjI5LjMtLjcxLjUzLS43Ny41My0uMTMsMS4yNC0uMzEsMS42My0uMDcsNC4xNiwyLjUxLDcuMzcsNi4xMSwxMC43LDkuNTYsMi4xNywyLjI2LDQuNjYsMi42Nyw2Ljc3Ljc1LDMuMTMtMi44NCw2LjcyLTQuODYsMTAuNC02Ljc5LDQuMjUtMi4yNCw4LjU0LTQuNCwxMi43MS02Ljc3LDEwLjg1LTYuMTYsMjEuNjEtMTIuNDcsMzIuNDctMTguNiwzLjIyLTEuODIsNC4yNC00LjU5LDQuMjctNy45Ni4wMS0xLjU5LS40My0zLjItLjI4LTQuNzdaTTE2NTMuMDIsMjM3LjI2Yy0xLjQyLjcxLTIuODIsMS40OC00LjI0LDIuMjEtLjI4LjE0LS41OS4yOC0uOS4yOC0uNjEsMC0xLjM1LjEtMS44My0uMTktMS4zNi0uODItMi43MS0xLjctMy44OC0yLjc1LTQuOTktNC40Ny05Ljk5LTguOTMtMTQuODQtMTMuNTUtNC44NS00LjYyLTkuNjEtOS4zMy0xNC45OS0xMy4zNi0xLjI2LS45NC0yLjQzLTIuMTEtMy4zNS0zLjM4LS43Mi0uOTgtMS0yLjI5LTEuNDktMy40NSwxLjA5LTMuNzcuMTUtNy42LjMyLTExLjQuMTctMy44Mi4xLTcuNjYuMTEtMTEuNDgsMC0xLjYtLjA1LTMuMTktLjA4LTQuNzguMTEsMCwuMjMsMCwuMzQsMC0uMTYtOC4yOS0uMzItMTYuNTgtLjQ2LTI0Ljg3LS4wMi0uOTUsMC0xLjkxLjA3LTIuODYuMjYtMy41NywzLjAzLTYuMjEsNy4wNS02LjUyLjg1LS4wNiwxLjk1LjMzLDIuNTkuOSw0LjA4LDMuNTgsOC4wNiw3LjI1LDEyLjA2LDEwLjkyLjcuNjQsMS4xNywxLjY2LDEuOTcsMi4wNiw0LjQsMi4xOCw3LjE3LDYuMjcsMTAuOTcsOS4xNiwzLjU1LDIuNyw2LjY2LDUuOTQsMTAuMDksOC44LDIuMzUsMS45NiwzLjc4LDQuMjcsMy44NCw3LjM2LjAxLjY0LjA3LDEuMjguMDgsMS45MS4xMSwxNi4yOC4yMywzMi41NS4yOSw0OC44MiwwLDIuNzQtMS4xNiw0LjkyLTMuNzMsNi4xOVoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNzU1Ljc3LDI0MS42M2MtLjc5LjU0LTEuNTQsMS4xNi0yLjM4LDEuNi0yLjI2LDEuMi00LjU3LDIuMy02LjgzLDMuNDgtNC4yNSwyLjIxLTguNTgsNC4yOC0xMS44Miw4LjAxLS45MiwxLjA2LTMuNzEsMS4wOC00LjQyLjA0LTIuNDQtMy41Ni02LjQzLTUuMi05LjUyLTcuOTMtNC43OC00LjIzLTkuNDItOC42MS0xNC4yMy0xMi44LTEuNjMtMS40Mi0yLjE1LTMuMDktMi4xOC01LjA2LS4xLTgtLjItMTUuOTktLjI2LTIzLjk5LS4wNy05LjU5LS4zNy0xOS4xOS0uMDEtMjguNzcuMTgtNC43Ny0uNDktOS41NS4zMi0xNC4zLTEuMDItNC43Ny4zMi05LjUzLjA0LTE0LjMyLS4yOS00Ljc4LS4xNC05LjU5LS4yMi0xNC4zOC0uMDUtMy4yLS4wNi02LjQtLjI2LTkuNTktLjA4LTEuMjMtLjU3LTIuNDYtMS0zLjYzLS4zMy0uODktLjk0LTEuNzUtLjQxLTIuNjgsMS42Ni0yLjk0LDEuNTItNi4xMywxLjQ1LTkuMzQtLjE2LTguMzEtLjI1LTE2LjYzLS40LTI0Ljk1LS4wMy0xLjkxLS4xMi0zLjgzLS4zMy01Ljc0LS4xNC0xLjI5LS43NC0yLjQ3LTEuNzItMy4zNC0zLjM0LTIuOTYtNi43Mi01Ljg4LTEwLjA2LTguODQtLjctLjYyLS42Ni0yLjEyLDAtMi41OS43OC0uNTUsMS40Ny0xLjI1LDIuMzEtMS42OSwxLjQxLS43NSwyLjkzLTEuMjksNC4zNS0yLjAyLDQuODMtMi40OSw5LjU3LTUuMTEsMTMuMy05LjIxLjYzLS42OSwxLjQ3LTEuMjEsMi4yOC0xLjcyLDEuMTUtLjczLDIuNDEtLjg1LDMuNjMtLjE3LjgzLjQ2LDEuNzcuOSwyLjM1LDEuNjEsMy44OCw0LjczLDguNiw4LjUzLDEzLjM3LDEyLjMuNS4zOS45NC44NywxLjQsMS4zMSwxLjIsMS4xNSwxLjg2LDIuNTcsMi4wNSw0LjIxLjA3LjYzLjEsMS4yOC4wOCwxLjkyLS40NywxMS41MS0uMDYsMjMuMDIuMTQsMzQuNTMuMTYsOS4yNy4wOSwxOC41NS4xMywyNy44Mi4wNiwwLC4xMiwwLC4xOCwwLC4yNiwxMy43NS41NCwyNy40OS43Nyw0MS4yNC4wOCw0Ljc5LS40LDkuNjQuMTYsMTQuMzcuNzIsNi4wNi0uMTMsMTIuMDcuMTIsMTguMDkuMDcsMS41OC0uMDksMy4yMi0uNDcsNC43NS0uNjQsMi41NS0uMzQsNS4xLS4yNiw3LjY0LjExLDMuMzUsMS4zOCw2LjEyLDQuMjMsOC4xOSw1LjE4LDMuNzYsOS44MSw4LjE3LDE0LjQ0LDEyLjU2Ljg1LjgxLjY1LDIuNzUtLjI4LDMuNFoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xODY4LjAzLDIxNi4wOWMtMi4xMiwxLjQyLTQuMTYsMi45OC02LjQxLDQuMTUtOS4wNyw0LjcyLTE3LjkyLDkuODItMjYuODQsMTQuODEtOS4yLDUuMTMtMTguNjYsOS43OS0yNy43NywxNS4wOC0uMjcuMTYtLjYuMjEtLjkuMzEtMS4zMi40My0yLjY3LjIyLTMuNjEtLjYzLTIuMzgtMi4xMi00LjU5LTQuNDItNi44Ny02LjY3LTguODktOC43NS0xOC43NC0xNi40Mi0yNy44OC0yNC45LTEuNC0xLjMtMi44NS0yLjU4LTQuMTMtMy45OS0xLjA5LTEuMjEtMS43LTIuNjktMS40NC00LjYyLDEuMjUtNC4xNi44Ny04LjYyLjc4LTEzLjExLS4yMS0xMC44Ny0uMjMtMjEuNzQtLjM1LTMyLjYxLS4wNS00LjE1LS4yMS04LjMtLjI2LTEyLjQ2LS4wMi0xLjcuNjYtMy4wMywyLjIyLTMuOTIsOC4yOS00Ljc5LDE2LjY0LTkuNDksMjQuODMtMTQuNDcsNS4xNy0zLjE1LDEwLjctNS43MiwxNi4xLTguNDksNC41Ni0yLjMzLDkuMTEtNC42NCwxMi45LTguMi42OC0uNjQsMS42NC0uOTgsMi40OS0xLjQuOTQtLjQ2LDEuODgtLjIyLDIuNzUuMjIuNTYuMjgsMS4xLjY2LDEuNTQsMS4xMSw2LjUyLDYuNiwxNCwxMi4xMiwyMC44MywxOC4zOCw0LDMuNjcsOC4yNyw3LjA1LDEyLjQsMTAuNTcuNDguNDEuODYuOTMsMS4zLDEuNC45NSwxLjAyLjgyLDMuNC0uMjgsNC4zOC0uNzEuNjMtMS4zNywxLjQyLTIuMjEsMS44MS0zLjIzLDEuNDgtNi4wNywzLjUzLTguODEsNS43NC0uNS40LS45Ny44Ny0xLjUyLDEuMTYtNy4xMSwzLjgxLTEzLjAyLDkuMjEtMTkuMSwxNC4zOS0zLjE1LDIuNjgtNi40NCw1LjE1LTEwLjA0LDcuMy00LjM4LDIuNjEtOC4zNSw1LjktMTIuNTEsOC44OC0yLjU5LDEuODUtNS4yNCwzLjYzLTcuODIsNS41LTEuMDkuNzktMS4yMywyLjMyLS40OSwzLjQyLDIuMTUsMy4yMSw0LjYzLDYuMTMsNy44MSw4LjM2LDMuOTUsMi43Niw3LjQ3LDUuOTYsMTAuNzYsOS40OCwzLjQ4LDMuNzQsNy4zLDcuMTYsMTEuMDEsMTAuNjcuOTIuODcsMi4wMSwxLjU4LDMuMDUsMi4zMSwxLjExLjc3LDIuMzguOTksMy42My40OSwxLjE4LS40NywyLjMtMS4xLDMuNDEtMS43Myw4LjYxLTQuODksMTcuMi05LjgyLDI1LjgzLTE0LjY5LDEuMS0uNjIsMi4zNC0xLDMuNTItMS40NS42OC0uMjYsMi4wOC4yNywyLjU3Ljg5LjQ4LjYyLjI0LDIuMDItLjQ5LDIuNTJaTTE4MTIuODYsMTc5LjU3YzQuOTQtMy40OSw5LjgxLTcuMDgsMTQuNjktMTAuNjQuNzctLjU2LDEuNDYtMS4yMywyLjE3LTEuODcsMS4wNy0uOTcuOTgtMy4xNy0uMTUtNC4zLS4yMy0uMjItLjQxLS41LS42NS0uNy04LjA0LTYuNzYtMTUuODktMTMuNzMtMjMuNjktMjAuNzYtMi4xMi0xLjkxLTQuNTItMy41Mi02LjgzLTUuMjItMS4xMi0uODMtMy4zMi0uMjUtNC4xOCwxLjExLS41Ljc5LTEuMDksMS42Ni0xLjE4LDIuNTUtLjIyLDIuMjEtLjI2LDQuNDUtLjIzLDYuNjcuMDgsNi4zNy4yMywxMi43NC4zNCwxOS4xMS0uMDcsMC0uMTMsMC0uMiwwLC4xNSw3Ljk3LjMsMTUuOTMuNDYsMjMuOSwwLC4zMi4xMS42My4xNC45NS4wNy45LDEuMzcsMS42OCwyLjA2LDEuMiw1Ljc1LTMuOTksMTEuNTMtNy45NCwxNy4yNS0xMS45OVoiLz48L2c+PGcgaWQ9Il80Ij48cGF0aCBkPSJNNjQ0LjM4LDI3NS43NnYtNDAuODdoLTc2LjQ2di00MC4yOGw0OC43OC0xNzYuOTVoODAuMjd2MTc0LjE3aDEzLjc3djQzLjA3aC0xMy43N3Y0MC44N2gtNTIuNTlaTTYxMy45MiwxOTEuODNoMzAuNDdWNjEuOWwtMzAuNDcsMTI5LjkzWiIvPjwvZz48ZyBpZD0iZGF0YSI+PHBhdGggZD0iTTE4LjA0LDI3NS42MlYxNy44MWg3MC45YzE4LjU1LDAsMzIuNTIsNS4xNSw0MS44OSwxNS40NSw5LjM4LDEwLjMsMTQuMDYsMjUuMzcsMTQuMDYsNDUuMTl2MTIwLjdjMCwyNC40MS00LjI3LDQzLjI2LTEyLjgyLDU2LjU0LTguNTUsMTMuMjgtMjMuNTEsMTkuOTItNDQuOSwxOS45MkgxOC4wNFpNNjkuOSwyMzAuMDZoOC45NGM5LjQ3LDAsMTQuMjEtNC41OSwxNC4yMS0xMy43N1Y4My4yOGMwLTguNTktMS4xNS0xNC4xNC0zLjQ0LTE2LjYzLTIuMy0yLjQ5LTYuOTYtMy43My0xMy45OS0zLjczaC01LjcxdjE2Ny4xNFoiLz48cGF0aCBkPSJNMTU4Ljk2LDI3NS42MkwxODMuODYsMTcuODFoODcuNDVsMjQuNDYsMjU3LjgxaC00OC43OGwtMy42Ni00MS42aC0zMS4wNWwtMy4yMiw0MS42aC01MC4xWk0yMTUuOTQsMTkyLjg1aDIzLjQ0bC0xMS4yOC0xMzEuMWgtMi4zNGwtOS44MSwxMzEuMVoiLz48cGF0aCBkPSJNMzI5LjkxLDI3NS42MlY2Ny4zMmgtMzAuNjJWMTcuODFoMTEyLjc5djQ5LjUxaC0zMC42MnYyMDguM2gtNTEuNTZaIi8+PHBhdGggZD0iTTQxNS42LDI3NS42MmwyNC45LTI1Ny44MWg4Ny40NWwyNC40NiwyNTcuODFoLTQ4Ljc4bC0zLjY2LTQxLjZoLTMxLjA1bC0zLjIyLDQxLjZoLTUwLjFaTTQ3Mi41OCwxOTIuODVoMjMuNDRsLTExLjI4LTEzMS4xaC0yLjM0bC05LjgxLDEzMS4xWiIvPjwvZz48L2c+PC9nPjwvc3ZnPg=="></a>
+    <h1>VA prices compared with Medicare Part D prices, by drug</h1>
+    <p class="standfirst">How far the VA's Big4 price sits above or below the median price Medicare Part D plans pay, per tablet, mL or gram, for 90 of the 100 brand drugs with the most Part D claims in 2024. Hover or tap a bar for the prices.</p>
+  </header>
+
+  <div class="bar">
+    <ul class="legend" aria-label="Bar colors">
+      <li class="neg"><span class="key"></span>Has a 2026 Medicare negotiated price</li>
+      <li class="other"><span class="key"></span>Other brand drugs</li>
+    </ul>
+    <div class="seg" role="group" aria-label="Order the drugs">
+      <span>Order</span>
+      <button type="button" data-sort="pct" aria-pressed="true">By price difference</button>
+      <button type="button" data-sort="spend" aria-pressed="false">By Medicare Part D spending</button>
+    </div>
+  </div>
+
+  <div class="chartbox" id="chartbox">
+    <svg class="chart" id="chart" role="img" aria-labelledby="chart-desc"></svg>
+    <p id="chart-desc" hidden></p>
+    <div class="tip" id="tip" role="status" aria-live="polite"></div>
+  </div>
+
+  <p class="source">
+    VA: Big4 prices in effect November 1, 2026, from the VA National Acquisition Center pharmaceutical
+    price list. Big4 is the most the VA can be charged; it can pay less. Medicare: median 30-day unit cost
+    across Part D plans, CMS Quarterly Prescription Drug Plan pricing file, 2026 Q3. Part D prices are before
+    most manufacturer rebates, which are not public. Each bar is the median across the drug's packages.
+    Drugs: top 100 brands by 2024 Part D claims (CMS Medicare Part D Spending by Drug); spending is 2024 Part D
+    gross spending from the same file, before rebates. 10 drugs are not shown
+    because they have no Big4 price or no Part D price. Negotiated drugs: CMS, 2026 negotiated prices.
+    Built by <a href="https://www.data4thepeople.com">Data 4 The People</a>.
+  </p>
+
+  <details class="tbl">
+    <summary>Show the data as a table</summary>
+    <div class="tblwrap"><table id="tbl"></table></div>
+  </details>
+</div>
+
+<script>
+const DATA = [{"name":"Alvesco","generic":"Ciclesonide","neg":false,"rank":92,"claims":217395,"spend":0.035,"pct":-75.867,"lo":-77.07,"hi":-74.664,"n":2,"ex_name":"Alvesco 80 mcg/Spray Inhl, Oral,6.1 g","ex_va":10.93,"ex_pd":43.12,"ex_unit":"per gram","srank":90},{"name":"Toujeo","generic":"Insulin Glargine,Hum.Rec.Anlog","neg":false,"rank":31,"claims":1277067,"spend":1.111,"pct":-75.184,"lo":-75.188,"hi":-75.181,"n":2,"ex_name":"Toujeo Solostar Pen 300Un/mL","ex_va":22.73,"ex_pd":91.62,"ex_unit":"per mL","srank":30},{"name":"Humulin","generic":"Insulin Nph Hum/Reg Insulin Hm","neg":false,"rank":33,"claims":1223833,"spend":0.461,"pct":-54.09,"lo":-67.406,"hi":-22.067,"n":8,"ex_name":"Humulin 70/30 Inj","ex_va":2.03,"ex_pd":4.53,"ex_unit":"per mL","srank":52},{"name":"Xifaxan","generic":"Rifaximin","neg":false,"rank":59,"claims":416690,"spend":1.158,"pct":-48.943,"lo":-48.943,"hi":-36.782,"n":3,"ex_name":"Xifaxan 550 mg Tab","ex_va":33.78,"ex_pd":66.17,"ex_unit":"each","srank":26},{"name":"Symbicort","generic":"Budesonide/Formoterol Fumarate","neg":false,"rank":21,"claims":1913647,"spend":0.598,"pct":-46.872,"lo":-64.669,"hi":-23.685,"n":4,"ex_name":"Symbicort 160/4.5 Inhl Aerosol","ex_va":16.66,"ex_pd":24.33,"ex_unit":"per gram","srank":46},{"name":"Alphagan","generic":"Brimonidine Tartrate","neg":false,"rank":79,"claims":256839,"spend":0.093,"pct":-44.173,"lo":-65.377,"hi":-22.96,"n":6,"ex_name":"Alphagan P 0.1% Soln, Oph","ex_va":13.68,"ex_pd":39.49,"ex_unit":"per mL","srank":85},{"name":"Humalog","generic":"Insulin Lispro","neg":false,"rank":16,"claims":2312821,"spend":0.738,"pct":-42.516,"lo":-44.961,"hi":-1.272,"n":8,"ex_name":"Humalog Mix 50/50 Kwikpen","ex_va":6.18,"ex_pd":10.73,"ex_unit":"per mL","srank":38},{"name":"Vyzulta","generic":"Latanoprostene Bunod","neg":false,"rank":74,"claims":292207,"spend":0.128,"pct":-42.504,"lo":-43.942,"hi":-41.066,"n":2,"ex_name":"Vyzulta 0.024% Soln, Oph","ex_va":57.49,"ex_pd":102.56,"ex_unit":"per mL","srank":83},{"name":"Incruse","generic":"Umeclidinium Bromide","neg":false,"rank":37,"claims":852329,"spend":0.376,"pct":-41.675,"lo":-56.064,"hi":-27.286,"n":2,"ex_name":"Incruse Ellipta 62.5 mcg","ex_va":8.45,"ex_pd":11.62,"ex_unit":"each","srank":60},{"name":"Anoro","generic":"Umeclidinium Brm/Vilanterol Tr","neg":false,"rank":29,"claims":1383988,"spend":0.819,"pct":-41.602,"lo":-49.612,"hi":-33.593,"n":2,"ex_name":"Anoro Ellipta 62.5 mcg/25 mcg","ex_va":4.0,"ex_pd":7.93,"ex_unit":"each","srank":36},{"name":"Advair","generic":"Fluticasone Propion/Salmeterol","neg":false,"rank":36,"claims":983767,"spend":0.392,"pct":-40.393,"lo":-47.012,"hi":-24.759,"n":9,"ex_name":"Advair HFA 230 mcg/21 mcg Inhl Aerosol","ex_va":20.76,"ex_pd":34.83,"ex_unit":"per gram","srank":57},{"name":"Ubrelvy","generic":"Ubrogepant","neg":false,"rank":70,"claims":328213,"spend":0.43,"pct":-40.316,"lo":-40.316,"hi":-40.314,"n":3,"ex_name":"Ubrelvy 100 mg Tab","ex_va":65.25,"ex_pd":109.33,"ex_unit":"each","srank":54},{"name":"Lokelma","generic":"Sodium Zirconium Cyclosilicate","neg":false,"rank":68,"claims":334671,"spend":0.239,"pct":-39.031,"lo":-45.982,"hi":-32.461,"n":4,"ex_name":"Lokelma 5 g/Pkt Pwdr, R","ex_va":15.65,"ex_pd":28.36,"ex_unit":"each","srank":73},{"name":"Breztri","generic":"Budesonide/Glycopyr/Formoterol","neg":false,"rank":27,"claims":1431108,"spend":1.13,"pct":-38.079,"lo":-51.067,"hi":-25.091,"n":2,"ex_name":"Breztri 160/9/4.8 mcg Act Inh, Oral,10.7 g","ex_va":46.06,"ex_pd":61.49,"ex_unit":"per gram","srank":28},{"name":"Lantus","generic":"Insulin Glargine,Hum.Rec.Anlog","neg":false,"rank":4,"claims":6687532,"spend":0.839,"pct":-38.074,"lo":-42.443,"hi":-33.704,"n":2,"ex_name":"Lantus U-100 Insulin","ex_va":3.55,"ex_pd":6.17,"ex_unit":"per mL","srank":35},{"name":"Qulipta","generic":"Atogepant","neg":false,"rank":97,"claims":209816,"spend":0.26,"pct":-37.226,"lo":-37.316,"hi":-37.217,"n":3,"ex_name":"Qulipta 60 mg Tab","ex_va":24.21,"ex_pd":38.57,"ex_unit":"each","srank":71},{"name":"OxyContin","generic":"Oxycodone Hcl","neg":false,"rank":54,"claims":474072,"spend":0.338,"pct":-37.212,"lo":-44.566,"hi":-35.238,"n":14,"ex_name":"Oxycontin 10 mg Tab, Cr","ex_va":3.74,"ex_pd":5.98,"ex_unit":"each","srank":63},{"name":"Trelegy","generic":"Fluticasone/Umeclidin/Vilanter","neg":false,"rank":6,"claims":6250872,"spend":5.294,"pct":-36.021,"lo":-46.003,"hi":-26.433,"n":4,"ex_name":"Trelegy Ellipta 100 mcg/62.5 mcg/25 mcg","ex_va":8.21,"ex_pd":11.17,"ex_unit":"each","srank":7},{"name":"Vyvanse","generic":"Lisdexamfetamine Dimesylate","neg":false,"rank":95,"claims":212410,"spend":0.089,"pct":-34.804,"lo":-37.452,"hi":-20.826,"n":13,"ex_name":"Vyvanse","ex_va":6.77,"ex_pd":10.38,"ex_unit":"each","srank":86},{"name":"Prolia","generic":"Denosumab","neg":false,"rank":56,"claims":450858,"spend":0.772,"pct":-33.379,"lo":-33.379,"hi":-33.379,"n":2,"ex_name":"Prolia 60 mg Inj","ex_va":1228.64,"ex_pd":1844.22,"ex_unit":"per mL","srank":37},{"name":"Stiolto","generic":"Tiotropium Br/Olodaterol Hcl","neg":false,"rank":43,"claims":695441,"spend":0.449,"pct":-32.819,"lo":-32.819,"hi":-32.819,"n":1,"ex_name":"Stiolto Respimat 2.5 mcg/2.5 mcg Inhl","ex_va":78.22,"ex_pd":116.44,"ex_unit":"per gram","srank":53},{"name":"Tivicay","generic":"Dolutegravir Sodium","neg":false,"rank":82,"claims":255766,"spend":0.629,"pct":-32.795,"lo":-35.587,"hi":-30.003,"n":2,"ex_name":"Tivicay 50 mg Tab","ex_va":50.6,"ex_pd":78.55,"ex_unit":"each","srank":44},{"name":"Simbrinza","generic":"Brinzolamide/Brimonidine Tart","neg":false,"rank":73,"claims":301984,"spend":0.079,"pct":-31.696,"lo":-31.696,"hi":-31.696,"n":1,"ex_name":"Simbrinza 1%/0.2% Susp, Oph","ex_va":17.9,"ex_pd":26.2,"ex_unit":"per mL","srank":87},{"name":"Creon","generic":"Lipase/Protease/Amylase","neg":false,"rank":39,"claims":775061,"spend":1.493,"pct":-31.629,"lo":-31.646,"hi":-31.592,"n":5,"ex_name":"Creon Dr 6000 Usp","ex_va":1.45,"ex_pd":2.11,"ex_unit":"each","srank":21},{"name":"Ingrezza","generic":"Valbenazine Tosylate","neg":false,"rank":80,"claims":256085,"spend":1.966,"pct":-30.831,"lo":-31.358,"hi":-30.354,"n":6,"ex_name":"Ingrezza 40 mg Cap, Oral","ex_va":186.22,"ex_pd":269.5,"ex_unit":"each","srank":17},{"name":"Dupixent","generic":"Dupilumab","neg":false,"rank":45,"claims":621396,"spend":2.492,"pct":-30.668,"lo":-31.078,"hi":-30.544,"n":4,"ex_name":"Dupixent 300 mg/2 mL","ex_va":700.72,"ex_pd":1012.47,"ex_unit":"per mL","srank":15},{"name":"NovoLog","generic":"Insulin Aspart","neg":true,"rank":20,"claims":2154741,"spend":0.485,"pct":-30.548,"lo":-36.166,"hi":-28.297,"n":5,"ex_name":"Novolog 100 units/mL Inj 3 mL Penfill Cartridge","ex_va":5.98,"ex_pd":8.61,"ex_unit":"per mL","srank":51},{"name":"Trintellix","generic":"Vortioxetine Hydrobromide","neg":false,"rank":47,"claims":610008,"spend":0.392,"pct":-30.462,"lo":-30.489,"hi":-30.446,"n":3,"ex_name":"Trintellix 10 mg Tab","ex_va":12.01,"ex_pd":17.28,"ex_unit":"each","srank":58},{"name":"Rhopressa","generic":"Netarsudil Mesylate","neg":false,"rank":64,"claims":353836,"spend":0.168,"pct":-30.184,"lo":-30.184,"hi":-30.184,"n":1,"ex_name":"Rhopressa 0.02 %, Drops","ex_va":92.33,"ex_pd":132.25,"ex_unit":"per mL","srank":76},{"name":"Rinvoq","generic":"Upadacitinib","neg":false,"rank":100,"claims":193904,"spend":1.386,"pct":-30.182,"lo":-31.299,"hi":-30.014,"n":4,"ex_name":"Rinvoq 45 mg ER","ex_va":316.51,"ex_pd":453.88,"ex_unit":"each","srank":22},{"name":"Otezla","generic":"Apremilast","neg":false,"rank":94,"claims":213396,"spend":1.045,"pct":-30.157,"lo":-36.871,"hi":-26.075,"n":3,"ex_name":"Otezla 20 mg Tab","ex_va":65.24,"ex_pd":93.41,"ex_unit":"each","srank":32},{"name":"Rocklatan","generic":"Netarsudil Mesylat/Latanoprost","neg":false,"rank":69,"claims":329580,"spend":0.167,"pct":-30.029,"lo":-30.029,"hi":-30.029,"n":1,"ex_name":"Rocklatan 0.02%/0.005% Ophth Soln","ex_va":97.95,"ex_pd":139.98,"ex_unit":"per mL","srank":77},{"name":"Qvar","generic":"Beclomethasone Dipropionate","neg":false,"rank":90,"claims":222782,"spend":0.073,"pct":-29.731,"lo":-29.831,"hi":-29.631,"n":2,"ex_name":"Qvar 80 mcg Redihaler Inhalation Aerosol","ex_va":20.63,"ex_pd":29.32,"ex_unit":"per gram","srank":88},{"name":"Victoza","generic":"Liraglutide","neg":false,"rank":75,"claims":289589,"spend":0.281,"pct":-29.556,"lo":-33.03,"hi":-26.081,"n":2,"ex_name":"Victoza 2X Prefilled Pen","ex_va":58.74,"ex_pd":87.71,"ex_unit":"per mL","srank":68},{"name":"Vraylar","generic":"Cariprazine Hcl","neg":false,"rank":40,"claims":766962,"spend":1.136,"pct":-28.847,"lo":-30.25,"hi":-26.483,"n":8,"ex_name":"Vraylar 3 mg Capsule","ex_va":36.58,"ex_pd":51.41,"ex_unit":"each","srank":27},{"name":"Austedo","generic":"Deutetrabenazine","neg":false,"rank":86,"claims":245380,"spend":1.675,"pct":-28.581,"lo":-29.15,"hi":-28.276,"n":11,"ex_name":"Austedo 6 mg Tab","ex_va":60.63,"ex_pd":84.9,"ex_unit":"each","srank":20},{"name":"Movantik","generic":"Naloxegol Oxalate","neg":false,"rank":67,"claims":336315,"spend":0.153,"pct":-28.471,"lo":-28.486,"hi":-28.453,"n":3,"ex_name":"Movantik 25 mg Tab","ex_va":10.48,"ex_pd":14.65,"ex_unit":"each","srank":81},{"name":"Tradjenta","generic":"Linagliptin","neg":false,"rank":25,"claims":1446832,"spend":1.128,"pct":-28.317,"lo":-29.301,"hi":-22.211,"n":3,"ex_name":"Tradjenta 5 mg Tablets","ex_va":12.05,"ex_pd":16.81,"ex_unit":"each","srank":29},{"name":"Lumigan","generic":"Bimatoprost","neg":false,"rank":28,"claims":1407999,"spend":0.647,"pct":-28.295,"lo":-28.3,"hi":-28.266,"n":3,"ex_name":"Lumigan 0.01% Ophthalmic Solution","ex_va":74.25,"ex_pd":103.55,"ex_unit":"per mL","srank":43},{"name":"Revlimid","generic":"Lenalidomide","neg":false,"rank":87,"claims":239843,"spend":4.18,"pct":-28.134,"lo":-54.262,"hi":-24.917,"n":12,"ex_name":"Revlimid 2.5 mg Cap","ex_va":639.33,"ex_pd":858.43,"ex_unit":"each","srank":9},{"name":"Ventolin","generic":"Albuterol Sulfate","neg":false,"rank":17,"claims":2272575,"spend":0.153,"pct":-27.743,"lo":-32.267,"hi":-23.218,"n":2,"ex_name":"Ventolin HFA","ex_va":2.05,"ex_pd":3.03,"ex_unit":"per gram","srank":80},{"name":"Belsomra","generic":"Suvorexant","neg":false,"rank":72,"claims":315401,"spend":0.15,"pct":-27.596,"lo":-27.618,"hi":-27.488,"n":4,"ex_name":"Belsomra 10 mg Tab, Ud","ex_va":11.05,"ex_pd":15.26,"ex_unit":"each","srank":82},{"name":"Zenpep","generic":"Lipase/Protease/Amylase","neg":false,"rank":78,"claims":259162,"spend":0.597,"pct":-27.52,"lo":-29.218,"hi":-26.471,"n":8,"ex_name":"Zenpep 3,000 Unit Cap, EC","ex_va":1.63,"ex_pd":2.24,"ex_unit":"each","srank":47},{"name":"Descovy","generic":"Emtricitabine/Tenofov Alafenam","neg":false,"rank":88,"claims":238782,"spend":0.545,"pct":-27.263,"lo":-29.122,"hi":-26.683,"n":3,"ex_name":"Descovy","ex_va":54.44,"ex_pd":74.85,"ex_unit":"each","srank":48},{"name":"Admelog","generic":"Insulin Lispro","neg":false,"rank":99,"claims":198533,"spend":0.044,"pct":-27.135,"lo":-27.18,"hi":-27.089,"n":2,"ex_name":"Insulin, Lispro, Human 100 Unt/mL Inj, Admelog","ex_va":6.67,"ex_pd":9.16,"ex_unit":"per mL","srank":89},{"name":"Kerendia","generic":"Finerenone","neg":false,"rank":61,"claims":403577,"spend":0.396,"pct":-27.097,"lo":-30.983,"hi":-26.537,"n":9,"ex_name":"Kerendia 20 mg Tab","ex_va":16.69,"ex_pd":22.89,"ex_unit":"each","srank":56},{"name":"Emgality","generic":"Galcanezumab-Gnlm","neg":false,"rank":65,"claims":349412,"spend":0.305,"pct":-26.946,"lo":-27.121,"hi":-26.935,"n":3,"ex_name":"Emgality 120 mg/mL Syringe","ex_va":534.69,"ex_pd":731.91,"ex_unit":"per mL","srank":65},{"name":"Biktarvy","generic":"Bictegrav/Emtricit/Tenofov Ala","neg":false,"rank":38,"claims":840772,"spend":3.456,"pct":-26.931,"lo":-28.099,"hi":-26.255,"n":3,"ex_name":"Biktarvy 30/120/15 mg Tabs","ex_va":100.18,"ex_pd":137.1,"ex_unit":"each","srank":12},{"name":"Dulera","generic":"Mometasone/Formoterol","neg":false,"rank":63,"claims":369910,"spend":0.162,"pct":-26.767,"lo":-68.441,"hi":-25.874,"n":5,"ex_name":"Dulera 100 mcg-5 mcg","ex_va":18.99,"ex_pd":25.93,"ex_unit":"per gram","srank":79},{"name":"Ozempic","generic":"Semaglutide","neg":false,"rank":3,"claims":10417182,"spend":12.97,"pct":-26.579,"lo":-27.039,"hi":-26.488,"n":6,"ex_name":"Ozempic 4 mg Tab","ex_va":25.64,"ex_pd":34.88,"ex_unit":"each","srank":2},{"name":"Soliqua","generic":"Insulin Glargine/Lixisenatide","neg":false,"rank":77,"claims":273407,"spend":0.3,"pct":-26.561,"lo":-26.561,"hi":-26.561,"n":1,"ex_name":"Soliqua 100/33 Inj, Soln, Pen","ex_va":41.93,"ex_pd":57.09,"ex_unit":"per mL","srank":67},{"name":"Rexulti","generic":"Brexpiprazole","neg":false,"rank":49,"claims":598492,"spend":0.861,"pct":-26.394,"lo":-26.421,"hi":-26.38,"n":6,"ex_name":"Rexulti 0.25 mg Tab","ex_va":37.57,"ex_pd":51.03,"ex_unit":"each","srank":34},{"name":"Vascepa","generic":"Icosapent Ethyl","neg":false,"rank":24,"claims":1474990,"spend":0.724,"pct":-26.173,"lo":-26.307,"hi":-26.039,"n":2,"ex_name":"Vascepa 1 g Cap","ex_va":2.1,"ex_pd":2.84,"ex_unit":"each","srank":39},{"name":"Combivent","generic":"Ipratropium/Albuterol Sulfate","neg":false,"rank":48,"claims":602035,"spend":0.388,"pct":-26.17,"lo":-26.17,"hi":-26.17,"n":1,"ex_name":"Combivent Respimat/Eq 0.1/0.2 mg Inhaler","ex_va":91.95,"ex_pd":124.55,"ex_unit":"per gram","srank":59},{"name":"Nurtec","generic":"Rimegepant Sulfate","neg":false,"rank":58,"claims":426648,"spend":0.625,"pct":-25.938,"lo":-25.938,"hi":-25.938,"n":1,"ex_name":"Nurtec 75 mg Tab, Oral Disintegrating","ex_va":95.57,"ex_pd":129.04,"ex_unit":"each","srank":45},{"name":"Gemtesa","generic":"Vibegron","neg":false,"rank":30,"claims":1361795,"spend":0.945,"pct":-25.881,"lo":-26.045,"hi":-25.717,"n":2,"ex_name":"Gemtesa 75 mg Tab","ex_va":12.25,"ex_pd":16.57,"ex_unit":"each","srank":33},{"name":"Multaq","generic":"Dronedarone Hcl","neg":false,"rank":71,"claims":318776,"spend":0.415,"pct":-25.558,"lo":-25.558,"hi":-25.558,"n":1,"ex_name":"Multaq 400 mg Tab","ex_va":9.86,"ex_pd":13.25,"ex_unit":"each","srank":55},{"name":"Repatha","generic":"Evolocumab","neg":false,"rank":18,"claims":2245760,"spend":1.962,"pct":-25.351,"lo":-25.351,"hi":-25.351,"n":1,"ex_name":"Repatha 140 mg/mL","ex_va":212.06,"ex_pd":284.08,"ex_unit":"per mL","srank":18},{"name":"Premarin","generic":"Estrogens, Conjugated","neg":false,"rank":46,"claims":610592,"spend":0.255,"pct":-25.296,"lo":-25.474,"hi":-24.724,"n":9,"ex_name":"Premarin 0.625 mg Tab","ex_va":5.26,"ex_pd":7.04,"ex_unit":"each","srank":72},{"name":"Invega","generic":"Paliperidone","neg":false,"rank":42,"claims":698813,"spend":2.54,"pct":-25.181,"lo":-25.475,"hi":-25.113,"n":5,"ex_name":"Invega 9 mg Tab","ex_va":14.02,"ex_pd":18.73,"ex_unit":"each","srank":14},{"name":"Xiidra","generic":"Lifitegrast","neg":false,"rank":53,"claims":477354,"spend":0.505,"pct":-25.164,"lo":-25.164,"hi":-25.164,"n":1,"ex_name":"Xiidra 5% Opth, Soln","ex_va":8.92,"ex_pd":11.92,"ex_unit":"each","srank":49},{"name":"Mounjaro","generic":"Tirzepatide","neg":false,"rank":8,"claims":5105397,"spend":6.337,"pct":-24.458,"lo":-24.553,"hi":-24.372,"n":6,"ex_name":"Mounjaro 7.5 mg/0.5 mL Inj, Pen","ex_va":403.26,"ex_pd":534.01,"ex_unit":"per mL","srank":4},{"name":"Aimovig","generic":"Erenumab-Aooe","neg":false,"rank":66,"claims":337872,"spend":0.306,"pct":-24.318,"lo":-24.321,"hi":-24.315,"n":2,"ex_name":"Erenumab-Aooe 140 mg/mL Autoinjector,1 mL","ex_va":571.19,"ex_pd":754.75,"ex_unit":"per mL","srank":64},{"name":"Breo","generic":"Fluticasone/Vilanterol","neg":false,"rank":14,"claims":2617269,"spend":1.361,"pct":-24.087,"lo":-65.331,"hi":-23.97,"n":5,"ex_name":"Breo Ellipta Inhaler 50/25 mcg","ex_va":4.95,"ex_pd":6.52,"ex_unit":"each","srank":24},{"name":"Trulicity","generic":"Dulaglutide","neg":false,"rank":10,"claims":4305141,"spend":5.454,"pct":-23.824,"lo":-24.133,"hi":-23.673,"n":4,"ex_name":"Trulicity 3 mg/0.5 mL","ex_va":368.05,"ex_pd":482.63,"ex_unit":"per mL","srank":6},{"name":"Arnuity","generic":"Fluticasone Furoate","neg":false,"rank":44,"claims":659581,"spend":0.2,"pct":-23.72,"lo":-41.78,"hi":-23.648,"n":5,"ex_name":"Arnuity Ellipta 100 mcg","ex_va":5.1,"ex_pd":6.68,"ex_unit":"each","srank":75},{"name":"Praluent","generic":"Alirocumab","neg":false,"rank":57,"claims":442806,"spend":0.341,"pct":-23.56,"lo":-23.622,"hi":-23.497,"n":2,"ex_name":"Praluent 75 mg 2Ct Pre-Fill Pens","ex_va":192.88,"ex_pd":252.12,"ex_unit":"per mL","srank":62},{"name":"Abilify","generic":"Aripiprazole","neg":false,"rank":84,"claims":254033,"spend":0.715,"pct":-23.181,"lo":-26.938,"hi":-22.852,"n":8,"ex_name":"Abilify 10 mg Tab","ex_va":14.57,"ex_pd":18.97,"ex_unit":"each","srank":40},{"name":"Rytary","generic":"Carbidopa/Levodopa","neg":false,"rank":89,"claims":224759,"spend":0.272,"pct":-22.863,"lo":-22.935,"hi":-22.712,"n":4,"ex_name":"Rytary 36.25 mg/145 mg Cap","ex_va":3.06,"ex_pd":3.97,"ex_unit":"each","srank":70},{"name":"Xigduo","generic":"Dapaglifloz Propaned/Metformin","neg":false,"rank":93,"claims":215012,"spend":0.204,"pct":-22.689,"lo":-22.75,"hi":-22.665,"n":5,"ex_name":"Xigduo XR 10 mg/1000 mg","ex_va":14.84,"ex_pd":19.2,"ex_unit":"each","srank":74},{"name":"Spiriva","generic":"Tiotropium Bromide","neg":false,"rank":22,"claims":1895519,"spend":1.363,"pct":-22.315,"lo":-33.261,"hi":-13.235,"n":5,"ex_name":"Spiriva Respimat 2.5 mcg 60 Metered Inhalation","ex_va":98.2,"ex_pd":126.41,"ex_unit":"per gram","srank":23},{"name":"Brilinta","generic":"Ticagrelor","neg":false,"rank":35,"claims":1029007,"spend":0.685,"pct":-22.158,"lo":-22.25,"hi":-21.602,"n":3,"ex_name":"Brilinta 90 mg Tab","ex_va":5.71,"ex_pd":7.34,"ex_unit":"each","srank":41},{"name":"Combigan","generic":"Brimonidine Tartrate/Timolol","neg":false,"rank":55,"claims":465280,"spend":0.162,"pct":-22.151,"lo":-22.151,"hi":-22.143,"n":3,"ex_name":"Combigan Opth Soln","ex_va":30.56,"ex_pd":39.25,"ex_unit":"per mL","srank":78},{"name":"Basaglar","generic":"Insulin Glargine,Hum.Rec.Anlog","neg":false,"rank":23,"claims":1779494,"spend":0.665,"pct":-21.633,"lo":-21.633,"hi":-21.633,"n":1,"ex_name":"Basaglar 100 units/mL","ex_va":16.22,"ex_pd":20.69,"ex_unit":"per mL","srank":42},{"name":"Wegovy","generic":"Semaglutide","neg":false,"rank":96,"claims":211575,"spend":0.301,"pct":-21.498,"lo":-26.15,"hi":-18.403,"n":9,"ex_name":"Wegovy 2.4 mg/0.75 mL Pen","ex_va":335.55,"ex_pd":427.44,"ex_unit":"per mL","srank":66},{"name":"Invokana","generic":"Canagliflozin","neg":false,"rank":81,"claims":255843,"spend":0.272,"pct":-21.442,"lo":-21.834,"hi":-21.189,"n":4,"ex_name":"Invokana 300 mg Tab","ex_va":14.85,"ex_pd":18.92,"ex_unit":"each","srank":69},{"name":"Restasis","generic":"Cyclosporine","neg":false,"rank":26,"claims":1440983,"spend":1.354,"pct":-21.339,"lo":-21.344,"hi":-21.129,"n":3,"ex_name":"Restasis 0.05% Opth, 60'S","ex_va":8.05,"ex_pd":10.24,"ex_unit":"each","srank":25},{"name":"Janumet","generic":"Sitagliptin Phos/Metformin Hcl","neg":false,"rank":34,"claims":1126872,"spend":1.067,"pct":-14.475,"lo":-69.449,"hi":-12.497,"n":15,"ex_name":"Janumet 50/1000 mg Tab XR","ex_va":4.52,"ex_pd":5.28,"ex_unit":"each","srank":31},{"name":"Atrovent","generic":"Ipratropium Bromide","neg":false,"rank":98,"claims":200254,"spend":0.115,"pct":-13.128,"lo":-13.128,"hi":-13.128,"n":1,"ex_name":"Atrovent HFA Inhaler 200 Inhalations","ex_va":19.71,"ex_pd":22.69,"ex_unit":"per gram","srank":84},{"name":"Synjardy","generic":"Empagliflozin/Metformin Hcl","neg":false,"rank":50,"claims":498133,"spend":0.501,"pct":-6.948,"lo":-7.06,"hi":-6.889,"n":16,"ex_name":"Synjardy 5 mg/1000 mg Tab","ex_va":5.22,"ex_pd":5.61,"ex_unit":"each","srank":50},{"name":"Linzess","generic":"Linaclotide","neg":false,"rank":15,"claims":2506531,"spend":1.982,"pct":-5.779,"lo":-5.78,"hi":-5.716,"n":3,"ex_name":"Linzess 72 mcg Cap","ex_va":8.52,"ex_pd":9.04,"ex_unit":"each","srank":16},{"name":"Fiasp","generic":"Insulin Aspart (Niacinamide)","neg":true,"rank":51,"claims":487980,"spend":0.359,"pct":2.424,"lo":2.416,"hi":2.432,"n":3,"ex_name":"Insulin, Aspart, Human 100U/mL, Fiasp, Flextouch,","ex_va":9.17,"ex_pd":8.96,"ex_unit":"per mL","srank":61},{"name":"Tresiba","generic":"Insulin Degludec","neg":false,"rank":19,"claims":2227336,"spend":1.833,"pct":2.457,"lo":2.446,"hi":2.52,"n":3,"ex_name":"Tresiba Flextouch U-100","ex_va":9.29,"ex_pd":9.06,"ex_unit":"per mL","srank":19},{"name":"Eliquis","generic":"Apixaban","neg":true,"rank":1,"claims":24061332,"spend":20.775,"pct":38.256,"lo":-0.352,"hi":38.258,"n":5,"ex_name":"Eliquis 2.5 mg Tab","ex_va":5.73,"ex_pd":4.15,"ex_unit":"each","srank":1},{"name":"Jardiance","generic":"Empagliflozin","neg":true,"rank":2,"claims":11368280,"spend":11.436,"pct":53.773,"lo":53.771,"hi":53.773,"n":6,"ex_name":"Jardiance 10 mg Tab","ex_va":10.45,"ex_pd":6.79,"ex_unit":"each","srank":3},{"name":"Entresto","generic":"Sacubitril/Valsartan","neg":true,"rank":12,"claims":3898977,"spend":4.02,"pct":65.311,"lo":55.055,"hi":66.403,"n":8,"ex_name":"Entresto Fct 97 mg/103 mg","ex_va":8.66,"ex_pd":5.22,"ex_unit":"each","srank":10},{"name":"Xarelto","generic":"Rivaroxaban","neg":true,"rank":5,"claims":6660246,"spend":6.232,"pct":101.096,"lo":5.261,"hi":106.494,"n":14,"ex_name":"Xarelto 20 mg Tab","ex_va":13.74,"ex_pd":6.88,"ex_unit":"each","srank":5},{"name":"Farxiga","generic":"Dapagliflozin Propanediol","neg":true,"rank":7,"claims":5634650,"spend":5.291,"pct":104.928,"lo":90.713,"hi":107.019,"n":5,"ex_name":"Farxiga 5 mg Tab","ex_va":12.4,"ex_pd":6.05,"ex_unit":"each","srank":8},{"name":"Januvia","generic":"Sitagliptin Phosphate","neg":true,"rank":11,"claims":4027317,"spend":3.808,"pct":127.442,"lo":114.35,"hi":134.653,"n":10,"ex_name":"Januvia 50 mg Tab","ex_va":8.89,"ex_pd":3.91,"ex_unit":"each","srank":11},{"name":"Enbrel","generic":"Etanercept","neg":true,"rank":60,"claims":409277,"spend":3.226,"pct":131.39,"lo":127.023,"hi":133.435,"n":6,"ex_name":"Enbrel 50 mg/mL Sureclick Autoinjector","ex_va":1342.44,"ex_pd":583.77,"ex_unit":"per mL","srank":13}];
+const framed = window.self !== window.top;
+if (framed) document.documentElement.classList.add('embed');
+
+const svg = document.getElementById('chart');
+const box = document.getElementById('chartbox');
+const tip = document.getElementById('tip');
+const NS = 'http://www.w3.org/2000/svg';
+let order = 'pct';
+
+const fmtPct = v => { const r = Math.sign(v) * Math.round(Math.abs(v)); return (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r) + '%'; };
+const fmtB = v => '$' + (v >= 1 ? v.toFixed(1) + ' billion' : Math.round(v * 1000) + ' million');
+const fmtUSD = v => '$' + v.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const words = v => v > 0 ? `${Math.abs(v).toFixed(1)}% higher than Part D` : `${Math.abs(v).toFixed(1)}% lower than Part D`;
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+// Direct value labels only where they carry the story: negotiated drugs and the three largest gaps each way.
+const sortedPct = [...DATA].sort((a, b) => a.pct - b.pct);
+const labelled = new Set([...DATA.filter(d => d.neg).map(d => d.name),
+  ...sortedPct.slice(0, 3).map(d => d.name), ...sortedPct.filter(d => !d.neg).slice(-1).map(d => d.name)]);
+
+// A bar anchored at x0 with a 4px rounded data end only.
+function barPath(x0, x1, y, h) {
+  const r = Math.min(4, Math.abs(x1 - x0), h / 2);
+  if (x1 >= x0) return `M${x0},${y}H${x1 - r}Q${x1},${y} ${x1},${y + r}V${y + h - r}Q${x1},${y + h} ${x1 - r},${y + h}H${x0}Z`;
+  return `M${x0},${y}H${x1 + r}Q${x1},${y} ${x1},${y + r}V${y + h - r}Q${x1},${y + h} ${x1 + r},${y + h}H${x0}Z`;
+}
+
+function draw() {
+  const W = box.clientWidth;
+  const narrow = W < 560;
+  const rowH = narrow ? 15 : 16, barH = narrow ? 9 : 10;
+  const labW = narrow ? 82 : 128, padR = narrow ? 44 : 52, top = 46, bottom = 30;
+  const rows = [...DATA].sort(order === 'pct' ? (a, b) => a.pct - b.pct : (a, b) => b.spend - a.spend);
+  const H = top + rows.length * rowH + bottom;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.classList.toggle('narrow', narrow);
+  svg.setAttribute('height', H);
+  svg.innerHTML = '';
+
+  const lo = narrow ? -118 : -100, hi = 140;
+  const x = v => labW + (v - lo) / (hi - lo) * (W - labW - padR);
+  const ticks = narrow ? [-50, 0, 50, 100] : [-75, -50, -25, 0, 25, 50, 75, 100, 125];
+
+  const g = el('g', {}, svg);
+  for (const t of ticks) {
+    el('line', {class: t === 0 ? 'zero' : 'grid', x1: x(t), x2: x(t), y1: top - 6, y2: H - bottom + 4}, g);
+    for (const ty of [top - 12, H - bottom + 18]) {
+      const tx = el('text', {class: 'tick', x: x(t), y: ty, 'text-anchor': 'middle'}, g);
+      tx.textContent = t === 0 ? '0' : fmtPct(t);
+    }
+  }
+  const lft = el('text', {class: 'dir', x: x(0) - 8, y: 14, 'text-anchor': 'end'}, g);
+  lft.textContent = '← VA pays less';
+  const rgt = el('text', {class: 'dir', x: x(0) + 8, y: 14}, g);
+  rgt.textContent = 'VA pays more →';
+
+  rows.forEach((d, i) => {
+    const y = top + i * rowH;
+    const row = el('g', {class: 'row', tabindex: 0, role: 'listitem',
+      'aria-label': `${d.name}: VA price ${words(d.pct)}${d.neg ? ', has a Medicare negotiated price' : ''}`}, svg);
+    el('rect', {class: 'band', x: 0, y, width: W, height: rowH}, row);
+    const nm = el('text', {class: 'name' + (d.neg ? ' isneg' : ''), x: labW - 8, y: y + rowH / 2 + 4, 'text-anchor': 'end'}, row);
+    nm.textContent = d.name;
+    el('path', {class: d.neg ? 'bar-neg' : 'bar-other', d: barPath(x(0), x(d.pct), y + (rowH - barH) / 2, barH)}, row);
+    if (labelled.has(d.name)) {
+      const pos = d.pct >= 0;
+      const v = el('text', {class: 'val' + (d.neg ? ' isneg' : ''), x: x(d.pct) + (pos ? 5 : -5), y: y + rowH / 2 + 4,
+        'text-anchor': pos ? 'start' : 'end'}, row);
+      v.textContent = fmtPct(d.pct);
+    }
+    const show = ev => { svg.querySelectorAll('.row.hover').forEach(r => r.classList.remove('hover')); row.classList.add('hover'); tipShow(d, ev, y); };
+    row.addEventListener('mouseenter', show);
+    row.addEventListener('mousemove', show);
+    row.addEventListener('focus', show);
+    row.addEventListener('click', show);
+    row.addEventListener('mouseleave', hide);
+    row.addEventListener('blur', hide);
+  });
+  svg.setAttribute('role', 'list');
+  document.getElementById('chart-desc').textContent =
+    `Bar chart of ${rows.length} brand drugs. The VA's Big4 price is lower than the Medicare Part D price for ` +
+    `${rows.filter(d => d.pct < 0).length} and higher for ${rows.filter(d => d.pct > 0).length}.`;
+}
+
+function tipShow(d, ev, y) {
+  const range = d.n > 1 ? `<div class="row">Range across ${d.n} packages: ${fmtPct(d.lo)} to ${fmtPct(d.hi)}</div>` : '';
+  tip.innerHTML =
+    `<span class="tname">${d.name}</span><span class="tgen">${d.generic} · ${fmtB(d.spend)} in 2024 Part D spending (#${d.srank} of ${DATA.length})</span>` +
+    `<span class="big">VA ${words(d.pct)}</span>` +
+    (d.neg ? `<br><span class="tag">Has a 2026 Medicare negotiated price</span>` : '') +
+    range +
+    `<div class="row">Example, ${d.ex_name}:<br>VA ${fmtUSD(d.ex_va)} vs Part D ${fmtUSD(d.ex_pd)} ${d.ex_unit}</div>` +
+    `<div class="note">Median across packages${d.n > 1 ? '' : ' (one package)'}. VA is the Big4 price, Part D is the median plan price.</div>`;
+  tip.classList.add('on');
+  const bw = box.clientWidth, tw = tip.offsetWidth, th = tip.offsetHeight;
+  const bx = box.getBoundingClientRect();
+  let left = ev && ev.clientX ? ev.clientX - bx.left + 14 : bw / 2 - tw / 2;
+  if (left + tw > bw) left = (ev && ev.clientX ? ev.clientX - bx.left : bw) - tw - 14;
+  left = Math.max(0, left);
+  let topPx = y + 22;
+  if (topPx + th > svg.clientHeight + box.scrollTop) topPx = y - th - 4;
+  tip.style.left = left + 'px';
+  tip.style.top = Math.max(0, topPx) + 'px';
+}
+function hide() { tip.classList.remove('on'); svg.querySelectorAll('.row.hover').forEach(r => r.classList.remove('hover')); }
+
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  order = b.dataset.sort;
+  document.querySelectorAll('.seg button').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+  hide(); draw();
+}));
+
+// table view
+const tbl = document.getElementById('tbl');
+tbl.innerHTML = '<thead><tr><th>Drug</th><th>Generic</th><th>Negotiated price</th><th>2024 Part D spending</th><th>Spending rank</th><th>Claims rank</th>' +
+  '<th>VA vs Part D (median)</th><th>Lowest package</th><th>Highest package</th><th>Packages</th></tr></thead><tbody>' +
+  [...DATA].sort((a, b) => b.spend - a.spend).map(d =>
+    `<tr><td>${d.name}</td><td style="text-align:left">${d.generic}</td><td>${d.neg ? 'Yes' : ''}</td><td>${fmtB(d.spend)}</td><td>${d.srank}</td><td>${d.rank}</td>` +
+    `<td>${fmtPct(d.pct)}</td><td>${fmtPct(d.lo)}</td><td>${fmtPct(d.hi)}</td><td>${d.n}</td></tr>`).join('') + '</tbody>';
+
+draw();
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 80); });
+</script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VA vs Medicare Drug Prices</title>
+<meta name="description" content="Percent difference between the VA's Big4 price and the median Medicare Part D plan price, per unit, for 90 of the 100 brand drugs with the most Part D claims in 2024.">
+<style>
+/* Plain white scheme, painted explicitly so the page holds inside the Prismic frame
+   whatever the viewer's OS theme. */
+:root {
+  --bg:    #ffffff;
+  --panel: #ffffff;
+  --ink:   #14181d;
+  --muted: #5b6470;
+  --grid:  #cfd4da;
+  --hair:  #e9ecef;
+  --neg:   #eb6834;   /* drugs with a 2026 Medicare negotiated price (validated: 3.2:1 on white) */
+  --other: #8a929b;   /* all other brands (3.15:1 on white; CVD dE >= 13.6 vs --neg) */
+  --wash:  #f2f4f6;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 980px; margin: 0 auto; padding: 24px 24px 40px;
+  container-type: inline-size;
+  display: flex; flex-direction: column;
+}
+header.masthead { border-bottom: 1px solid var(--grid); padding-bottom: 12px; }
+.logo { height: 24px; width: auto; display: block; margin-bottom: 12px; }
+h1 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+.standfirst { font-size: 15px; color: var(--muted); margin: 0; max-width: 72ch; }
+
+.bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 8px 24px; margin: 12px 0 8px; font-size: 14px;
+}
+.legend { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 0; padding: 0; list-style: none; }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.legend .neg { font-weight: 600; }
+.legend .key { display: inline-block; width: 14px; height: 10px; border-radius: 2px; flex: 0 0 14px; }
+.legend .neg .key { background: var(--neg); }
+.legend .other .key { background: var(--other); }
+
+.seg { display: inline-flex; border: 1px solid var(--grid); border-radius: 6px; overflow: hidden; font-size: 13px; }
+.seg span { padding: 5px 10px 5px 10px; color: var(--muted); }
+.seg button {
+  font: inherit; border: 0; border-left: 1px solid var(--grid); background: var(--panel); color: var(--ink);
+  padding: 5px 12px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.seg button:focus-visible { outline: 2px solid var(--neg); outline-offset: -2px; }
+
+.chartbox { position: relative; }
+svg.chart { display: block; width: 100%; background: var(--panel); }
+.chart text { font-family: var(--sans); fill: var(--muted); font-size: 12px; }
+.chart .tick { font-variant-numeric: tabular-nums; }
+.chart .grid { stroke: var(--hair); stroke-width: 1; }
+.chart .zero { stroke: var(--ink); stroke-width: 1; }
+.chart .name { fill: var(--ink); font-size: 12px; }
+.chart .name.isneg { font-weight: 700; }
+.chart .val { fill: var(--ink); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.chart .val.isneg { font-weight: 700; }
+.chart.narrow .val { font-size: 10.5px; }
+.chart.narrow .name { font-size: 11.5px; }
+.chart .dir { fill: var(--muted); font-size: 12px; font-weight: 600; }
+.chart .row.hover .band { fill: var(--wash); }
+.chart .band { fill: transparent; }
+.chart .bar-neg { fill: var(--neg); }
+.chart .bar-other { fill: var(--other); }
+
+.tip {
+  position: absolute; pointer-events: none; z-index: 5;
+  min-width: 230px; max-width: 320px; padding: 10px 12px;
+  background: var(--ink); color: #fff;
+  border-radius: 6px; font-size: 13.5px; line-height: 1.4;
+  box-shadow: 0 6px 20px rgba(20,24,29,.25);
+  opacity: 0; transition: opacity .1s;
+}
+.tip.on { opacity: 1; }
+.tip .tname { font-weight: 700; display: block; }
+.tip .tgen { color: #b8c0c9; font-size: 12.5px; display: block; margin-bottom: 6px; }
+.tip .big { font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; }
+.tip .tag { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 600; color: #f4a077; }
+.tip .row { margin: 3px 0 0; font-variant-numeric: tabular-nums; }
+.tip .note { color: #b8c0c9; font-size: 12px; margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+
+.source { font-size: 12.5px; color: var(--muted); margin: 12px 0 0; max-width: 90ch; }
+.source a { color: var(--ink); }
+
+details.tbl { margin-top: 16px; font-size: 13.5px; }
+details.tbl summary { cursor: pointer; color: var(--muted); }
+details.tbl summary:focus-visible { outline: 2px solid var(--neg); }
+.tblwrap { overflow-x: auto; margin-top: 8px; max-height: 420px; overflow-y: auto; border: 1px solid var(--grid); }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 4px 10px; border-bottom: 1px solid var(--hair); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { position: sticky; top: 0; background: var(--panel); font-weight: 700; }
+
+/* Inside the Prismic frame: fill the frame, trim the chrome; the chart scrolls inside its box. */
+html.embed, html.embed body { height: 100%; overflow: hidden; }
+html.embed .wrap { height: 100%; padding: 12px 14px 10px; }
+html.embed .logo { height: 18px; margin-bottom: 6px; }
+html.embed h1 { font-size: 20px; margin-bottom: 4px; }
+html.embed .standfirst { font-size: 13px; }
+html.embed .bar { margin: 8px 0 6px; font-size: 13px; }
+html.embed .chartbox { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+html.embed details.tbl { display: none; }
+html.embed .source { font-size: 11.5px; margin-top: 6px; line-height: 1.35; }
+
+@container (max-width: 640px) {
+  h1 { font-size: 20px; }
+  .standfirst { font-size: 13.5px; }
+  .legend { gap: 2px 14px; font-size: 13px; }
+}
+@container (max-width: 640px) {
+  html.embed .standfirst { display: none; }
+  html.embed .source { font-size: 10.5px; }
+}
+@media (max-width: 640px) {
+  .wrap { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <a href="https://www.data4thepeople.com" aria-label="Data 4 The People"><img class="logo" alt="Data 4 The People" src="__LOGO__"></a>
+    <h1>VA prices compared with Medicare Part D prices, by drug</h1>
+    <p class="standfirst">How far the VA's Big4 price sits above or below the median price Medicare Part D plans pay, per tablet, mL or gram, for 90 of the 100 brand drugs with the most Part D claims in 2024. Hover or tap a bar for the prices.</p>
+  </header>
+
+  <div class="bar">
+    <ul class="legend" aria-label="Bar colors">
+      <li class="neg"><span class="key"></span>Has a 2026 Medicare negotiated price</li>
+      <li class="other"><span class="key"></span>Other brand drugs</li>
+    </ul>
+    <div class="seg" role="group" aria-label="Order the drugs">
+      <span>Order</span>
+      <button type="button" data-sort="pct" aria-pressed="true">By price difference</button>
+      <button type="button" data-sort="spend" aria-pressed="false">By Medicare Part D spending</button>
+    </div>
+  </div>
+
+  <div class="chartbox" id="chartbox">
+    <svg class="chart" id="chart" role="img" aria-labelledby="chart-desc"></svg>
+    <p id="chart-desc" hidden></p>
+    <div class="tip" id="tip" role="status" aria-live="polite"></div>
+  </div>
+
+  <p class="source">
+    VA: Big4 prices in effect November 1, 2026, from the VA National Acquisition Center pharmaceutical
+    price list. Big4 is the most the VA can be charged; it can pay less. Medicare: median 30-day unit cost
+    across Part D plans, CMS Quarterly Prescription Drug Plan pricing file, 2026 Q3. Part D prices are before
+    most manufacturer rebates, which are not public. Each bar is the median across the drug's packages.
+    Drugs: top 100 brands by 2024 Part D claims (CMS Medicare Part D Spending by Drug); spending is 2024 Part D
+    gross spending from the same file, before rebates. 10 drugs are not shown
+    because they have no Big4 price or no Part D price. Negotiated drugs: CMS, 2026 negotiated prices.
+    Built by <a href="https://www.data4thepeople.com">Data 4 The People</a>.
+  </p>
+
+  <details class="tbl">
+    <summary>Show the data as a table</summary>
+    <div class="tblwrap"><table id="tbl"></table></div>
+  </details>
+</div>
+
+<script>
+const DATA = /*__DATA__*/[];
+const framed = window.self !== window.top;
+if (framed) document.documentElement.classList.add('embed');
+
+const svg = document.getElementById('chart');
+const box = document.getElementById('chartbox');
+const tip = document.getElementById('tip');
+const NS = 'http://www.w3.org/2000/svg';
+let order = 'pct';
+
+const fmtPct = v => { const r = Math.sign(v) * Math.round(Math.abs(v)); return (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r) + '%'; };
+const fmtB = v => '$' + (v >= 1 ? v.toFixed(1) + ' billion' : Math.round(v * 1000) + ' million');
+const fmtUSD = v => '$' + v.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const words = v => v > 0 ? `${Math.abs(v).toFixed(1)}% higher than Part D` : `${Math.abs(v).toFixed(1)}% lower than Part D`;
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+// Direct value labels only where they carry the story: negotiated drugs and the three largest gaps each way.
+const sortedPct = [...DATA].sort((a, b) => a.pct - b.pct);
+const labelled = new Set([...DATA.filter(d => d.neg).map(d => d.name),
+  ...sortedPct.slice(0, 3).map(d => d.name), ...sortedPct.filter(d => !d.neg).slice(-1).map(d => d.name)]);
+
+// A bar anchored at x0 with a 4px rounded data end only.
+function barPath(x0, x1, y, h) {
+  const r = Math.min(4, Math.abs(x1 - x0), h / 2);
+  if (x1 >= x0) return `M${x0},${y}H${x1 - r}Q${x1},${y} ${x1},${y + r}V${y + h - r}Q${x1},${y + h} ${x1 - r},${y + h}H${x0}Z`;
+  return `M${x0},${y}H${x1 + r}Q${x1},${y} ${x1},${y + r}V${y + h - r}Q${x1},${y + h} ${x1 + r},${y + h}H${x0}Z`;
+}
+
+function draw() {
+  const W = box.clientWidth;
+  const narrow = W < 560;
+  const rowH = narrow ? 15 : 16, barH = narrow ? 9 : 10;
+  const labW = narrow ? 82 : 128, padR = narrow ? 44 : 52, top = 46, bottom = 30;
+  const rows = [...DATA].sort(order === 'pct' ? (a, b) => a.pct - b.pct : (a, b) => b.spend - a.spend);
+  const H = top + rows.length * rowH + bottom;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.classList.toggle('narrow', narrow);
+  svg.setAttribute('height', H);
+  svg.innerHTML = '';
+
+  const lo = narrow ? -118 : -100, hi = 140;
+  const x = v => labW + (v - lo) / (hi - lo) * (W - labW - padR);
+  const ticks = narrow ? [-50, 0, 50, 100] : [-75, -50, -25, 0, 25, 50, 75, 100, 125];
+
+  const g = el('g', {}, svg);
+  for (const t of ticks) {
+    el('line', {class: t === 0 ? 'zero' : 'grid', x1: x(t), x2: x(t), y1: top - 6, y2: H - bottom + 4}, g);
+    for (const ty of [top - 12, H - bottom + 18]) {
+      const tx = el('text', {class: 'tick', x: x(t), y: ty, 'text-anchor': 'middle'}, g);
+      tx.textContent = t === 0 ? '0' : fmtPct(t);
+    }
+  }
+  const lft = el('text', {class: 'dir', x: x(0) - 8, y: 14, 'text-anchor': 'end'}, g);
+  lft.textContent = '← VA pays less';
+  const rgt = el('text', {class: 'dir', x: x(0) + 8, y: 14}, g);
+  rgt.textContent = 'VA pays more →';
+
+  rows.forEach((d, i) => {
+    const y = top + i * rowH;
+    const row = el('g', {class: 'row', tabindex: 0, role: 'listitem',
+      'aria-label': `${d.name}: VA price ${words(d.pct)}${d.neg ? ', has a Medicare negotiated price' : ''}`}, svg);
+    el('rect', {class: 'band', x: 0, y, width: W, height: rowH}, row);
+    const nm = el('text', {class: 'name' + (d.neg ? ' isneg' : ''), x: labW - 8, y: y + rowH / 2 + 4, 'text-anchor': 'end'}, row);
+    nm.textContent = d.name;
+    el('path', {class: d.neg ? 'bar-neg' : 'bar-other', d: barPath(x(0), x(d.pct), y + (rowH - barH) / 2, barH)}, row);
+    if (labelled.has(d.name)) {
+      const pos = d.pct >= 0;
+      const v = el('text', {class: 'val' + (d.neg ? ' isneg' : ''), x: x(d.pct) + (pos ? 5 : -5), y: y + rowH / 2 + 4,
+        'text-anchor': pos ? 'start' : 'end'}, row);
+      v.textContent = fmtPct(d.pct);
+    }
+    const show = ev => { svg.querySelectorAll('.row.hover').forEach(r => r.classList.remove('hover')); row.classList.add('hover'); tipShow(d, ev, y); };
+    row.addEventListener('mouseenter', show);
+    row.addEventListener('mousemove', show);
+    row.addEventListener('focus', show);
+    row.addEventListener('click', show);
+    row.addEventListener('mouseleave', hide);
+    row.addEventListener('blur', hide);
+  });
+  svg.setAttribute('role', 'list');
+  document.getElementById('chart-desc').textContent =
+    `Bar chart of ${rows.length} brand drugs. The VA's Big4 price is lower than the Medicare Part D price for ` +
+    `${rows.filter(d => d.pct < 0).length} and higher for ${rows.filter(d => d.pct > 0).length}.`;
+}
+
+function tipShow(d, ev, y) {
+  const range = d.n > 1 ? `<div class="row">Range across ${d.n} packages: ${fmtPct(d.lo)} to ${fmtPct(d.hi)}</div>` : '';
+  tip.innerHTML =
+    `<span class="tname">${d.name}</span><span class="tgen">${d.generic} · ${fmtB(d.spend)} in 2024 Part D spending (#${d.srank} of ${DATA.length})</span>` +
+    `<span class="big">VA ${words(d.pct)}</span>` +
+    (d.neg ? `<br><span class="tag">Has a 2026 Medicare negotiated price</span>` : '') +
+    range +
+    `<div class="row">Example, ${d.ex_name}:<br>VA ${fmtUSD(d.ex_va)} vs Part D ${fmtUSD(d.ex_pd)} ${d.ex_unit}</div>` +
+    `<div class="note">Median across packages${d.n > 1 ? '' : ' (one package)'}. VA is the Big4 price, Part D is the median plan price.</div>`;
+  tip.classList.add('on');
+  const bw = box.clientWidth, tw = tip.offsetWidth, th = tip.offsetHeight;
+  const bx = box.getBoundingClientRect();
+  let left = ev && ev.clientX ? ev.clientX - bx.left + 14 : bw / 2 - tw / 2;
+  if (left + tw > bw) left = (ev && ev.clientX ? ev.clientX - bx.left : bw) - tw - 14;
+  left = Math.max(0, left);
+  let topPx = y + 22;
+  if (topPx + th > svg.clientHeight + box.scrollTop) topPx = y - th - 4;
+  tip.style.left = left + 'px';
+  tip.style.top = Math.max(0, topPx) + 'px';
+}
+function hide() { tip.classList.remove('on'); svg.querySelectorAll('.row.hover').forEach(r => r.classList.remove('hover')); }
+
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  order = b.dataset.sort;
+  document.querySelectorAll('.seg button').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+  hide(); draw();
+}));
+
+// table view
+const tbl = document.getElementById('tbl');
+tbl.innerHTML = '<thead><tr><th>Drug</th><th>Generic</th><th>Negotiated price</th><th>2024 Part D spending</th><th>Spending rank</th><th>Claims rank</th>' +
+  '<th>VA vs Part D (median)</th><th>Lowest package</th><th>Highest package</th><th>Packages</th></tr></thead><tbody>' +
+  [...DATA].sort((a, b) => b.spend - a.spend).map(d =>
+    `<tr><td>${d.name}</td><td style="text-align:left">${d.generic}</td><td>${d.neg ? 'Yes' : ''}</td><td>${fmtB(d.spend)}</td><td>${d.srank}</td><td>${d.rank}</td>` +
+    `<td>${fmtPct(d.pct)}</td><td>${fmtPct(d.lo)}</td><td>${fmtPct(d.hi)}</td><td>${d.n}</td></tr>`).join('') + '</tbody>';
+
+draw();
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 80); });
+</script>
+</body>
+</html>
