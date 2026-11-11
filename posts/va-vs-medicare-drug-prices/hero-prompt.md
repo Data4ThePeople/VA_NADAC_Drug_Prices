@@ -3,54 +3,44 @@
 Target: 1680x1080 landscape. Generate wide (3:2 or 16:9), at least 1680 pixels wide so `hero fit` does not
 have to upscale; the crop is done with `~/.claude/d4tp-process/hero fit`.
 
-Eric's idea: the Korean War memorial soldiers walking through a large pharmacy. The memorial's statues are
-under copyright (Gaylord v. United States, 2010), so these prompts ask for new figures that call the memorial
-to mind without copying it: no statues, no steel, no memorial named in the prompt.
+Eric's idea: a veteran at a pharmacy counter paying the copay in cash, so the reader can see it is $11. The
+VA's copay for a 30-day supply of a brand-name drug is $11 in 2026 (VA copay rates, DATASETS.md). The image
+is symbolic: the VA bills copays afterward, and many VA prescriptions come by mail. So the prompts show a
+plain pharmacy with no VA seal or signage, and the $11 is shown twice (a $10 bill and a $1 bill, and a
+register display), in case the generator garbles the numbers.
 
-## Prompt 1 (photo)
+## Prompt 1 (photo, older veteran)
 
-Photorealistic wide shot, eye level, of a squad of about eight American soldiers from the early 1950s on
-patrol, walking in a loose, spaced-out line down the long main aisle of a huge, brightly lit modern pharmacy.
-They wear olive drab rain ponchos over their gear, M1 steel helmets and combat boots, and carry M1 rifles
-pointed down. They look tired and alert, scanning the shelves on both sides as if crossing open ground. The
-shelves run deep into the distance, stacked with rows of white and amber pill bottles and boxes of medicine.
-At the far end, a pharmacy counter glows under the lights. Cool fluorescent light from above, a polished
-floor with soft reflections, light haze. Muted colors: the olive ponchos stand out against the clean white
-and pale blue store. Cinematic, 35mm lens, shallow depth of field on the far shelves.
+Photorealistic, wide landscape, warm and calm. An older American veteran in his seventies stands at a
+pharmacy counter, seen from the side and slightly behind his shoulder. He wears a dark navy veteran's ball cap
+with a plain embroidered service ribbon and no words, and a tan jacket. With one hand he lays a ten-dollar
+bill and a one-dollar bill flat on the counter, in sharp focus. Next to the bills, a small white paper
+pharmacy bag sits on the counter. A friendly pharmacist in a white coat stands behind the counter, softly out
+of focus. A small customer-facing register display on the counter reads "$11.00" in clear green digits.
+Shelves of medicine fill the background, blurred. Soft, natural light, shallow depth of field, 50mm lens.
+The veteran and the bills fill the left two-thirds of the frame; the register and pharmacist are on the right.
 
-Avoid: statues, metal or stainless-steel figures, stone, monuments, memorial walls, flags, any readable
-text, signs with words, prices, logos, real store or drug brands.
+Avoid: any text other than "$11.00", VA seals or logos, flags, store names, real drug or store brands,
+signs with words.
 
-## Prompt 2 (variant: painted editorial illustration)
+## Prompt 2 (variant: close on the counter)
 
-Editorial illustration in a painterly, realistic style, muted palette of olive, gray and soft white. A
-column of Korean War-era American infantrymen in rain ponchos and steel helmets walks single file through a
-vast pharmacy, between towering shelves of pill bottles and medicine boxes that rise like canyon walls. Seen
-from a low angle at the side of the aisle, the line of soldiers recedes toward a glowing pharmacy counter at
-the back. Overcast, quiet mood, light rain-like haze in the air. Wide landscape composition with the soldiers
-across the middle third of the frame and room above them for the shelves.
+Photorealistic, wide landscape. Close view of a pharmacy counter at eye level. The weathered hands of an
+older veteran place a ten-dollar bill and a one-dollar bill on the counter. The sleeve of an olive green
+military-style field jacket shows at the wrist. A white paper pharmacy bag with a stapled prescription
+receipt sits beside the bills. A customer-facing register display reads "$11.00". Behind the counter, a
+pharmacist in a white coat is out of focus, with blurred shelves of medicine. Warm, soft light, shallow
+depth of field.
 
-Avoid: statues, metal or stainless-steel figures, monuments, flags, any readable text, logos, real store or
-drug brands.
+Avoid: any text other than "$11.00", VA seals or logos, flags, faces in sharp focus, store names, real drug
+or store brands, signs with words.
 
-## Prompt 3 (variant: the counter)
+## Prompt 3 (variant: woman veteran)
 
-Photorealistic, wide landscape. A patrol of American soldiers from the Korean War era, in olive drab
-ponchos and steel helmets, has just reached the end of a long pharmacy aisle and stands spread out in front
-of a modern pharmacy counter, as a pharmacist in a white coat looks up from behind it. Shelves of pill
-bottles fill both sides and the background. Soft fluorescent light, muted colors, calm and serious mood.
-The soldiers fill the left two-thirds of the frame; the counter and pharmacist are on the right.
-
-Avoid: statues, metal or stainless-steel figures, monuments, flags, any readable text, signs with words,
-prices, logos, real store or drug brands.
+Same as Prompt 1, but the veteran is a woman in her sixties with short gray hair, wearing a dark veteran's
+ball cap with a plain embroidered service ribbon and no words, and a denim jacket.
 
 ## Chosen
 
-Prompt 1, generated by Eric in Gemini (2752x1536). Cropped from the center with `hero fit` to
-`images/va-vs-medicare-drug-prices-hero-1680x1080.png`; about 180 pixels come off each side.
-
-File: images/va-vs-medicare-drug-prices-hero-source.jpg
-Alt (under 500 characters): AI-generated image of two lines of young American soldiers from the Korean War
-era, in olive green rain ponchos and steel helmets and carrying rifles, walking down the main aisle of a
-large, brightly lit pharmacy. Shelves of white and amber pill bottles and medicine boxes line both sides, and
-an empty pharmacy counter glows at the far end.
+File: images/va-vs-medicare-drug-prices-hero-source.<ext>
+Alt (under 500 characters): written once the image is chosen.

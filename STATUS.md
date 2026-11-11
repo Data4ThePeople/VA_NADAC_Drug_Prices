@@ -6,7 +6,7 @@ Process: ~/.claude/d4tp-process/PROCESS.md
 ## Current
 
 Post: va-vs-medicare-drug-prices
-Step: 2g
+Step: 2d
 Since: 2026-11-11
 
 ## Steps
@@ -24,7 +24,9 @@ Since: 2026-11-11
 
 ## Stale
 
-None.
+- 2e, 2f (confirmed 2026-11-11): stale since 2026-11-11. Eric wants a new hero (a veteran paying the $11
+  copay in cash at a pharmacy counter); the SEO image and the Prismic draft carry the old hero.
+- 2g (in progress, not confirmed): the email hero export uses the old hero.
 
 ## Log
 
@@ -92,3 +94,9 @@ None.
 - 2026-11-11 Step 2f: dry run clean, then pushed. Draft created in the Migration Release (not live), 45 slices,
   hero uploaded as featured and meta image, tags and author empty. Not read back (no Content API read token).
   Step 2f confirmed by Eric. Next: 2g, Mailchimp teaser with a static image of the generic tier chart.
+- 2026-11-11 Step 2g: edits 45 and 46 accepted ("Before that, they pay the plan’s full price for the drug." in the
+  email and the post). Draft re-pushed to Prismic (same document, Migration Release); Eric's only Prismic edit was
+  the Marshalls sentence, already in POST.md.
+- 2026-11-11 Back to 2d: Eric asked for a new hero, a veteran at a pharmacy counter paying the copay in cash
+  ($11). 2e and 2f marked stale; 2g's email hero needs re-exporting. EMAIL.md, the static generic tier chart
+  and edits 45 and 46 are kept.
