@@ -6,7 +6,7 @@ Process: ~/.claude/d4tp-process/PROCESS.md
 ## Current
 
 Post: va-vs-medicare-drug-prices
-Step: 2c
+Step: 2d
 Since: 2026-11-11
 
 ## Steps
@@ -16,7 +16,7 @@ Since: 2026-11-11
 | 1  | Exploration and analysis | 2026-11-11 | Re-confirmed after the Humira fix (first confirmed 2026-11-10). 89 brands, 415 NDCs; dist/index.html, dist/negotiated-30day.html, dist/part-d-rebates.html, dist/generic-tiers.html, dist/patient-cost.html |
 | 2a | Draft with brackets resolved | 2026-11-11 | Edits 1-17, 22-30 accepted; four chart embeds; repo public, Pages on |
 | 2b | Eric's edit, Claude's look-over | 2026-11-11 | Edits 31-40, 42, 43 accepted (41 folded into 40); section headers; 46brooklyn link; new CMS enrollment source |
-| 2c | Slice markup | | |
+| 2c | Slice markup | 2026-11-11 | 41 slices; no markup changes needed |
 | 2d | Hero 1680x1080 + alt text | | |
 | 2e | SEO | | |
 | 2f | Pushed to Prismic (draft) | | |
@@ -76,3 +76,7 @@ None.
   by Plan, October 2026 (`scripts/parent_orgs.py`): the 5,295 plans cover about 48 million people, 76% in plans
   of the five largest parent companies. Own tie-out 2,243 OK, 0 DIFF; fourth independent tie-out matched the new
   claim. Step 2b confirmed by Eric. Next: 2c, slice markup.
+- 2026-11-11 Step 2c: convert-only run, 41 slices (blurb, drop cap, four embeds at measured heights, six
+  headings with 5px spacers, 20px after embeds and 40px before a heading). No markup changes needed. Step 2c
+  confirmed by Eric. Next: 2d, hero. Eric's idea: Korean War soldiers walking through a large pharmacy. The
+  memorial's statues are under copyright (Gaylord v. United States, 2010), so the prompt uses new figures.
