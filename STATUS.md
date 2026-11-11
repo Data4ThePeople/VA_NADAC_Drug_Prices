@@ -6,7 +6,7 @@ Process: ~/.claude/d4tp-process/PROCESS.md
 ## Current
 
 Post: va-vs-medicare-drug-prices
-Step: 2g
+Step: complete
 Since: 2026-11-11
 
 ## Steps
@@ -20,7 +20,7 @@ Since: 2026-11-11
 | 2d | Hero 1680x1080 + alt text | 2026-11-11 | Re-done: new hero, veteran paying $11 in cash (Gemini, prompt 1), crop window shifted right; alt 352 characters |
 | 2e | SEO | 2026-11-11 | Re-checked with the new hero, no changes. Six target searches; meta title, description, 8 keywords; Article schema; edit 44 (How we built this); date 2026-11-11 9:30 a.m. ET |
 | 2f | Pushed to Prismic (draft) | 2026-11-11 | Re-pushed with the new hero and edit 46. Draft in the Migration Release, 45 slices; Eric's Marshalls edit made in Prismic and mirrored in POST.md |
-| 2g | Mailchimp teaser | | |
+| 2g | Mailchimp teaser | 2026-11-11 | EMAIL.md in Eric's words; static generic tier chart (images/01-generic-tiers.png); hero email JPG 216KB; edits 45 and 47 |
 
 ## Stale
 
@@ -103,3 +103,6 @@ None.
   characters. On Eric's instruction ran 2e (no SEO changes) and 2f again: hero ledger entry cleared, new hero
   uploaded, same draft updated in the Migration Release. Email hero JPG re-exported (216KB) and EMAIL.md alt
   updated. Stale cleared. Next: Eric confirms 2g.
+- 2026-11-11 Step 2g: edit 47 accepted ("inflated pre-rebate prices" in place of "Compare at" in the email, which
+  has no Marshalls example). Step 2g confirmed by Eric. Post complete: draft in the Prismic Migration Release,
+  EMAIL.md ready for Mailchimp.
