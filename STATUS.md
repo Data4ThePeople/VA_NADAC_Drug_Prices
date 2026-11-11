@@ -6,7 +6,7 @@ Process: ~/.claude/d4tp-process/PROCESS.md
 ## Current
 
 Post: va-vs-medicare-drug-prices
-Step: 2e
+Step: 2f
 Since: 2026-11-11
 
 ## Steps
@@ -18,7 +18,7 @@ Since: 2026-11-11
 | 2b | Eric's edit, Claude's look-over | 2026-11-11 | Edits 31-40, 42, 43 accepted (41 folded into 40); section headers; 46brooklyn link; new CMS enrollment source |
 | 2c | Slice markup | 2026-11-11 | 41 slices; no markup changes needed |
 | 2d | Hero 1680x1080 + alt text | 2026-11-11 | Gemini image from prompt 1, center crop; alt 341 characters |
-| 2e | SEO | | |
+| 2e | SEO | 2026-11-11 | Six target searches; meta title, description, 8 keywords; Article schema; edit 44 (How we built this); date 2026-11-11 9:30 a.m. ET |
 | 2f | Pushed to Prismic (draft) | | |
 | 2g | Mailchimp teaser | | |
 
@@ -82,3 +82,8 @@ None.
   memorial's statues are under copyright (Gaylord v. United States, 2010), so the prompt uses new figures.
 - 2026-11-11 Step 2d: Eric generated prompt 1 in Gemini (2752x1536, no visible watermark); `hero fit` center
   crop to 1680x1080; source kept; alt text 341 characters. Step 2d confirmed by Eric. Next: 2e, SEO.
+- 2026-11-11 Step 2e: target searches (VA drug prices vs Medicare; VA prescription copay; Medicare Part D drug
+  tiers; generics on a brand tier in Part D; Medicare negotiated drug prices and the VA; Part D coinsurance vs
+  copay). meta_title, description, keywords written; Article schema; edit 44 accepted (How we built this, after
+  divider dots, GitHub link); sterile water post not linked (Eric). Date 2026-11-11, time 09:30 EST. Step 2e
+  confirmed by Eric. Next: 2f, Prismic draft.

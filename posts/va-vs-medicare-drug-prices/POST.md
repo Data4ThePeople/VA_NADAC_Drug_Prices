@@ -2,13 +2,14 @@
 title: What Medicare can learn from the VA’s $11 drug copay
 subtitle: For Veterans Day, a look at VA and Medicare Part D drug prices, and at what each program asks patients to pay at the counter.
 slug: va-vs-medicare-drug-prices
-date:
+date: 2026-11-11
+time: "09:30:00-05:00"
 section: Data 4 Thought
 hero: images/va-vs-medicare-drug-prices-hero-1680x1080.png
 hero_alt: AI-generated image of two lines of young American soldiers from the Korean War era, in olive green rain ponchos and steel helmets and carrying rifles, walking down the main aisle of a large, brightly lit pharmacy. Shelves of white and amber pill bottles and medicine boxes line both sides, and an empty pharmacy counter glows at the far end.
-meta_title:
-description:
-keywords:
+meta_title: VA vs. Medicare Part D Drug Prices and Copays
+description: We compare VA and Medicare Part D prices on 89 top brand-name drugs, and what each program charges patients at the pharmacy counter.
+keywords: VA drug prices, Medicare Part D, VA prescription copay, Part D drug tiers, generic drugs, Medicare negotiated drug prices, drug rebates, coinsurance
 schema_type: article
 drop_cap: true
 heading_spacer: 20px
@@ -102,3 +103,9 @@ Second, at the very least, if you aren’t going to require copay-based plans, w
 Third, and most importantly, while healthcare gets a lot of attention, it is one of the most difficult problems to fix now facing Americans. I’ll point you to the [crisis unfolding in SNAP right now](https://www.data4thepeople.com/p/snap-stores-leaving-2026), where enrollment and authorized stores are both falling at an unusual clip. I don’t know about you, but which would you worry about more? An empty fridge and pantry, or the risk of paying too much for drugs? I worry that millions of Americans are looking down the barrel of empty fridges right now. To make matters worse, those same Americans may lose their healthcare as Medicaid cuts take hold. 
 
 The house is burning for millions of our most vulnerable Americans. Let’s put out the fire first.
+
+::: divider
+## How we built this
+::: spacer 5px
+
+VA prices are the Big4 prices on the VA’s pharmaceutical price list as of November 1, 2026. Part D prices are the median price across Part D plans in CMS’s plan pricing files for the third quarter of 2026. Both are before rebates and discounts, which are not public. The 100 drugs are the brand-name drugs with the most Part D prescriptions in 2024, from CMS’s Part D Spending by Drug data. Plan tiers and cost sharing come from the same CMS plan files, and plan enrollment comes from CMS’s October 2026 enrollment report. The data, code and method notes are [on GitHub](https://github.com/Data4ThePeople/VA_NADAC_Drug_Prices).

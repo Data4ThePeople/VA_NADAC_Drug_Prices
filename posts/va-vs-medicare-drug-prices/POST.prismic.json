@@ -1,6 +1,11 @@
 {
   "page_title": "What Medicare can learn from the VA\u2019s $11 drug copay",
   "page_subtitle": "For Veterans Day, a look at VA and Medicare Part D drug prices, and at what each program asks patients to pay at the counter.",
+  "published_date": "2026-11-11",
+  "updated_date": "2026-11-11",
+  "meta_title": "VA vs. Medicare Part D Drug Prices and Copays",
+  "meta_description": "We compare VA and Medicare Part D prices on 89 top brand-name drugs, and what each program charges patients at the pharmacy counter.",
+  "meta_keywords": "VA drug prices, Medicare Part D, VA prescription copay, Part D drug tiers, generic drugs, Medicare negotiated drug prices, drug rebates, coinsurance",
   "make_this_main_post": false,
   "slices": [
     {
@@ -682,7 +687,70 @@
           }
         ]
       }
+    },
+    {
+      "slice_type": "divider_dots",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {}
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
+          {
+            "type": "heading2",
+            "text": "How we built this",
+            "spans": [],
+            "direction": "ltr"
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "5px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
+          {
+            "type": "paragraph",
+            "text": "VA prices are the Big4 prices on the VA\u2019s pharmaceutical price list as of November 1, 2026. Part D prices are the median price across Part D plans in CMS\u2019s plan pricing files for the third quarter of 2026. Both are before rebates and discounts, which are not public. The 100 drugs are the brand-name drugs with the most Part D prescriptions in 2024, from CMS\u2019s Part D Spending by Drug data. Plan tiers and cost sharing come from the same CMS plan files, and plan enrollment comes from CMS\u2019s October 2026 enrollment report. The data, code and method notes are on GitHub.",
+            "spans": [
+              {
+                "start": 559,
+                "end": 568,
+                "type": "hyperlink",
+                "data": {
+                  "link_type": "Web",
+                  "url": "https://github.com/Data4ThePeople/VA_NADAC_Drug_Prices",
+                  "target": "_blank"
+                }
+              }
+            ],
+            "direction": "ltr"
+          }
+        ]
+      }
     }
   ],
-  "schema": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"headline\": \"What Medicare can learn from the VA\u2019s $11 drug copay\",\n  \"description\": \"\",\n  \"articleSection\": \"Data 4 Thought\",\n  \"license\": \"https://www.data4thepeople.com/terms-of-use\",\n  \"inLanguage\": \"en-US\",\n  \"isAccessibleForFree\": true,\n  \"author\": {\n    \"@type\": \"Person\",\n    \"name\": \"Eric Pachman\",\n    \"url\": \"https://www.data4thepeople.com/authors/eric-pachman\"\n  },\n  \"publisher\": {\n    \"@type\": \"Organization\",\n    \"name\": \"Data 4 The People\",\n    \"url\": \"https://data4thepeople.com\"\n  },\n  \"mainEntityOfPage\": {\n    \"@type\": \"WebPage\",\n    \"@id\": \"https://www.data4thepeople.com/p/va-vs-medicare-drug-prices\"\n  }\n}"
+  "schema": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"headline\": \"What Medicare can learn from the VA\u2019s $11 drug copay\",\n  \"description\": \"We compare VA and Medicare Part D prices on 89 top brand-name drugs, and what each program charges patients at the pharmacy counter.\",\n  \"datePublished\": \"2026-11-11T09:30:00-05:00\",\n  \"dateModified\": \"2026-11-11T09:30:00-05:00\",\n  \"articleSection\": \"Data 4 Thought\",\n  \"license\": \"https://www.data4thepeople.com/terms-of-use\",\n  \"inLanguage\": \"en-US\",\n  \"isAccessibleForFree\": true,\n  \"keywords\": [\n    \"VA drug prices\",\n    \"Medicare Part D\",\n    \"VA prescription copay\",\n    \"Part D drug tiers\",\n    \"generic drugs\",\n    \"Medicare negotiated drug prices\",\n    \"drug rebates\",\n    \"coinsurance\"\n  ],\n  \"author\": {\n    \"@type\": \"Person\",\n    \"name\": \"Eric Pachman\",\n    \"url\": \"https://www.data4thepeople.com/authors/eric-pachman\"\n  },\n  \"publisher\": {\n    \"@type\": \"Organization\",\n    \"name\": \"Data 4 The People\",\n    \"url\": \"https://data4thepeople.com\"\n  },\n  \"mainEntityOfPage\": {\n    \"@type\": \"WebPage\",\n    \"@id\": \"https://www.data4thepeople.com/p/va-vs-medicare-drug-prices\"\n  }\n}"
 }
