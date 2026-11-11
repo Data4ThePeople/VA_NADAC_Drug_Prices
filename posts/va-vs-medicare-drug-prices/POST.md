@@ -6,7 +6,7 @@ date: 2026-11-11
 time: "09:30:00-05:00"
 section: Data 4 Thought
 hero: images/va-vs-medicare-drug-prices-hero-1680x1080.png
-hero_alt: AI-generated image of two lines of young American soldiers from the Korean War era, in olive green rain ponchos and steel helmets and carrying rifles, walking down the main aisle of a large, brightly lit pharmacy. Shelves of white and amber pill bottles and medicine boxes line both sides, and an empty pharmacy counter glows at the far end.
+hero_alt: AI-generated image of an older veteran in a navy veteran’s cap with a service ribbon, seen from behind his shoulder, laying a $10 bill and a $1 bill on a pharmacy counter. A small register display reads $11.00, and a white paper pharmacy bag sits beside the cash. A pharmacist in a white coat stands behind the counter, in front of shelves of medicine.
 meta_title: VA vs. Medicare Part D Drug Prices and Copays
 description: We compare VA and Medicare Part D prices on 89 top brand-name drugs, and what each program charges patients at the pharmacy counter.
 keywords: VA drug prices, Medicare Part D, VA prescription copay, Part D drug tiers, generic drugs, Medicare negotiated drug prices, drug rebates, coinsurance

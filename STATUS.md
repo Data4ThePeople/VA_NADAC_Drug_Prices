@@ -6,7 +6,7 @@ Process: ~/.claude/d4tp-process/PROCESS.md
 ## Current
 
 Post: va-vs-medicare-drug-prices
-Step: 2d
+Step: 2g
 Since: 2026-11-11
 
 ## Steps
@@ -17,16 +17,14 @@ Since: 2026-11-11
 | 2a | Draft with brackets resolved | 2026-11-11 | Edits 1-17, 22-30 accepted; four chart embeds; repo public, Pages on |
 | 2b | Eric's edit, Claude's look-over | 2026-11-11 | Edits 31-40, 42, 43 accepted (41 folded into 40); section headers; 46brooklyn link; new CMS enrollment source |
 | 2c | Slice markup | 2026-11-11 | 41 slices; no markup changes needed |
-| 2d | Hero 1680x1080 + alt text | 2026-11-11 | Gemini image from prompt 1, center crop; alt 341 characters |
-| 2e | SEO | 2026-11-11 | Six target searches; meta title, description, 8 keywords; Article schema; edit 44 (How we built this); date 2026-11-11 9:30 a.m. ET |
-| 2f | Pushed to Prismic (draft) | 2026-11-11 | Draft in the Migration Release, 45 slices, hero uploaded; Eric's Marshalls edit made in Prismic and mirrored in POST.md |
+| 2d | Hero 1680x1080 + alt text | 2026-11-11 | Re-done: new hero, veteran paying $11 in cash (Gemini, prompt 1), crop window shifted right; alt 352 characters |
+| 2e | SEO | 2026-11-11 | Re-checked with the new hero, no changes. Six target searches; meta title, description, 8 keywords; Article schema; edit 44 (How we built this); date 2026-11-11 9:30 a.m. ET |
+| 2f | Pushed to Prismic (draft) | 2026-11-11 | Re-pushed with the new hero and edit 46. Draft in the Migration Release, 45 slices; Eric's Marshalls edit made in Prismic and mirrored in POST.md |
 | 2g | Mailchimp teaser | | |
 
 ## Stale
 
-- 2e, 2f (confirmed 2026-11-11): stale since 2026-11-11. Eric wants a new hero (a veteran paying the $11
-  copay in cash at a pharmacy counter); the SEO image and the Prismic draft carry the old hero.
-- 2g (in progress, not confirmed): the email hero export uses the old hero.
+None.
 
 ## Log
 
@@ -100,3 +98,8 @@ Since: 2026-11-11
 - 2026-11-11 Back to 2d: Eric asked for a new hero, a veteran at a pharmacy counter paying the copay in cash
   ($11). 2e and 2f marked stale; 2g's email hero needs re-exporting. EMAIL.md, the static generic tier chart
   and edits 45 and 46 are kept.
+- 2026-11-11 New hero from Eric (Gemini, prompt 1): veteran paying a $10 and a $1 at a pharmacy counter, register
+  reads $11.00. Cropped from x = 272 to 2661 so the register keeps a margin, then `hero fit`; alt text 352
+  characters. On Eric's instruction ran 2e (no SEO changes) and 2f again: hero ledger entry cleared, new hero
+  uploaded, same draft updated in the Migration Release. Email hero JPG re-exported (216KB) and EMAIL.md alt
+  updated. Stale cleared. Next: Eric confirms 2g.

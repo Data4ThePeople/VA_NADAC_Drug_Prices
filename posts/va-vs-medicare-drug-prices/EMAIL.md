@@ -12,7 +12,7 @@ Preview:  How often Part D plans put generic drugs on brand-name tiers, and thre
 `images/va-vs-medicare-drug-prices-hero-1680x1080.png`, linked to the post. Email export: `images/va-vs-medicare-drug-prices-hero-email.jpg` (JPG under 300KB).
 Alt:
 ```
-AI-generated image of two lines of young American soldiers from the Korean War era, in olive green rain ponchos and steel helmets and carrying rifles, walking down the main aisle of a large, brightly lit pharmacy. Shelves of white and amber pill bottles and medicine boxes line both sides, and an empty pharmacy counter glows at the far end.
+AI-generated image of an older veteran in a navy veteran’s cap with a service ribbon, seen from behind his shoulder, laying a $10 bill and a $1 bill on a pharmacy counter. A small register display reads $11.00, and a white paper pharmacy bag sits beside the cash. A pharmacist in a white coat stands behind the counter, in front of shelves of medicine.
 ```
 
 ## 2. Headline
