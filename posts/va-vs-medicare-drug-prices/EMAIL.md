@@ -32,7 +32,10 @@ Here is the answer. On 89 of the 100 most-prescribed brand-name drugs in Medicar
 
 But here’s the rub. There are all sorts of data available in the public domain on both VA and Medicare drug prices – and none of it is what these programs pay. Part D plans get rebates, and the VA gets discounts below its published prices (different mechanics, but same difference), invalidating this analysis immediately.
 
-Except the analysis still matters, not for the government and insurers, who get the rebates and discounts, or veterans, who only have copays for their drugs (and therefore are not subjected to inflated pre-rebate prices), but for the Americans in the booming Medicare Part D program (thanks to the aging of America) which now provides drug coverage for about 58 million people. Why? Because here our elderly pay for drugs based on a byzantine five- or six-tier system where insurers collect money from them based on the drug’s inflated pre-rebate price, are free to set their own prices for drugs differently across their own plans, and put off-patent generic drugs in tiers usually used for more expensive brand-name drugs.
+Except the analysis still matters, not for the government and insurers, who get the rebates and discounts, or veterans, who only have copays for their drugs (and therefore are not subjected to inflated pre-rebate prices), but for the Americans in the booming Medicare Part D program (thanks to the aging of America) which now provides drug coverage for about 58 million people. Why? Because here our elderly pay for drugs based on
+1. a byzantine five- or six-tier system where insurers collect money from them based on the drug’s inflated pre-rebate price;
+2. the insurers freely setting their own prices for drugs, which can differ across their own plans;
+3. put off-patent generic drugs in tiers usually used for more expensive brand-name drugs, causing further inflated prices.
 
 Here is how often Part D plans put generic drugs on the tiers usually used for brand-name drugs.
 ```
