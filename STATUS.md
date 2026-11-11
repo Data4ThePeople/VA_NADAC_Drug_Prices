@@ -6,7 +6,7 @@ Process: ~/.claude/d4tp-process/PROCESS.md
 ## Current
 
 Post: va-vs-medicare-drug-prices
-Step: 2f
+Step: 2g
 Since: 2026-11-11
 
 ## Steps
@@ -19,7 +19,7 @@ Since: 2026-11-11
 | 2c | Slice markup | 2026-11-11 | 41 slices; no markup changes needed |
 | 2d | Hero 1680x1080 + alt text | 2026-11-11 | Gemini image from prompt 1, center crop; alt 341 characters |
 | 2e | SEO | 2026-11-11 | Six target searches; meta title, description, 8 keywords; Article schema; edit 44 (How we built this); date 2026-11-11 9:30 a.m. ET |
-| 2f | Pushed to Prismic (draft) | | |
+| 2f | Pushed to Prismic (draft) | 2026-11-11 | Draft in the Migration Release, 45 slices, hero uploaded; Eric's Marshalls edit made in Prismic and mirrored in POST.md |
 | 2g | Mailchimp teaser | | |
 
 ## Stale
@@ -87,3 +87,8 @@ None.
   copay). meta_title, description, keywords written; Article schema; edit 44 accepted (How we built this, after
   divider dots, GitHub link); sterile water post not linked (Eric). Date 2026-11-11, time 09:30 EST. Step 2e
   confirmed by Eric. Next: 2f, Prismic draft.
+- 2026-11-11 After the Prismic push, Eric changed "To be fair, it’s not fair to Marshalls" to "But it’s not fair to
+  Marshalls" in the Prismic draft himself; POST.md updated to match, not pushed again.
+- 2026-11-11 Step 2f: dry run clean, then pushed. Draft created in the Migration Release (not live), 45 slices,
+  hero uploaded as featured and meta image, tags and author empty. Not read back (no Content API read token).
+  Step 2f confirmed by Eric. Next: 2g, Mailchimp teaser with a static image of the generic tier chart.

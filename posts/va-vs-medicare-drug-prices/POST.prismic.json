@@ -173,7 +173,7 @@
           },
           {
             "type": "paragraph",
-            "text": "To be fair, it\u2019s not fair to Marshalls to use it as an analogy for U.S. drug pricing. At least everyone can see the actual price at Marshalls. When it comes to drug prices, the final net price of drugs is totally hidden from the public. Instead, we all see the \u201cCompare at\u201d price that the patient is subject to at the counter, and then hidden rebates change hands behind the scenes. So that math I presented at the top of this post? That\u2019s all based on the prices we see on the surface before these rebates. Part D plans get rebates, and the VA gets discounts below its published prices (different mechanics, but same difference), invalidating this analysis immediately.",
+            "text": "But it\u2019s not fair to Marshalls to use it as an analogy for U.S. drug pricing. At least everyone can see the actual price at Marshalls. When it comes to drug prices, the final net price of drugs is totally hidden from the public. Instead, we all see the \u201cCompare at\u201d price that the patient is subject to at the counter, and then hidden rebates change hands behind the scenes. So that math I presented at the top of this post? That\u2019s all based on the prices we see on the surface before these rebates. Part D plans get rebates, and the VA gets discounts below its published prices (different mechanics, but same difference), invalidating this analysis immediately.",
             "spans": [],
             "direction": "ltr"
           },
@@ -752,5 +752,23 @@
       }
     }
   ],
-  "schema": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"headline\": \"What Medicare can learn from the VA\u2019s $11 drug copay\",\n  \"description\": \"We compare VA and Medicare Part D prices on 89 top brand-name drugs, and what each program charges patients at the pharmacy counter.\",\n  \"datePublished\": \"2026-11-11T09:30:00-05:00\",\n  \"dateModified\": \"2026-11-11T09:30:00-05:00\",\n  \"articleSection\": \"Data 4 Thought\",\n  \"license\": \"https://www.data4thepeople.com/terms-of-use\",\n  \"inLanguage\": \"en-US\",\n  \"isAccessibleForFree\": true,\n  \"keywords\": [\n    \"VA drug prices\",\n    \"Medicare Part D\",\n    \"VA prescription copay\",\n    \"Part D drug tiers\",\n    \"generic drugs\",\n    \"Medicare negotiated drug prices\",\n    \"drug rebates\",\n    \"coinsurance\"\n  ],\n  \"author\": {\n    \"@type\": \"Person\",\n    \"name\": \"Eric Pachman\",\n    \"url\": \"https://www.data4thepeople.com/authors/eric-pachman\"\n  },\n  \"publisher\": {\n    \"@type\": \"Organization\",\n    \"name\": \"Data 4 The People\",\n    \"url\": \"https://data4thepeople.com\"\n  },\n  \"mainEntityOfPage\": {\n    \"@type\": \"WebPage\",\n    \"@id\": \"https://www.data4thepeople.com/p/va-vs-medicare-drug-prices\"\n  }\n}"
+  "featured_image": {
+    "id": "5lAFouRzLJvItlxM",
+    "alt": "AI-generated image of two lines of young American soldiers from the Korean War era, in olive green rain ponchos and steel helmets and carrying rifles, walking down the main aisle of a large, brightly lit pharmacy. Shelves of white and amber pill bottles and medicine boxes line both sides, and an empty pharmacy counter glows at the far end.",
+    "copyright": null,
+    "dimensions": {
+      "width": 1680,
+      "height": 1080
+    }
+  },
+  "meta_image": {
+    "id": "5lAFouRzLJvItlxM",
+    "alt": "AI-generated image of two lines of young American soldiers from the Korean War era, in olive green rain ponchos and steel helmets and carrying rifles, walking down the main aisle of a large, brightly lit pharmacy. Shelves of white and amber pill bottles and medicine boxes line both sides, and an empty pharmacy counter glows at the far end.",
+    "copyright": null,
+    "dimensions": {
+      "width": 1680,
+      "height": 1080
+    }
+  },
+  "schema": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"headline\": \"What Medicare can learn from the VA\u2019s $11 drug copay\",\n  \"description\": \"We compare VA and Medicare Part D prices on 89 top brand-name drugs, and what each program charges patients at the pharmacy counter.\",\n  \"image\": \"https://images.prismic.io/data4thepeople/5lAFouRzLJvItlxM_va-vs-medicare-drug-prices-hero-1680x1080.png?auto=format,compress\",\n  \"datePublished\": \"2026-11-11T09:30:00-05:00\",\n  \"dateModified\": \"2026-11-11T09:30:00-05:00\",\n  \"articleSection\": \"Data 4 Thought\",\n  \"license\": \"https://www.data4thepeople.com/terms-of-use\",\n  \"inLanguage\": \"en-US\",\n  \"isAccessibleForFree\": true,\n  \"keywords\": [\n    \"VA drug prices\",\n    \"Medicare Part D\",\n    \"VA prescription copay\",\n    \"Part D drug tiers\",\n    \"generic drugs\",\n    \"Medicare negotiated drug prices\",\n    \"drug rebates\",\n    \"coinsurance\"\n  ],\n  \"author\": {\n    \"@type\": \"Person\",\n    \"name\": \"Eric Pachman\",\n    \"url\": \"https://www.data4thepeople.com/authors/eric-pachman\"\n  },\n  \"publisher\": {\n    \"@type\": \"Organization\",\n    \"name\": \"Data 4 The People\",\n    \"url\": \"https://data4thepeople.com\"\n  },\n  \"mainEntityOfPage\": {\n    \"@type\": \"WebPage\",\n    \"@id\": \"https://www.data4thepeople.com/p/va-vs-medicare-drug-prices\"\n  }\n}"
 }
