@@ -2244,3 +2244,10 @@ lenalidomide generic: highest coinsurance rate (post: 25% to 33%),0.33,0.33,OK
 "lenalidomide generic: % of plans reaching $2,100 by the second fill (post: 85%)",85,85,OK
 lenalidomide generic: scripts/lenalidomide.py first fill median,2100.0,2100.0,OK
 Revlimid brand: plans covering,225,225,OK
+parent orgs: top 5 by Part D enrollment are the five named in the post,1,1,OK
+parent orgs: plans with segments both in and out of the 5- or 6-tier set,0,0,OK
+parent orgs: 5- or 6-tier plans with no parent company,0,0,OK
+"parent orgs: people in the 5- or 6-tier plans, millions (post: about 48 million)",48,48,OK
+parent orgs: % of those people in plans of the top 5 (post: 76%),76,76,OK
+parent orgs: scripts/parent_orgs.py enrollment in the 5- or 6-tier plans,47585033.0,47585033.0,OK
+"parent orgs: Part D enrollment, millions (post: about 58 million)",58,58,OK

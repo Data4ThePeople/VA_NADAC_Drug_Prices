@@ -1,4 +1,6 @@
 {
+  "page_title": "What Medicare can learn from the VA\u2019s $11 drug copay",
+  "page_subtitle": "For Veterans Day, a look at VA and Medicare Part D drug prices, and at what each program asks patients to pay at the counter.",
   "make_this_main_post": false,
   "slices": [
     {
@@ -45,7 +47,7 @@
         "paragraph_text": [
           {
             "type": "paragraph",
-            "text": "Here is the answer. On 89 of the 100 most-prescribed brand-name drugs in Medicare Part D, the VA\u2019s prices would have saved about $13 billion, or 11%, compared with Part D\u2019s prices. We even created an interactive dashboard for you to compare prices on the 89 top brand-name drugs that we could match with confidence in both programs.",
+            "text": "Here is the answer. On 89 of the 100 most-prescribed brand-name drugs in Medicare Part D, the VA\u2019s prices would have saved about $13 billion, or 11%, compared with Part D\u2019s prices: about $104 billion at the VA\u2019s prices instead of about $117 billion at Part D\u2019s. We based this on how many prescriptions Part D filled for each drug in 2024, priced at 2026 prices. We even created an interactive dashboard for you to compare prices on the 89 top brand-name drugs that we could match with confidence in both programs.",
             "spans": [],
             "direction": "ltr"
           }
@@ -109,7 +111,55 @@
               }
             ],
             "direction": "ltr"
-          },
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "20px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
+          {
+            "type": "heading2",
+            "text": "What the public prices leave out",
+            "spans": [],
+            "direction": "ltr"
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "5px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
           {
             "type": "paragraph",
             "text": "But here\u2019s the rub. There are all sorts of data available in the public domain on both VA and Medicare drug prices \u2013 and none of it is what these programs pay. Analyzing public drug pricing data is like analyzing the list prices on clothes at Marshalls, where you may find a \u201cCompare at\u201d price of $50 for a shirt selling for $10. Who cares if the Compare at price is $50? Two groups \u2013 those excited about a markdown on fast fashion and the entire prescription drug supply chain.",
@@ -118,7 +168,7 @@
           },
           {
             "type": "paragraph",
-            "text": "To be fair, it\u2019s not fair to Marshalls to use it as an analogy for U.S. drug pricing. At least everyone can see the actual price. When it comes to drug prices, the final net price of drugs is totally hidden from the public. Instead, we all see the \u201cCompare at\u201d price that the patient is subject to at the counter, and then hidden rebates change hands behind the scenes. So that math I presented at the top of this post? That\u2019s all based on the prices we see on the surface before these rebates. Part D plans get rebates, and the VA gets discounts below its published prices (different mechanics, but same difference), invalidating this analysis immediately.",
+            "text": "To be fair, it\u2019s not fair to Marshalls to use it as an analogy for U.S. drug pricing. At least everyone can see the actual price at Marshalls. When it comes to drug prices, the final net price of drugs is totally hidden from the public. Instead, we all see the \u201cCompare at\u201d price that the patient is subject to at the counter, and then hidden rebates change hands behind the scenes. So that math I presented at the top of this post? That\u2019s all based on the prices we see on the surface before these rebates. Part D plans get rebates, and the VA gets discounts below its published prices (different mechanics, but same difference), invalidating this analysis immediately.",
             "spans": [],
             "direction": "ltr"
           },
@@ -179,10 +229,69 @@
         "paragraph_text": [
           {
             "type": "paragraph",
-            "text": "Except the analysis still matters, not for the government and insurers, who get the rebates and discounts, or veterans, who only have copays for their drugs (and therefore are not subjected to inflated Compare at prices) but for the Americans in the booming Medicare Part D program which now provides drug coverage for about 58 million people. Why? Because here our elderly pay for drugs based on a byzantine five- or six-tier system where insurers collect money from them based on the drug\u2019s inflated pre-rebate price, are free to set their own prices for drugs differently across their own plans, and put off-patent generic drugs in tiers usually used for more expensive brand-name drugs. In other words, Medicare isn\u2019t just subjecting Americans to fake inflated list prices by giving them a deductible to meet and making them pay coinsurance, it\u2019s giving the plans managing Part D the latitude to monkey with the drug prices themselves (especially generic drugs) to optimize their profit.",
+            "text": "Except the analysis still matters, not for the government and insurers, who get the rebates and discounts, or veterans, who only have copays for their drugs (and therefore are not subjected to inflated Compare at prices), but for the Americans in the booming Medicare Part D program (thanks to the aging of America) which now provides drug coverage for about 58 million people. Why? Because here our elderly pay for drugs based on a byzantine five- or six-tier system where insurers collect money from them based on the drug\u2019s inflated pre-rebate price, are free to set their own prices for drugs differently across their own plans, and put off-patent generic drugs in tiers usually used for more expensive brand-name drugs. In other words, Medicare isn\u2019t just subjecting Americans to fake inflated list prices by giving them a deductible to meet and making them pay coinsurance, it\u2019s giving the plans managing Part D the latitude to monkey with the drug prices themselves (especially generic drugs) to optimize their profit.",
+            "spans": [
+              {
+                "start": 554,
+                "end": 631,
+                "type": "hyperlink",
+                "data": {
+                  "link_type": "Web",
+                  "url": "https://www.46brooklyn.com/research/121024-crossing-the-catastrophic-coverage-finish-line-feioj095",
+                  "target": "_blank"
+                }
+              }
+            ],
+            "direction": "ltr"
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "20px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
+          {
+            "type": "heading2",
+            "text": "Generic drugs on brand-name tiers",
             "spans": [],
             "direction": "ltr"
-          },
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "5px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
           {
             "type": "paragraph",
             "text": "Here is how often Part D plans put generic drugs on the tiers usually used for brand-name drugs.",
@@ -240,7 +349,7 @@
         "paragraph_text": [
           {
             "type": "paragraph",
-            "text": "Across the 5,295 Part D plans that use five or six tiers, 53% of generic drug listings sit on tiers 3 to 5. That counts each strength and form of a drug once per plan, and it counts plans, not people. Newer generics land there more often. When the first generic of a drug was approved less than 10 years ago, 83% to 94% of its listings are on tiers 3 to 5. For generics that have been around for 20 years or more, it is still 42%.",
+            "text": "The 5,295 Part D plans that use five or six tiers cover about 48 million people, and 76% of those people are in plans that are part of the five largest parent company insurers: UnitedHealth Group, Humana, Centene, CVS Health and Health Care Service Corporation. Across these plans, 53% of generic drug listings sit on tiers 3 to 5. That counts each strength and form of a drug once per plan, and it counts plans, not people. Newer generics land there more often. When the first generic of a drug was approved less than 10 years ago, 83% to 94% of its listings are on tiers 3 to 5. For generics that have been around for 20 years or more, it is still 42%.",
             "spans": [],
             "direction": "ltr"
           },
@@ -249,10 +358,58 @@
             "text": "The tier matters because of how plans charge for it. On tiers 1 and 2, most plans charge a flat copay; only 4% and 10% of plans charge coinsurance. On tier 3, 70% of plans charge coinsurance, a percentage of the drug\u2019s price. That rises to 91% of plans on tier 4 and 99% on tier 5. The deductible applies to tiers 3 to 5 in 81% to 87% of plans, compared with 11% and 22% of plans on tiers 1 and 2. So a generic placed on a brand tier is usually charged to the patient as a share of its price, and often only after the deductible is met.",
             "spans": [],
             "direction": "ltr"
-          },
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "20px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
+          {
+            "type": "heading2",
+            "text": "What patients pay",
+            "spans": [],
+            "direction": "ltr"
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "5px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
           {
             "type": "paragraph",
-            "text": "So, after all of this, that\u2019s the main difference we should remember between the VA and Medicare Part D.",
+            "text": "So, after all of this, here is the main difference we should remember between the VA and Medicare Part D.",
             "spans": [],
             "direction": "ltr"
           },
@@ -270,7 +427,7 @@
           },
           {
             "type": "paragraph",
-            "text": "But the 58 million Americans on Medicare Part D do. They are not all paying a small, fixed copay for their drugs. They are subjected to inflated pre-rebate prices and rarely see a dime of rebates at the counter. By the way, if you have a deductible, or pay coinsurance, you are in this same predicament, paying for your drugs based on the fake list prices rather than the real net price.",
+            "text": "But the 58 million Americans on Medicare Part D do. They are not all paying a small, fixed copay for their drugs. They are subjected to inflated pre-rebate prices and rarely see a dime of rebates at the counter. By the way, if your employer\u2019s insurance makes you meet a deductible, or pay coinsurance, you are in this same predicament, paying for your drugs based on the fake list prices rather than the real net price.",
             "spans": [],
             "direction": "ltr"
           },
@@ -318,7 +475,34 @@
       "version": "initial",
       "items": [],
       "primary": {
-        "spacer_value": "20px"
+        "spacer_value": "40px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
+          {
+            "type": "heading2",
+            "text": "What real Part D plans charge",
+            "spans": [],
+            "direction": "ltr"
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "5px"
       }
     },
     {
@@ -340,16 +524,58 @@
             "text": "Revlimid, a cancer drug, shows the same thing for a generic. Only 225 of the 5,295 plans with five or six tiers cover brand Revlimid. All 5,295 cover the generic, lenalidomide, and none of them puts it on a generic tier: 5,283 put it on tier 5, the specialty tier, and the other 12 on tier 4. Nearly all of them (99%) charge coinsurance on it, from 25% to 33% of the price. What plans pay for the generic varies widely, but at the median plan, one 28-day cycle of 21 capsules costs about $6,600. In about half of the plans, a patient reaches the $2,100 yearly limit with the first fill, and in 85% of plans by the second.",
             "spans": [],
             "direction": "ltr"
-          },
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "20px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
           {
-            "type": "paragraph",
-            "text": "The takeaway?",
+            "type": "heading2",
+            "text": "VA wins through copays",
             "spans": [],
             "direction": "ltr"
-          },
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "5px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
           {
             "type": "paragraph",
-            "text": "First off, if you are running around talking about expanding Medicare, please, first understand Medicare\u2019s flaws. The terms universal healthcare and Medicare for all are not interchangeable.",
+            "text": "First off, if you are running around talking about expanding Medicare, please, first understand Medicare\u2019s flaws. The terms \u201cuniversal healthcare\u201d and \u201cMedicare for all\u201d are not interchangeable.",
             "spans": [],
             "direction": "ltr"
           },
@@ -361,10 +587,58 @@
           },
           {
             "type": "paragraph",
-            "text": "I can already hear the pushback. Premiums would skyrocket if the government didn\u2019t intervene. This would undoubtedly happen in Part D if the government didn\u2019t intervene. But isn\u2019t that telling us something? How can there be all these $0 premium Part D plans out there? Insurers get to make their money off the drug prices themselves, rather than the process of offering insurance.",
+            "text": "I can already hear the pushback. Premiums would skyrocket if the government didn\u2019t intervene. This would undoubtedly happen in Part D if the government didn\u2019t intervene. But isn\u2019t that telling us something? How can there be all these $0 premium Part D plans out there? Insurers get to make their money off the drug prices themselves, rather than what we entrust them to do \u2013 offer insurance.",
             "spans": [],
             "direction": "ltr"
-          },
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "20px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
+          {
+            "type": "heading2",
+            "text": "Conclusion: Three recommendations",
+            "spans": [],
+            "direction": "ltr"
+          }
+        ]
+      }
+    },
+    {
+      "slice_type": "spacer",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "spacer_value": "5px"
+      }
+    },
+    {
+      "slice_type": "paragarph_text",
+      "slice_label": null,
+      "variation": "default",
+      "version": "initial",
+      "items": [],
+      "primary": {
+        "paragraph_text": [
           {
             "type": "paragraph",
             "text": "There is so much wrong with healthcare pricing in America that it\u2019s hard to know where to even start. So, I\u2019ll give three recommendations.",
@@ -385,11 +659,11 @@
           },
           {
             "type": "paragraph",
-            "text": "Third, while healthcare gets a lot of attention, it is one of the most difficult problems facing Americans to fix. I\u2019ll point you to the crisis unfolding in SNAP right now, where enrollment and authorized stores are both falling at an unprecedented clip. I don\u2019t know about you, but which would you worry about more? An empty fridge and pantry, or the risk of paying too much for drugs? I worry that millions of Americans are looking down the barrel of empty fridges right now. To make matters worse, those same Americans may lose their healthcare as Medicaid cuts take hold.",
+            "text": "Third, and most importantly, while healthcare gets a lot of attention, it is one of the most difficult problems to fix now facing Americans. I\u2019ll point you to the crisis unfolding in SNAP right now, where enrollment and authorized stores are both falling at an unusual clip. I don\u2019t know about you, but which would you worry about more? An empty fridge and pantry, or the risk of paying too much for drugs? I worry that millions of Americans are looking down the barrel of empty fridges right now. To make matters worse, those same Americans may lose their healthcare as Medicaid cuts take hold.",
             "spans": [
               {
-                "start": 137,
-                "end": 171,
+                "start": 163,
+                "end": 197,
                 "type": "hyperlink",
                 "data": {
                   "link_type": "Web",
@@ -402,7 +676,7 @@
           },
           {
             "type": "paragraph",
-            "text": "The house is burning for millions of Americans. Let\u2019s put out the fire first.",
+            "text": "The house is burning for millions of our most vulnerable Americans. Let\u2019s put out the fire first.",
             "spans": [],
             "direction": "ltr"
           }
@@ -410,5 +684,5 @@
       }
     }
   ],
-  "schema": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"headline\": \"\",\n  \"description\": \"\",\n  \"articleSection\": \"Data 4 Thought\",\n  \"license\": \"https://www.data4thepeople.com/terms-of-use\",\n  \"inLanguage\": \"en-US\",\n  \"isAccessibleForFree\": true,\n  \"author\": {\n    \"@type\": \"Person\",\n    \"name\": \"Eric Pachman\",\n    \"url\": \"https://www.data4thepeople.com/authors/eric-pachman\"\n  },\n  \"publisher\": {\n    \"@type\": \"Organization\",\n    \"name\": \"Data 4 The People\",\n    \"url\": \"https://data4thepeople.com\"\n  },\n  \"mainEntityOfPage\": {\n    \"@type\": \"WebPage\",\n    \"@id\": \"https://www.data4thepeople.com/p/va-vs-medicare-drug-prices\"\n  }\n}"
+  "schema": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"headline\": \"What Medicare can learn from the VA\u2019s $11 drug copay\",\n  \"description\": \"\",\n  \"articleSection\": \"Data 4 Thought\",\n  \"license\": \"https://www.data4thepeople.com/terms-of-use\",\n  \"inLanguage\": \"en-US\",\n  \"isAccessibleForFree\": true,\n  \"author\": {\n    \"@type\": \"Person\",\n    \"name\": \"Eric Pachman\",\n    \"url\": \"https://www.data4thepeople.com/authors/eric-pachman\"\n  },\n  \"publisher\": {\n    \"@type\": \"Organization\",\n    \"name\": \"Data 4 The People\",\n    \"url\": \"https://data4thepeople.com\"\n  },\n  \"mainEntityOfPage\": {\n    \"@type\": \"WebPage\",\n    \"@id\": \"https://www.data4thepeople.com/p/va-vs-medicare-drug-prices\"\n  }\n}"
 }

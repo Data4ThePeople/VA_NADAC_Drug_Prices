@@ -6,7 +6,7 @@ Process: ~/.claude/d4tp-process/PROCESS.md
 ## Current
 
 Post: va-vs-medicare-drug-prices
-Step: 2b
+Step: 2c
 Since: 2026-11-11
 
 ## Steps
@@ -15,7 +15,7 @@ Since: 2026-11-11
 |---|---|---|---|
 | 1  | Exploration and analysis | 2026-11-11 | Re-confirmed after the Humira fix (first confirmed 2026-11-10). 89 brands, 415 NDCs; dist/index.html, dist/negotiated-30day.html, dist/part-d-rebates.html, dist/generic-tiers.html, dist/patient-cost.html |
 | 2a | Draft with brackets resolved | 2026-11-11 | Edits 1-17, 22-30 accepted; four chart embeds; repo public, Pages on |
-| 2b | Eric's edit, Claude's look-over | | |
+| 2b | Eric's edit, Claude's look-over | 2026-11-11 | Edits 31-40, 42, 43 accepted (41 folded into 40); section headers; 46brooklyn link; new CMS enrollment source |
 | 2c | Slice markup | | |
 | 2d | Hero 1680x1080 + alt text | | |
 | 2e | SEO | | |
@@ -70,3 +70,9 @@ None.
 - 2026-11-11 Eric accepted edits 27-30 (basket now "89 ... about $13 billion, or 11%", "89 top brand-name
   drugs", "rarely see a dime", "tiers usually used for"). Step 1 re-confirmed and Step 2a confirmed by Eric.
   Next: 2b, Eric edits POST.md and asks for a look-over.
+- 2026-11-11 Step 2b. Eric's edits plus accepted edits 31-40, 42 and 43: title and subtitle, six section headers,
+  46brooklyn link on plan pricing, "tiers usually used for more expensive brand-name drugs", basket totals in
+  the opening ($104B VA vs $117B Part D, 2024 prescriptions at 2026 prices). New source: CMS Monthly Enrollment
+  by Plan, October 2026 (`scripts/parent_orgs.py`): the 5,295 plans cover about 48 million people, 76% in plans
+  of the five largest parent companies. Own tie-out 2,243 OK, 0 DIFF; fourth independent tie-out matched the new
+  claim. Step 2b confirmed by Eric. Next: 2c, slice markup.

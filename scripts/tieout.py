@@ -379,6 +379,38 @@ check('lenalidomide generic: scripts/lenalidomide.py first fill median', round(f
       round(float(lc.f1.median()), 2), 0.011)
 check('Revlimid brand: plans covering', 225, [d for d in built21 if d['name'] == 'Revlimid'][0]['rp_plans'])
 
+# ---------- I. parent companies and people in the 5- or 6-tier plans (post, generic tier paragraph) ----------
+# csv module path over the CMS Monthly Enrollment by Plan, October 2026; plans from section F (px)
+import csv as _csv
+_parent, _enr_cp, _pd_by_parent = {}, {}, {}
+with open('data/raw/cms_enroll_plan_2026_10/ex/Monthly_Report_By_Plan_2026_10.csv', encoding='latin-1', newline='') as fh:
+    for row in _csv.DictReader(fh):
+        c, pl, par = row['Contract Number'], row['Plan ID'].zfill(3), row['Parent Organization']
+        n_ = 0 if row['Enrollment'] == '*' else int(row['Enrollment'].replace(',', ''))  # * = 10 or fewer
+        assert _parent.setdefault(c, par) == par
+        _enr_cp[(c, pl)] = n_
+        if row['Offers Part D'] == 'Yes':
+            _pd_by_parent[par] = _pd_by_parent.get(par, 0) + n_
+_top5 = sorted(_pd_by_parent, key=_pd_by_parent.get, reverse=True)[:5]
+check('parent orgs: top 5 by Part D enrollment are the five named in the post', 1,
+      int(_top5 == ['UnitedHealth Group, Inc.', 'Humana Inc.', 'Centene Corporation', 'CVS Health Corporation',
+                    'Health Care Service Corporation']))
+_cp = set(zip(px.CONTRACT_ID, px.PLAN_ID))
+_cp_all = pd.read_csv(SP + 'plan information  PPUF_2026Q3.txt', sep='|', dtype=str, encoding='latin-1',
+                      usecols=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID', 'FORMULARY_ID']).drop_duplicates()
+_split = _cp_all[[k_ in _cp for k_ in zip(_cp_all.CONTRACT_ID, _cp_all.PLAN_ID)]]
+check('parent orgs: plans with segments both in and out of the 5- or 6-tier set', 0,
+      int((~_split.FORMULARY_ID.map(ntier).isin([5, 6])).sum()))
+check('parent orgs: 5- or 6-tier plans with no parent company', 0, sum(c not in _parent for c, _ in _cp))
+_tot = sum(_enr_cp.get(k_, 0) for k_ in _cp)
+_t5 = sum(_enr_cp.get(k_, 0) for k_ in _cp if _parent[k_[0]] in _top5)
+check('parent orgs: people in the 5- or 6-tier plans, millions (post: about 48 million)', 48, round(_tot / 1e6))
+check('parent orgs: % of those people in plans of the top 5 (post: 76%)', 76, round(100 * _t5 / _tot))
+_pw = pd.read_csv('data/work/parent_orgs.csv', index_col=0)
+check('parent orgs: scripts/parent_orgs.py enrollment in the 5- or 6-tier plans', float(_pw.plans_5_6_tier_enrollment.sum()),
+      float(_tot))
+check('parent orgs: Part D enrollment, millions (post: about 58 million)', 58, round(sum(_pd_by_parent.values()) / 1e6))
+
 r = pd.DataFrame(out, columns=['check', 'built', 'recomputed', 'result'])
 r.to_csv('data/work/tieout_claude.csv', index=False)
 pd.set_option('display.width', 220)

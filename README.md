@@ -40,7 +40,8 @@ Interactive charts:
   2026 Q3.
 - **Generic tiers.** A drug is counted as generic when the FDA lists it under an abbreviated new drug
   application (ANDA). Each strength and form of a drug counts once per plan, for the 5,295 plans whose drug
-  lists use five or six tiers.
+  lists use five or six tiers. Enrollment and parent companies come from CMS's Monthly Enrollment by
+  Plan, October 2026.
 
 `DATASETS.md` has the full method and its limits.
 
@@ -54,6 +55,7 @@ python scripts/top100.py         # drugs, packages and per-unit prices
 python scripts/basket.py         # basket cost
 python scripts/generic_tiers.py  # generic tiers table and dist/generic-tiers.html
 python scripts/lenalidomide.py   # generic lenalidomide in real plans
+python scripts/parent_orgs.py    # parent companies and enrollment of the 5,295 plans
 python scripts/viz.py            # dist/index.html
 python scripts/viz30.py          # dist/negotiated-30day.html
 python scripts/viz19.py          # dist/part-d-rebates.html

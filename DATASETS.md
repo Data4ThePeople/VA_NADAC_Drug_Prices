@@ -148,7 +148,8 @@ cost file was extracted November 11, 2026).
 **Version and vintage.** 2026 Q3, posted October 7, 2026; same Plan Finder snapshot as the pricing file.
 
 **Coverage.** Same plans as the pricing file. The plan information file lists 5,518 plans; the pricing
-file has 5,496. Counts here are of plans, not enrollees; the files have no enrollment.
+file has 5,496. Counts here are of plans, not enrollees; the files have no enrollment. Enrollment comes from
+the CMS Monthly Enrollment by Plan file (next section).
 
 **Changes over time.** One quarter only.
 
@@ -170,6 +171,48 @@ median copay of $0.
   one or two; 1 plan's formulary (00026194) has no rows in the formulary file.
 - The formulary lists one proxy NDC per drug product, not every NDC. A product's generic or brand status
   is read from that NDC.
+
+**Uncertainty.** None published.
+
+**License and attribution.** As for the pricing file.
+
+## Monthly Enrollment by Plan, October 2026 (CMS)
+
+**What it is.** Enrollment in each Medicare Advantage and Part D plan, with the plan's parent company.
+One row per contract and plan. Fields used: `Contract Number`, `Plan ID`, `Offers Part D` ("Yes" = offers
+Part D benefit), `Parent Organization` ("the name of the parent organization for this contract"),
+`Enrollment` ("total number of beneficiaries enrolled in the plan (* = 10 or less)").
+
+**Where it comes from.** https://www.cms.gov/files/zip/monthly-enrollment-plan-october-2026.zip , from
+https://www.cms.gov/data-research/statistics-trends-and-reports/medicare-advantagepart-d-contract-and-enrollment-data/monthly-enrollment-plan/monthly-enrollment-plan-2026-10 .
+Downloaded November 11, 2026. Local: `data/raw/cms_enroll_plan_2026_10/` (zip and `ex/`, with
+`Monthly_Report_By_Plan_2026_10.csv`, the `.xlsx` copy and the read-me).
+
+**Version and vintage.** October 2026 report (CSV dated October 1, 2026). The Part D plan files above are
+2026 Q3, posted October 7, 2026.
+
+**Coverage.** 7,608 rows. Local and regional coordinated care plans, MSA, PFFS, demonstrations, PACE, cost
+plans, employer-only PDPs and PDPs. Pilot contracts are left out (read-me). Part D enrollment (rows that
+offer Part D): 57,704,335.
+
+**Changes over time.** One month only.
+
+**Suppressed, censored or masked values.** The read-me says rows with 10 or fewer enrollees are removed,
+but this file keeps 1,516 such rows with `*` in place of the count. We count `*` as missing, so totals can
+be short by up to 10 per such row.
+
+**Missing data.** Of the 4,867 contract-plans behind the 5,295 plans on five- or six-tier formularies,
+4,817 have a count; the other 50 show `*` or are not in the file.
+
+**Revisions.** None found. We pin the October 2026 file.
+
+**Units and rounding.** People enrolled, whole numbers.
+
+**Known quirks.**
+- Each contract has one parent organization in the file, so every plan's parent is read from its contract.
+- Enrollment is by contract and plan. The Part D plan files split some plans into segments, which share
+  the plan's count.
+- Parent names are CMS's (for example "CVS Health Corporation", which owns Aetna).
 
 **Uncertainty.** None published.
 
@@ -564,7 +607,8 @@ current indexed dollar amounts were not checked.
 ## Method
 
 Scripts, run in order from the project root: `scripts/top100.py`, `scripts/basket.py`,
-`scripts/generic_tiers.py`, `scripts/lenalidomide.py`, then the charts, then `scripts/tieout.py`. Charts: `scripts/viz.py` (`dist/index.html`),
+`scripts/generic_tiers.py`, `scripts/lenalidomide.py`, `scripts/parent_orgs.py`, then the charts, then
+`scripts/tieout.py`. Charts: `scripts/viz.py` (`dist/index.html`),
 `scripts/viz30.py` (`dist/negotiated-30day.html`), `scripts/viz19.py` (`dist/part-d-rebates.html`),
 `scripts/viz21.py` (`dist/patient-cost.html`); `scripts/generic_tiers.py` also writes
 `dist/generic-tiers.html`. Python virtual environment `.venv` with `duckdb`, `pandas`, `openpyxl`.
@@ -725,6 +769,25 @@ applies on tiers 3 to 5 in 81% to 87% of plans, against 11% and 22% on tiers 1 a
 Output: `data/work/generic_tiers.csv` (one row per generic product: plans covering it, placements by tier,
 first generic date).
 
+### Parent companies and enrollment (`scripts/parent_orgs.py`)
+
+For the post's sentence on who runs the plans in the generic tier count.
+1. **Plans:** the same 5,295 plans on five- or six-tier formularies. Each plan's parent company is its
+   contract's `Parent Organization` in the October 2026 enrollment file (found for all 5,295).
+2. **People in these plans:** enrollment summed over the 4,867 contract-plans behind them, each counted
+   once (segments share a plan's count). No plan has segments both in and out of the five- or six-tier
+   set.
+3. **Largest parent companies:** ranked by Part D enrollment, all rows that offer Part D. Ranking by
+   enrollment in the 5,295 plans gives the same five, in a different order.
+
+Results: the 5,295 plans cover 47,585,033 people (about 48 million; 82.5% of Part D enrollment). The five
+largest parent companies are UnitedHealth Group (11.8 million Part D enrollees), Humana (10.2 million),
+Centene (9.9 million), CVS Health (7.1 million) and Health Care Service Corporation (3.6 million). Their
+plans hold 36,341,555 of the people in the 5,295 plans (76.4%) and are 3,062 of the 5,295 plans.
+
+Output: `data/work/parent_orgs.csv` (one row per parent company: Part D enrollment and share, plans and
+enrollment among the 5,295).
+
 ### Rebate chart (`scripts/viz19.py`)
 
 DIR as a share of total Part D drug costs, 2016 to 2026, transcribed from the Trustees Report Table IV.B8.
@@ -810,7 +873,8 @@ Imbruvica and Stelara are not in the top 100 by claims.
   kits or starter packs (Paxlovid) are not compared.
 - **Generic tier counts:** counted by product and plan, not by prescriptions or enrollees. Common generics
   (lisinopril, amlodipine, metformin tablets) sit on tiers 1 and 2 in nearly every plan, so a count
-  weighted by prescriptions would show a much lower share. Tier labels are the usual Plan Finder names,
+  weighted by prescriptions would show a much lower share. The enrollment of these plans is from October
+  2026; the plan files are 2026 Q3. Tier labels are the usual Plan Finder names,
   not fields in the file. A tier is not a price: what a patient pays depends on the plan's cost sharing
   for that tier and where the patient is in the benefit year.
 - **Patient cost chart:** a model, not what any one plan charges. Real plans often use flat copays on
