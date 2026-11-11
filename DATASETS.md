@@ -77,9 +77,10 @@ record layout https://data.cms.gov/sites/default/files/2025-10/83da019f-fa24-483
 CY 2026 Pricing Data Guidelines https://www.cms.gov/files/zip/2026-pricing-data-guidelines-calendar.zip
 
 **Where it comes from.** https://data.cms.gov/sites/default/files/2026-10/062e9434-ed9d-4e83-abbd-4d64eb375949/SPUF_2026_20261007.zip
-(2.5 GB zip, pipe-delimited text, no login). We use only `pricing file PPUF_2026Q3.txt` (2.0 GB), at
-`data/raw/spuf_2026q3/ex/`. Fields: `CONTRACT_ID`, `PLAN_ID`, `SEGMENT_ID`, `NDC`, `DAYS_SUPPLY`,
-`UNIT_COST`.
+(2.5 GB zip, pipe-delimited text, no login). This section covers `pricing file PPUF_2026Q3.txt` (2.0 GB),
+at `data/raw/spuf_2026q3/ex/`. Fields: `CONTRACT_ID`, `PLAN_ID`, `SEGMENT_ID`, `NDC`, `DAYS_SUPPLY`,
+`UNIT_COST`. The formulary, plan information and beneficiary cost files from the same zip are described
+in the next section.
 
 **Version and vintage.** Quarterly. The 2026 Q3 file was posted October 7, 2026 and is built from the
 first Medicare Plan Finder posting in the last month of the quarter. Plan Finder updates every two weeks,
@@ -120,6 +121,59 @@ rebates only when a plan applies them at the point of sale; other rebates are no
 **License and attribution.** U.S. government work (https://www.usa.gov/government-works). The CMS
 Agreement for Use asks users not to present the data in an inaccurate or misleading way. Credit: Centers
 for Medicare & Medicaid Services.
+
+## Medicare Part D plan formulary, plan information and beneficiary cost files (CMS)
+
+**What it is.** Three more tables from the same quarterly file as the pricing file above (same zip, same
+methodology and record layout).
+- `basic drugs formulary file  PPUF_2026Q3.txt`: one row per formulary and covered drug product. Fields
+  used: `FORMULARY_ID`, `RXCUI` ("RxNorm concept unique identifier"), `NDC` ("11-digit proxy National Drug
+  Code (NDC) associated with the drug product"), `TIER_LEVEL_VALUE` ("Cost share tier level associated
+  with the NDC"). 1,129,364 rows, 328 formularies, 6,170 drug products; each product has exactly one proxy
+  NDC and one tier per formulary.
+- `plan information  PPUF_2026Q3.txt`: one row per plan and county. Fields used: `CONTRACT_ID`,
+  `PLAN_ID`, `SEGMENT_ID`, `FORMULARY_ID`, `PREMIUM` ("Monthly premium amount"), `DEDUCTIBLE` ("Annual
+  deductible amount"). 5,518 distinct plans (contract-plan-segment).
+- `beneficiary cost file  PPUF_2026Q3.txt`: cost sharing by plan, coverage level, tier and days supply.
+  Fields used and codes, from the record layout: `COVERAGE_LEVEL` (0 = pre-deductible, 1 = initial
+  coverage, 3 = catastrophic), `TIER`, `DAYS_SUPPLY` (1 = 30 days, 2 = 90, 3 = other, 4 = 60),
+  `COST_TYPE_PREF` and `COST_TYPE_NONPREF` (preferred and standard retail pharmacies; 0 = not offered,
+  1 = copay, 2 = coinsurance), `COST_AMT_PREF` and `COST_AMT_NONPREF` (dollars for a copay; a decimal for
+  coinsurance, ".25 is interpreted as 25%"), `TIER_SPECIALTY_YN`, `DED_APPLIES_YN` ("Does the deductible
+  apply to this tier?").
+
+**Where it comes from.** Same zip as the pricing file. Local: `data/raw/spuf_2026q3/ex/` (the beneficiary
+cost file was extracted November 11, 2026).
+
+**Version and vintage.** 2026 Q3, posted October 7, 2026; same Plan Finder snapshot as the pricing file.
+
+**Coverage.** Same plans as the pricing file. The plan information file lists 5,518 plans; the pricing
+file has 5,496. Counts here are of plans, not enrollees; the files have no enrollment.
+
+**Changes over time.** One quarter only.
+
+**Suppressed, censored or masked values.** Suppressed plans are flagged in the plan information file.
+
+**Missing data.** 19 of the 5,295 plans on five- or six-tier formularies have no initial-coverage,
+30-day rows in the beneficiary cost file.
+
+**Revisions.** None found. We pin the 2026 Q3 file.
+
+**Units and rounding.** Tiers are numbers only; the files do not name them. The usual Plan Finder labels
+are tier 1 preferred generic, 2 generic, 3 preferred brand, 4 non-preferred drug, 5 specialty and 6 select
+care. The data fits those labels: tier 5 is flagged as the specialty tier in 96.5% of five-tier plans and
+99.1% of six-tier plans, and tier 6 holds low-cost generics (lisinopril, glipizide, atorvastatin) with a
+median copay of $0.
+
+**Known quirks.**
+- Tier structures vary: of the 5,518 plans, 3,921 use five tiers, 1,374 six, 37 four, 20 seven and 165
+  one or two; 1 plan's formulary (00026194) has no rows in the formulary file.
+- The formulary lists one proxy NDC per drug product, not every NDC. A product's generic or brand status
+  is read from that NDC.
+
+**Uncertainty.** None published.
+
+**License and attribution.** As for the pricing file.
 
 ## Medicare Part D Spending by Drug, annual, 2024 (CMS)
 
@@ -220,7 +274,9 @@ package fields https://www.fda.gov/drugs/drug-approvals-and-databases/ndc-packag
 **Where it comes from.** https://www.accessdata.fda.gov/cder/ndctext.zip (11 MB zip of tab-delimited
 text, no login). Local: `data/raw/fda_ndc/`. Fields used: `PROPRIETARYNAME`, `NONPROPRIETARYNAME`,
 `SUBSTANCENAME`, `MARKETINGCATEGORYNAME`, `APPLICATIONNUMBER`, `PRODUCTTYPENAME`, `DOSAGEFORMNAME`,
-`NDCPACKAGECODE`, `PACKAGEDESCRIPTION`.
+`NDCPACKAGECODE`, `PACKAGEDESCRIPTION`. For the generic tier analysis, `MARKETINGCATEGORYNAME` and
+`APPLICATIONNUMBER` of each formulary proxy NDC, matched by package code, or by product code (first 9
+digits) when the package is no longer listed.
 
 **Version and vintage.** Updated daily. Our copy's files are dated November 6, 2026 (a download on
 November 9 had newer files; the independent tie-out used that one and got the same results). We found no
@@ -249,6 +305,9 @@ example "4 SYRINGE in 1 CARTON / .75 mL in 1 SYRINGE."
   This is why package counts are checked against three sources (see Method).
 - Two-strip Ellipta inhalers list doses, not blisters.
 - Respimat cartridges list puffs, not grams.
+- Of the 6,170 formulary proxy NDCs, 6,040 match a listed package and 49 more match a listed product
+  by product code. 81 match neither, so their generic or brand status is unknown and they are left out
+  of the generic tier analysis.
 
 **Uncertainty.** None published.
 
@@ -330,7 +389,9 @@ generic.
 Source: https://www.fda.gov/drugs/drug-approvals-and-databases/drugsfda-data-files
 
 **Where it comes from.** https://www.fda.gov/media/89850/download (zip of tab-delimited text, no login).
-Local: `data/raw/drugsatfda/ex/`. Fields used: `ApplNo`, `ApplType`, `DrugName`.
+Local: `data/raw/drugsatfda/ex/`. Fields used: `ApplNo`, `ApplType`, `DrugName` (brand check);
+`ActiveIngredient`, `Form` from `Products.txt` and `SubmissionType`, `SubmissionStatus`,
+`SubmissionStatusDate` from `Submissions.txt` (first generic approval date, generic tier analysis).
 
 **Version and vintage.** Updated weekly. Files dated November 6, 2026, downloaded November 9, 2026.
 
@@ -347,9 +408,12 @@ it regulates (insulins, etanercept).
 
 **Units and rounding.** Not applicable.
 
-**Known quirks.** CMS brand names are often shortened, so only about three in four CMS brand rows near
-the top 100 match a Drugs@FDA drug name exactly. Rows with no exact match are kept and checked at the
-package level instead (see Method).
+**Known quirks.**
+- CMS brand names are often shortened, so only about three in four CMS brand rows near the top 100 match
+  a Drugs@FDA drug name exactly. Rows with no exact match are kept and checked at the package level
+  instead (see Method).
+- An original approval is a `SubmissionType` of ORIG with status AP. Approval is not the same as the date
+  a generic reached the market.
 
 **Uncertainty.** None published.
 
@@ -390,10 +454,119 @@ is $4.145 per tablet, not $231 / 60 = $3.85).
 **License and attribution.** Not checked. U.S. government work. Credit: Centers for Medicare & Medicaid
 Services.
 
+## Medicare Trustees Report, 2026 (CMS Office of the Actuary)
+
+**What it is.** The 2026 Annual Report of the Boards of Trustees of the Federal Hospital Insurance and
+Federal Supplementary Medical Insurance Trust Funds. We use Table IV.B8, "Key Factors for Part D
+Expenditure Estimates" (printed page 150), column "Direct and indirect remuneration," footnote 2:
+"Expressed as a percentage of total drug costs." DIR, in the report's glossary: "Payments primarily
+consisting of drug manufacturer rebates and pharmacy rebates that Part D plans negotiate." Also Table
+IV.B7 (Part D enrollment).
+Source: https://www.cms.gov/oact/tr/2026
+
+**Where it comes from.** The URL above serves the full report as a PDF (2.8 MB, no login). Local:
+`data/raw/trustees_2026/2026-medicare-trustees-report.pdf`.
+
+**Version and vintage.** 2026 report. 2016 to 2024 are historical data; 2025 onward are intermediate
+estimates.
+
+**Coverage.** All Part D drugs, generic and brand. Footnote 76: these are averages across all
+prescription drugs, including employer group waiver plans; generics, "about 88 percent of all Part D drugs
+dispensed and 12 percent of drug spending in 2025, typically carry little to no rebates."
+
+**Changes over time.** Since January 1, 2024, pharmacy price concessions are applied at the point of sale
+(CMS final rule of May 9, 2022) and are no longer in DIR, so 2024 onward is mostly manufacturer rebates.
+The Trustees expect negotiated prices and inflation rebates to reduce DIR from 2026.
+
+**Suppressed, censored or masked values.** None. Rebates for individual drugs are not published.
+
+**Missing data.** None in the table.
+
+**Revisions.** Each year's report can restate history and estimates. We pin the 2026 report.
+
+**Units and rounding.** Percent of total drug costs, one decimal.
+
+**Known quirks.** 2025 appears as an estimate in the 2026 report.
+
+**Uncertainty.** The report's high- and low-cost scenarios move the average rebate by 2 percentage points.
+
+**License and attribution.** U.S. government work. Credit: Boards of Trustees, Medicare trust funds.
+
+## VA health care copay rates (VA)
+
+**What it is.** The VA's published copays for outpatient medications: $5 (Tier 1, preferred generic), $8
+(Tier 2) and $11 (Tier 3, brand-name) for a 1- to 30-day supply, $700 yearly cap for Priority Groups 2 to
+8, and no medication copay for Priority Group 1 and other exempt veterans.
+Sources: https://www.va.gov/health-care/copay-rates/ (updated October 26, 2026; "Effective January 1,
+2026"); VA Health Care Benefits Overview 2026, pages 19 to 20,
+https://www.va.gov/HEALTHBENEFITS/resources/publications/10-185_HCBO_2026.pdf
+
+**Where it comes from.** Web page and PDF, no login. Read November 11, 2026.
+
+**Version and vintage.** 2026 rates.
+
+**Coverage.** Outpatient medications from VA pharmacies. Medications given during a hospital stay are
+covered by the inpatient copay.
+
+**Changes over time, suppressed values, missing data, revisions.** Not applicable.
+
+**Units and rounding.** Dollars per prescription by days supply.
+
+**Known quirks.** Copays do not depend on the drug's price.
+
+**Uncertainty.** None.
+
+**License and attribution.** U.S. government work. Credit: U.S. Department of Veterans Affairs.
+
+## Part D standard benefit, 2026 (CMS)
+
+**What it is.** The 2026 defined standard Part D benefit: "The enrollee pays 100% of their gross covered
+prescription drug costs (GCPDC) until the deductible of $615 for CY 2026 is met," then "25% coinsurance,"
+until the "annual out-of-pocket (OOP) threshold of $2,100," after which "The enrollee pays no cost
+sharing for covered Part D drugs."
+Sources: https://www.cms.gov/newsroom/fact-sheets/final-cy-2026-part-d-redesign-program-instructions
+(April 7, 2025); https://www.medicare.gov/health-drug-plans/part-d/basics/costs
+
+**Where it comes from.** Web pages, no login. Read November 11, 2026.
+
+**Coverage.** The standard benefit is a model. Plans can use other designs of equal value, such as flat
+copays by tier and lower deductibles (see the beneficiary cost file above).
+
+**Other fields.** Not applicable.
+
+**License and attribution.** U.S. government work. Credit: Centers for Medicare & Medicaid Services.
+
+## Medicaid cost sharing rules (federal regulation)
+
+**What it is.** The federal limits on what Medicaid enrollees can be charged for prescription drugs.
+42 CFR 447.53(b): for preferred drugs, at most $4; for non-preferred drugs, at most $8 for people with
+family income at or below 150% of the federal poverty level, and "20% of the cost the agency pays" above
+it. The dollar amounts rise each year from October 1, 2015, with the medical care part of the CPI-U; the
+20% limit does not. 42 CFR 447.56(a) bars cost sharing for children, pregnant women (for pregnancy-related
+care), people in hospice and other groups, and 447.56(f) caps all premiums and cost sharing at 5% of family
+income. Under 447.52(e), a pharmacy can require the copay before filling only for people with income above
+100% of the poverty level who are not in an exempt group.
+Sources: https://www.law.cornell.edu/cfr/text/42/447.53 ; https://www.law.cornell.edu/cfr/text/42/447.52 ;
+https://www.law.cornell.edu/cfr/text/42/447.56 (Cornell LII copies of the eCFR; the eCFR site redirected
+automated reads).
+
+**Where it comes from.** Web pages, no login. Read November 11, 2026.
+
+**Coverage.** Federal limits only. Each state sets its own amounts within them; this post does not count
+which states charge what.
+
+**Known quirks.** The 20% limit is a share of what the state pays the pharmacy, not of a list price. The
+current indexed dollar amounts were not checked.
+
+**License and attribution.** U.S. government work.
+
 ## Method
 
 Scripts, run in order from the project root: `scripts/top100.py`, `scripts/basket.py`,
-`scripts/tieout.py`. Python virtual environment `.venv` with `duckdb`, `pandas`, `openpyxl`.
+`scripts/generic_tiers.py`, `scripts/tieout.py`. Charts: `scripts/viz.py` (`dist/index.html`),
+`scripts/viz30.py` (`dist/negotiated-30day.html`), `scripts/viz19.py` (`dist/part-d-rebates.html`),
+`scripts/viz21.py` (`dist/patient-cost.html`); `scripts/generic_tiers.py` also writes
+`dist/generic-tiers.html`. Python virtual environment `.venv` with `duckdb`, `pandas`, `openpyxl`.
 
 ### Which drugs: top 100 brands by 2024 Part D claims
 
@@ -483,6 +656,83 @@ is not an estimate of what Medicare or the VA spends.
 
 Output: `data/work/basket.csv`.
 
+### Generic drugs on brand-level tiers (`scripts/generic_tiers.py`)
+
+The question: how often do Part D plans put generic drugs on the tiers used for brand-name drugs? Counted
+by drug product, not weighted by prescriptions, so every covered strength and form of a generic counts
+the same.
+
+1. **Plans:** distinct contract-plan-segment in the plan information file, each with its `FORMULARY_ID`.
+   Only plans whose formulary has five or six tiers (highest `TIER_LEVEL_VALUE` 5 or 6) are counted:
+   5,295 of 5,518 plans. Plans with one, two, four or seven tiers are left out because their tier numbers
+   do not line up with the standard labels.
+2. **Drug products:** each formulary row is one product (RxNorm ID) with one proxy NDC and a tier.
+3. **Generic:** the proxy NDC's `MARKETINGCATEGORYNAME` in the FDA NDC Directory is ANDA, matched by
+   package code or, when the package is no longer listed, by product code (first 9 digits). 3,074 generic
+   products are on at least one of the counted formularies. Authorized generics (sold under the brand's
+   NDA, 152 products) and NDCs not in the directory (81) are not counted as generic. Brand-name drugs, for
+   comparison, are NDA or BLA products.
+4. **Placement:** one plan covering one product. 12,335,512 generic placements.
+5. **Brand-level tier:** tier 3 (preferred brand), 4 (non-preferred drug) or 5 (specialty). Tiers 1 and 2
+   (generic) and 6 (select care, low-cost generics) are not.
+6. **Measures:** share of placements on tiers 3 to 5, split into tier 3 and tiers 4 and 5; and the number
+   of products on tiers 3 to 5 in at least half of the plans that cover them.
+7. **Years since the first generic:** the product's ANDA number (from the NDC Directory) gives its active
+   ingredient and form in Drugs@FDA `Products.txt`. The first generic date is the earliest original ANDA
+   approval (`Submissions.txt`, ORIG, AP) for that active ingredient and form across all ANDAs. Years are
+   counted to October 1, 2026. Groups: under 2, 2 to 5, 5 to 10, 10 to 20, 20 or more. A date was found
+   for 3,070 of the 3,074 products.
+8. **Patient cost by tier:** from the beneficiary cost file, for the same plans: initial coverage
+   (`COVERAGE_LEVEL` 1), 30-day supply (`DAYS_SUPPLY` 1), at a preferred retail pharmacy when the plan
+   offers one (`COST_TYPE_PREF` not 0), otherwise a standard retail pharmacy. Measures: share of plans
+   charging coinsurance (type 2) on each tier, and share where the deductible applies.
+
+Results: 52.7% of generic placements are on tiers 3 to 5 (tier 3 18.2%, tier 4 27.9%, tier 5 6.6%),
+against 94% for brand-name drugs. 1,873 of the 3,074 generic products are on tiers 3 to 5 in at least half
+of the plans that cover them. The share falls with time since the first generic: 87% under 2 years, 94%
+at 2 to 5, 83% at 5 to 10, 57% at 10 to 20, and 42% at 20 years or more. Plans charge coinsurance on tier 3
+in 70% of plans, tier 4 in 91% and tier 5 in 99%, against 4% and 10% on tiers 1 and 2; the deductible
+applies on tiers 3 to 5 in 81% to 87% of plans, against 11% and 22% on tiers 1 and 2.
+
+Output: `data/work/generic_tiers.csv` (one row per generic product: plans covering it, placements by tier,
+first generic date).
+
+### Rebate chart (`scripts/viz19.py`)
+
+DIR as a share of total Part D drug costs, 2016 to 2026, transcribed from the Trustees Report Table IV.B8.
+2025 and 2026 are marked as estimates. `scripts/tieout.py` re-reads the values from the PDF.
+
+### Patient cost chart (`scripts/viz21.py`)
+
+What a patient pays for a 30-day supply of each of the 10 compared brands with the most 2024 Part D
+spending, under the 2026 standard benefit, compared with the VA copay.
+
+1. **30-day price, Part D, before the dispensing fee.**
+   - Drugs with a 2026 negotiated price (Eliquis, Jardiance, Xarelto, Farxiga, Entresto): CMS's negotiated
+     price per 30-day equivalent supply (MFP data file, in effect November 1, 2026).
+   - Others: the Part D median unit cost times the units in the package that lasts about a month at the
+     labeled maintenance dose, median across that drug's packages, then times 30 divided by the days the
+     package lasts. Ozempic: one 3 mL pen, 4 weekly maintenance doses, 28 days. Mounjaro and Trulicity: a
+     carton of 4 weekly pens, 28 days. Trelegy: one 30-dose inhaler, one dose a day, 30 days. Revlimid: 21
+     capsules, one 28-day cycle. A 28-day package is scaled to 30 days, the same basis as CMS's prices.
+2. **Patient cost, standard benefit, one drug only.** A fill while in the deductible = the price up to the
+   deductible still owed plus 25% of the rest; a fill after the deductible = 25% of the price; a year =
+   twelve fills, with the deductible of $615 applied first, capped at $2,100. If the first fill reaches
+   the cap, later fills cost $0 (Revlimid).
+3. **VA:** $11 per 30-day supply (Tier 3, brand-name), $132 for a year; $0 for exempt veterans.
+4. **Real plans (hover and table):** for plans on five- or six-tier formularies that cover the drug
+   (any of its products, matched by the first 9 NDC digits), the drug's tier is the lowest tier among its
+   products on that formulary. That tier's cost sharing for a 30-day retail fill in the initial coverage
+   phase (preferred pharmacy if offered, else standard) gives the cost after the deductible: the copay, or
+   the coinsurance rate times the 30-day price above, within any minimum or maximum the plan sets, capped
+   at $2,100. Reported: plans covering the drug, share on tier 3 or higher, share charging coinsurance,
+   share where the deductible applies (the tier's `DED_APPLIES_YN` is Y and the plan deductible is above
+   $0), and the median and 10th and 90th percentile cost after the deductible. Only 225 plans cover brand
+   Revlimid.
+
+`scripts/tieout.py` checks the prices against the MFP file by drug name and the package rule,
+recomputes the patient costs by simulating twelve fills, and recomputes the real-plan figures with pandas.
+
 ### 2026 negotiated drugs
 
 Eliquis, Jardiance, Xarelto, Januvia, Farxiga, Entresto, Enbrel, Imbruvica, Stelara, and NovoLog/Fiasp
@@ -503,3 +753,13 @@ Imbruvica and Stelara are not in the top 100 by claims.
   VA cost applies an ingredient-price ratio to that total.
 - **Coverage:** brands with no current Big4 price, or with no NDC in the Part D pricing file, are not
   compared.
+- **Generic tier counts:** counted by product and plan, not by prescriptions or enrollees. Common generics
+  (lisinopril, amlodipine, metformin tablets) sit on tiers 1 and 2 in nearly every plan, so a count
+  weighted by prescriptions would show a much lower share. Tier labels are the usual Plan Finder names,
+  not fields in the file. A tier is not a price: what a patient pays depends on the plan's cost sharing
+  for that tier and where the patient is in the benefit year.
+- **Patient cost chart:** a model, not what any one plan charges. Real plans often use flat copays on
+  some tiers and lower deductibles, and many enrollees take more than one drug, so they reach the
+  deductible and the cap sooner. Prices exclude the dispensing fee. The 30-day package rule uses the
+  labeled maintenance dose; starting doses (Ozempic) and other dosing schedules (Revlimid has 28-capsule
+  regimens) would change the price.

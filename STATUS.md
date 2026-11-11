@@ -5,8 +5,8 @@ Process: ~/.claude/d4tp-process/PROCESS.md
 
 ## Current
 
-Post: none yet
-Step: 2a (awaiting slug)
+Post: va-vs-medicare-drug-prices
+Step: 2a
 Since: 2026-11-10
 
 ## Steps
@@ -42,3 +42,13 @@ None.
 - 2026-11-09 Negotiation selection rules verified (statute, CMS fact sheet) and added to TIEOUT W9-W12. Bar chart
   second order changed to 2024 Part D spending. 30-day chart built for the negotiated drugs.
 - 2026-11-10 Step 1 confirmed by Eric.
+- 2026-11-10 Step 2a opened. Slug va-vs-medicare-drug-prices. Beats agreed (outline in POST.md); awaiting Eric's draft.
+- 2026-11-11 Eric's opinion draft in POST.md with accepted edits 1-17 and 22-24. New charts built and tied out:
+  part-d-rebates (Trustees DIR), generic-tiers (ANDA products by tier and years since first generic),
+  patient-cost (VA copay vs 2026 standard benefit, plus real-plan medians). Revlimid/lenalidomide paragraph.
+  Enbrel 4-syringe cartons confirmed (VA count x FDA mL; per-mL price vs agreed packages); own tie-out
+  2,224 OK, 0 REVIEW, 0 DIFF. Medicaid rule (42 CFR 447.53) and SNAP claim checked (TIEOUT W24, W25).
+- 2026-11-11 Post laid out: four iframes (heights measured at 360 to 1280px in a real iframe), disclaimer in a
+  blurb, drop cap on the first story paragraph, chart 21 block moved below "But the 58 million ... do."
+  Notes in every viz folded into "Show notes and disclaimers". README.md drafted. Iframes point at GitHub
+  Pages, which needs the repo made public. Independent tie-out of the new charts running.

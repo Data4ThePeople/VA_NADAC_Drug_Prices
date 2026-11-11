@@ -1346,8 +1346,8 @@ ratio 00074231030,-0.3009900421053063,-0.30099004210530633,OK
 Big4 00074232001,2344.4,2344.4,OK
 Part D unit 00074232001,18.9581,18.9581,OK
 ratio 00074232001,-0.3129878814625704,-0.3129878814625704,OK
-qty single-source 58406002104 ENBREL 50 MG/ML PREFILLED SYRINGE,4.0,FDA (NADAC tie-break),REVIEW
-qty single-source 58406003204 ENBREL 50MG/ML SURECLICK AUTOINJECTOR,4.0,FDA (NADAC tie-break),REVIEW
+"qty tie-break 58406002104 ENBREL 50 MG/ML PREFILLED SYRINGE: VA count x FDA mL per item = 4 x 1; VA $/unit 1,324.95 vs agreed packages 1,359.11",4.0,FDA (NADAC tie-break),OK
+"qty tie-break 58406003204 ENBREL 50MG/ML SURECLICK AUTOINJECTOR: VA count x FDA mL per item = 4 x 1; VA $/unit 1,342.44 vs agreed packages 1,359.11",4.0,FDA (NADAC tie-break),OK
 compared NDCs with qty from 2+ sources,412,412,OK
 "MFP file: one per-unit price per NDC-9 on Nov 1, 2026",0,0,OK
 Part D unit = MFP per unit 00003089321 ELIQUIS 2.5MG TAB,4.1451,4.145072,OK
@@ -2093,3 +2093,142 @@ basket other VA vs Part D,,-28.6%,INFO
 basket brand count,89,89,OK
 negotiated flag matches CMS list,1,1,OK
 NovoLog Mix rows not flagged negotiated,0,0,OK
+generic tiers: plans on 5- or 6-tier formularies,5295,5295,OK
+generic tiers Brand-name drugs: products,2341,2341,OK
+generic tiers Brand-name drugs: plan listings,5662694,5662694,OK
+generic tiers Brand-name drugs: tier 3 %,21.48,21.48,OK
+generic tiers Brand-name drugs: tiers 4-5 %,72.48,72.48,OK
+generic tiers All generic drugs: products,3074,3074,OK
+generic tiers All generic drugs: plan listings,12335512,12335512,OK
+generic tiers All generic drugs: tier 3 %,18.21,18.21,OK
+generic tiers All generic drugs: tiers 4-5 %,34.48,34.48,OK
+generic tiers Under 2 years: products,67,67,OK
+generic tiers Under 2 years: plan listings,185467,185467,OK
+generic tiers Under 2 years: tier 3 %,21.5,21.5,OK
+generic tiers Under 2 years: tiers 4-5 %,65.39,65.39,OK
+generic tiers 2 to 5 years: products,135,135,OK
+generic tiers 2 to 5 years: plan listings,341112,341112,OK
+generic tiers 2 to 5 years: tier 3 %,14.59,14.59,OK
+generic tiers 2 to 5 years: tiers 4-5 %,79.86,79.86,OK
+generic tiers 5 to 10 years: products,367,367,OK
+generic tiers 5 to 10 years: plan listings,1307870,1307870,OK
+generic tiers 5 to 10 years: tier 3 %,17.27,17.27,OK
+generic tiers 5 to 10 years: tiers 4-5 %,65.39,65.39,OK
+generic tiers 10 to 20 years: products,857,857,OK
+generic tiers 10 to 20 years: plan listings,3436521,3436521,OK
+generic tiers 10 to 20 years: tier 3 %,16.73,16.73,OK
+generic tiers 10 to 20 years: tiers 4-5 %,40.27,40.27,OK
+generic tiers 20 years or more: products,1644,1644,OK
+generic tiers 20 years or more: plan listings,7057053,7057053,OK
+generic tiers 20 years or more: tier 3 %,19.21,19.21,OK
+generic tiers 20 years or more: tiers 4-5 %,22.94,22.94,OK
+rebate chart 2016 DIR %,19.9,19.9,OK
+rebate chart 2017 DIR %,21.9,21.9,OK
+rebate chart 2018 DIR %,25.0,25.0,OK
+rebate chart 2019 DIR %,26.5,26.5,OK
+rebate chart 2020 DIR %,27.0,27.0,OK
+rebate chart 2021 DIR %,29.1,29.1,OK
+rebate chart 2022 DIR %,31.3,31.3,OK
+rebate chart 2023 DIR %,33.5,33.5,OK
+rebate chart 2024 DIR %,26.5,26.5,OK
+rebate chart 2025 DIR %,27.7,27.7,OK
+rebate chart 2026 DIR %,19.5,19.5,OK
+rebate chart: estimates are 2025 and 2026,1,1,OK
+patient chart: drugs are the top 10 by 2024 spending,1,1,OK
+patient chart Eliquis: 30-day price = CMS negotiated,231.0,231.0,OK
+patient chart Eliquis: first fill,231.0,231.0,OK
+patient chart Eliquis: year,1154.25,1154.25,OK
+patient chart Eliquis: fill after deductible,57.75,57.75,OK
+patient chart Ozempic: 30-day price,1057.06,1057.06,OK
+patient chart Ozempic: first fill,725.52,725.51,OK
+patient chart Ozempic: year,2100.0,2100.0,OK
+patient chart Ozempic: fill after deductible,264.27,264.26,OK
+patient chart Jardiance: 30-day price = CMS negotiated,197.0,197.0,OK
+patient chart Jardiance: first fill,197.0,197.0,OK
+patient chart Jardiance: year,1052.25,1052.25,OK
+patient chart Jardiance: fill after deductible,49.25,49.25,OK
+patient chart Mounjaro: 30-day price,1144.03,1144.03,OK
+patient chart Mounjaro: first fill,747.26,747.26,OK
+patient chart Mounjaro: year,2100.0,2100.0,OK
+patient chart Mounjaro: fill after deductible,286.01,286.01,OK
+patient chart Xarelto: 30-day price = CMS negotiated,197.0,197.0,OK
+patient chart Xarelto: first fill,197.0,197.0,OK
+patient chart Xarelto: year,1052.25,1052.25,OK
+patient chart Xarelto: fill after deductible,49.25,49.25,OK
+patient chart Trulicity: 30-day price,1034.94,1034.94,OK
+patient chart Trulicity: first fill,719.99,719.99,OK
+patient chart Trulicity: year,2100.0,2100.0,OK
+patient chart Trulicity: fill after deductible,258.74,258.74,OK
+patient chart Trelegy: 30-day price,670.04,670.04,OK
+patient chart Trelegy: first fill,628.76,628.76,OK
+patient chart Trelegy: year,2100.0,2100.0,OK
+patient chart Trelegy: fill after deductible,167.51,167.51,OK
+patient chart Farxiga: 30-day price = CMS negotiated,178.5,178.5,OK
+patient chart Farxiga: first fill,178.5,178.5,OK
+patient chart Farxiga: year,996.75,996.75,OK
+patient chart Farxiga: fill after deductible,44.62,44.62,OK
+patient chart Revlimid: 30-day price,19314.67,19314.67,OK
+patient chart Revlimid: first fill,2100.0,2100.0,OK
+patient chart Revlimid: year,2100.0,2100.0,OK
+patient chart Revlimid: fill after deductible,0.0,0.0,OK
+patient chart Entresto: 30-day price = CMS negotiated,295.0,295.0,OK
+patient chart Entresto: first fill,295.0,295.0,OK
+patient chart Entresto: year,1346.25,1346.25,OK
+patient chart Entresto: fill after deductible,73.75,73.75,OK
+patient chart Eliquis: real plans covering,5276,5276,OK
+patient chart Eliquis: real plans on tier 3+ %,99.7,99.7,OK
+patient chart Eliquis: real plans coinsurance %,69.9,69.9,OK
+patient chart Eliquis: real plans deductible %,81.0,81.0,OK
+patient chart Eliquis: real plans median after deductible,47.0,47.0,OK
+patient chart Ozempic: real plans covering,5225,5225,OK
+patient chart Ozempic: real plans on tier 3+ %,99.8,99.8,OK
+patient chart Ozempic: real plans coinsurance %,69.4,69.4,OK
+patient chart Ozempic: real plans deductible %,81.1,81.1,OK
+patient chart Ozempic: real plans median after deductible,211.41,211.41,OK
+patient chart Jardiance: real plans covering,5276,5276,OK
+patient chart Jardiance: real plans on tier 3+ %,99.9,99.9,OK
+patient chart Jardiance: real plans coinsurance %,69.9,69.9,OK
+patient chart Jardiance: real plans deductible %,81.0,81.0,OK
+patient chart Jardiance: real plans median after deductible,47.0,47.0,OK
+patient chart Mounjaro: real plans covering,5123,5123,OK
+patient chart Mounjaro: real plans on tier 3+ %,99.7,99.7,OK
+patient chart Mounjaro: real plans coinsurance %,70.5,70.5,OK
+patient chart Mounjaro: real plans deductible %,82.4,82.4,OK
+patient chart Mounjaro: real plans median after deductible,228.81,228.81,OK
+patient chart Xarelto: real plans covering,5276,5276,OK
+patient chart Xarelto: real plans on tier 3+ %,99.8,99.8,OK
+patient chart Xarelto: real plans coinsurance %,69.9,69.9,OK
+patient chart Xarelto: real plans deductible %,81.0,81.0,OK
+patient chart Xarelto: real plans median after deductible,47.0,47.0,OK
+patient chart Trulicity: real plans covering,5045,5045,OK
+patient chart Trulicity: real plans on tier 3+ %,99.7,99.7,OK
+patient chart Trulicity: real plans coinsurance %,70.6,70.6,OK
+patient chart Trulicity: real plans deductible %,82.8,82.8,OK
+patient chart Trulicity: real plans median after deductible,206.99,206.99,OK
+patient chart Trelegy: real plans covering,5276,5276,OK
+patient chart Trelegy: real plans on tier 3+ %,99.8,99.8,OK
+patient chart Trelegy: real plans coinsurance %,70.2,70.2,OK
+patient chart Trelegy: real plans deductible %,81.1,81.1,OK
+patient chart Trelegy: real plans median after deductible,134.01,134.01,OK
+patient chart Farxiga: real plans covering,3074,3074,OK
+patient chart Farxiga: real plans on tier 3+ %,100.0,100.0,OK
+patient chart Farxiga: real plans coinsurance %,62.6,62.6,OK
+patient chart Farxiga: real plans deductible %,78.5,78.5,OK
+patient chart Farxiga: real plans median after deductible,42.84,42.84,OK
+patient chart Revlimid: real plans covering,225,225,OK
+patient chart Revlimid: real plans on tier 3+ %,100.0,100.0,OK
+patient chart Revlimid: real plans coinsurance %,100.0,100.0,OK
+patient chart Revlimid: real plans deductible %,92.9,92.9,OK
+patient chart Revlimid: real plans median after deductible,2100.0,2100.0,OK
+patient chart Entresto: real plans covering,5276,5276,OK
+patient chart Entresto: real plans on tier 3+ %,99.8,99.8,OK
+patient chart Entresto: real plans coinsurance %,69.9,69.9,OK
+patient chart Entresto: real plans deductible %,81.0,81.0,OK
+patient chart Entresto: real plans median after deductible,59.0,59.0,OK
+lenalidomide generic: plans covering,5295,5295,OK
+lenalidomide generic: plans on tier 5,5283,5283,OK
+lenalidomide generic: plans on tier 4,12,12,OK
+"lenalidomide generic: plans on tiers 1, 2 or 6",0,0,OK
+lenalidomide generic: coinsurance %,99.4,99.4,OK
+lenalidomide generic: median coinsurance rate,0.25,0.25,OK
+Revlimid brand: plans covering,225,225,OK

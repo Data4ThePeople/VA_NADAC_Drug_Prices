@@ -97,6 +97,10 @@ svg.chart { display: block; width: 100%; background: var(--panel); }
 
 details.tbl { margin-top: 16px; font-size: 13.5px; }
 details.tbl summary { cursor: pointer; color: var(--muted); }
+details.notes { margin-top: 12px; font-size: 13.5px; }
+details.notes summary { cursor: pointer; color: var(--muted); }
+details.notes summary:focus-visible { outline: 2px solid var(--muted); }
+details.notes .source { margin-top: 6px; }
 details.tbl summary:focus-visible { outline: 2px solid var(--neg); }
 .tblwrap { overflow-x: auto; margin-top: 8px; max-height: 420px; overflow-y: auto; border: 1px solid var(--grid); }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
@@ -113,6 +117,7 @@ html.embed .standfirst { font-size: 13px; }
 html.embed .bar { margin: 8px 0 6px; font-size: 13px; }
 html.embed .chartbox { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 html.embed details.tbl { display: none; }
+html.embed details.notes { margin-top: 6px; font-size: 12px; }
 html.embed .source { font-size: 11.5px; margin-top: 6px; line-height: 1.35; }
 
 @container (max-width: 640px) {
@@ -155,16 +160,19 @@ html.embed .source { font-size: 11.5px; margin-top: 6px; line-height: 1.35; }
     <div class="tip" id="tip" role="status" aria-live="polite"></div>
   </div>
 
-  <p class="source">
-    VA: Big4 prices in effect November 1, 2026, from the VA National Acquisition Center pharmaceutical
-    price list. Big4 is the most the VA can be charged; it can pay less. Medicare: median 30-day unit cost
-    across Part D plans, CMS Quarterly Prescription Drug Plan pricing file, 2026 Q3. Part D prices are before
-    most manufacturer rebates, which are not public. Each bar is the median across the drug's packages.
-    Drugs: top 100 brands by 2024 Part D claims (CMS Medicare Part D Spending by Drug); spending is 2024 Part D
-    gross spending from the same file, before rebates. 10 drugs are not shown
-    because they have no Big4 price or no Part D price. Negotiated drugs: CMS, 2026 negotiated prices.
-    Built by <a href="https://www.data4thepeople.com">Data 4 The People</a>.
-  </p>
+  <details class="notes">
+    <summary>Show notes and disclaimers</summary>
+    <p class="source">
+      VA: Big4 prices in effect November 1, 2026, from the VA National Acquisition Center pharmaceutical
+      price list. Big4 is the most the VA can be charged; it can pay less. Medicare: median 30-day unit cost
+      across Part D plans, CMS Quarterly Prescription Drug Plan pricing file, 2026 Q3. Part D prices are before
+      most manufacturer rebates, which are not public. Each bar is the median across the drug's packages.
+      Drugs: top 100 brands by 2024 Part D claims (CMS Medicare Part D Spending by Drug); spending is 2024 Part D
+      gross spending from the same file, before rebates. 10 drugs are not shown
+      because they have no Big4 price or no Part D price. Negotiated drugs: CMS, 2026 negotiated prices.
+      Built by <a href="https://www.data4thepeople.com">Data 4 The People</a>.
+    </p>
+  </details>
 
   <details class="tbl">
     <summary>Show the data as a table</summary>

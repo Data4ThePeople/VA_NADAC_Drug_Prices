@@ -73,7 +73,19 @@ for r in cmp_.itertuples():
     srcs = [v for v in (r.fda_qty, r.va_qty, r.mdrp_q) if pd.notna(v)]
     agree = sum(abs(v - r.qty) <= 0.01 * r.qty for v in srcs)
     if agree < 2:
-        out.append((f'qty single-source {r.NDC} {r.va_name}', r.qty, r.qty_src, 'REVIEW'))
+        # Second check for a count set by the NADAC tie-break: (a) the VA package field gives the item count
+        # and the FDA text gives the volume per item; their product must equal the count used; (b) the VA price
+        # per unit at that count must sit within 10% of the same drug's per-unit VA price on packages whose
+        # count two or more sources agree on.
+        vol = re.search(r'/ ([\d.]+) mL in 1', str(r.PACKAGEDESCRIPTION))
+        items = pd.to_numeric(str(r.va_pkg).strip(), errors='coerce')
+        a_ok = vol is not None and pd.notna(items) and abs(items * float(vol.group(1)) - r.qty) < 1e-9
+        peers = cmp_[(cmp_.family == r.family) & (cmp_.NDC != r.NDC) & (cmp_.qty_src.str.contains(r'\+'))]
+        peer = (peers.Big4 / peers.qty).median()
+        b_ok = pd.notna(peer) and abs((r.Big4 / r.qty) / peer - 1) <= 0.10
+        out.append((f'qty tie-break {r.NDC} {r.va_name}: VA count x FDA mL per item = '
+                    f'{items:g} x {vol.group(1) if vol else "?"}; VA $/unit {r.Big4 / r.qty:,.2f} vs agreed '
+                    f'packages {peer:,.2f}', r.qty, r.qty_src, 'OK' if a_ok and b_ok else 'REVIEW'))
 check('compared NDCs with qty from 2+ sources', len(cmp_) - 2,
       int(sum(sum(abs(v - q) <= 0.01 * q for v in (a, b_, c_) if pd.notna(v)) >= 2
               for q, a, b_, c_ in zip(cmp_.qty, cmp_.fda_qty, cmp_.va_qty, cmp_.mdrp_q))))
@@ -172,6 +184,138 @@ neg_list = {'eliquis', 'jardiance', 'xarelto', 'januvia', 'farxiga', 'entresto',
 check('negotiated flag matches CMS list', 1,
       int(set(k.loc[k.negotiated_2026, 'family']) == (neg_list & set(k.family))))
 check('NovoLog Mix rows not flagged negotiated', 0, int(k[k.brand.str.upper().str.contains('MIX') & k.negotiated_2026].shape[0]))
+
+# ---------- F. generic tier chart (dist/generic-tiers.html), separate code path ----------
+# pandas only; generic status from the FDA product file by labeler-product code (first 9 NDC digits)
+# instead of the package file; first generic date by a plain dict pass over Drugs@FDA.
+import json as _j2
+SP = 'data/raw/spuf_2026q3/ex/'
+fx = pd.read_csv(SP + 'basic drugs formulary file  PPUF_2026Q3.txt', sep='|', dtype=str,
+                 usecols=['FORMULARY_ID', 'RXCUI', 'NDC', 'TIER_LEVEL_VALUE'])
+fx['tier'] = fx.TIER_LEVEL_VALUE.astype(int)
+px = pd.read_csv(SP + 'plan information  PPUF_2026Q3.txt', sep='|', dtype=str, encoding='latin-1',
+                 usecols=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID', 'FORMULARY_ID']).drop_duplicates()
+ntier = fx.groupby('FORMULARY_ID').tier.max()
+px = px[px.FORMULARY_ID.map(ntier).isin([5, 6])]
+check('generic tiers: plans on 5- or 6-tier formularies', 5295, len(px))
+pr = pd.read_csv('data/raw/fda_ndc/product.txt', sep='\t', dtype=str, encoding='latin-1')
+pr['p9'] = pr.PRODUCTNDC.map(lambda s: s.split('-')[0].zfill(5) + s.split('-')[1].zfill(4))
+cat9 = pr.drop_duplicates('p9').set_index('p9')
+fx['cat'] = fx.NDC.str[:9].map(cat9.MARKETINGCATEGORYNAME)
+fx['appl'] = fx.NDC.str[:9].map(cat9.APPLICATIONNUMBER)
+plx = px.merge(fx, on='FORMULARY_ID')
+gen = plx[plx.cat == 'ANDA']
+# first generic approval by active ingredient + form
+apps = pd.read_csv('data/raw/drugsatfda/ex/Applications.txt', sep='\t', dtype=str, encoding='latin-1')
+andas = set(apps.ApplNo[apps.ApplType == 'ANDA'])
+subs = pd.read_csv('data/raw/drugsatfda/ex/Submissions.txt', sep='\t', dtype=str, encoding='latin-1')
+apdate = {}
+for a, t, st, d in zip(subs.ApplNo, subs.SubmissionType, subs.SubmissionStatus, subs.SubmissionStatusDate):
+    if a in andas and t == 'ORIG' and st == 'AP':
+        apdate[a] = min(apdate.get(a, d), d)
+prods = pd.read_csv('data/raw/drugsatfda/ex/Products.txt', sep='\t', dtype=str, encoding='latin-1', on_bad_lines='skip')
+firstd, keys = {}, {}
+for a, ing, frm in zip(prods.ApplNo, prods.ActiveIngredient, prods.Form):
+    if a in andas and a in apdate:
+        firstd[(ing, frm)] = min(firstd.get((ing, frm), apdate[a]), apdate[a])
+        keys.setdefault(a, set()).add((ing, frm))
+fg = {a: min(firstd[k] for k in ks) for a, ks in keys.items()}
+yrs = gen.drop_duplicates('RXCUI').set_index('RXCUI').appl.str.replace('ANDA', '').map(fg)
+yrs = (pd.Timestamp('2026-10-01') - pd.to_datetime(yrs)).dt.days / 365.25
+gen = gen.assign(yrs=gen.RXCUI.map(yrs))
+grp = {'Brand-name drugs': plx[plx.cat.isin(['NDA', 'BLA'])], 'All generic drugs': gen}
+for lab_, lo_, hi_ in [('Under 2 years', 0, 2), ('2 to 5 years', 2, 5), ('5 to 10 years', 5, 10),
+                       ('10 to 20 years', 10, 20), ('20 years or more', 20, 100)]:
+    grp[lab_] = gen[(gen.yrs >= lo_) & (gen.yrs < hi_)]
+built20 = {d['label']: d for d in _j2.loads(re.search(r'const DATA = (\[.*?\]);', open('dist/generic-tiers.html').read()).group(1))}
+for lab_, d in grp.items():
+    bd = built20[lab_]
+    check(f'generic tiers {lab_}: products', bd['products'], d.RXCUI.nunique())
+    check(f'generic tiers {lab_}: plan listings', bd['placements'], len(d))
+    check(f'generic tiers {lab_}: tier 3 %', bd['t3'], round(100 * (d.tier == 3).mean(), 2), 0.05)
+    check(f'generic tiers {lab_}: tiers 4-5 %', bd['t45'], round(100 * d.tier.isin([4, 5]).mean(), 2), 0.05)
+
+# ---------- G. rebate chart (dist/part-d-rebates.html): values re-read from the Trustees Report PDF ----------
+from pypdf import PdfReader
+_tr = PdfReader('data/raw/trustees_2026/2026-medicare-trustees-report.pdf')
+_page = next(pg.extract_text() for pg in _tr.pages if 'Table IV.B8.—Key Factors for Part D Expenditure Estimates1' in (pg.extract_text() or ''))
+_dir = {int(m.group(1)): float(m.group(2)) for m in re.finditer(r'^(20[12]\d)\s+[−\-]?[\d.]+\s*%?\s+([\d.]+)\s*%?\s+[\d.]+', _page, re.M)}
+built19 = {d['year']: d for d in _j2.loads(re.search(r'const DATA = (\[.*?\]);', open('dist/part-d-rebates.html').read()).group(1))}
+for yr_, d in built19.items():
+    check(f'rebate chart {yr_} DIR %', d['pct'], _dir.get(yr_))
+check('rebate chart: estimates are 2025 and 2026', 1, int({y for y, d in built19.items() if d['est']} == {2025, 2026}))
+
+# ---------- H. patient cost chart (dist/patient-cost.html): month-by-month simulation ----------
+built21 = _j2.loads(re.search(r'const DATA = (\[.*?\]);', open('dist/patient-cost.html').read()).group(1))
+mfr = pd.read_csv('data/raw/cms_mfp/ex/CMS_Negotiation_Program_Selected_Drug_List_and_Maximum_Fair_Price_Data_File_20261102.csv', dtype=str)
+mfr = mfr[(pd.to_datetime(mfr['MFP Effective Date']) <= '2026-11-01')
+          & (pd.to_datetime(mfr['MFP End Date']).fillna(pd.Timestamp('2099-12-31')) >= '2026-11-01')]
+mfr['m30'] = mfr['Single MFP per 30 DES'].str.replace(r'[$,]', '', regex=True).astype(float)
+top10 = b[b.status == 'compared'].nlargest(10, 'spending_2024').family.tolist()
+check('patient chart: drugs are the top 10 by 2024 spending', 1,
+      int([d['name'].lower() for d in built21] == [f.lower() for f in top10]))
+for d in built21:
+    fam = d['name'].lower()
+    if d['neg']:
+        p30 = mfr[mfr['Selected Drug Name'].str.upper().str.startswith(d['name'].upper())].m30.unique()
+        check(f'patient chart {d["name"]}: 30-day price = CMS negotiated', d['price'], float(p30[0]) if len(p30) == 1 else None, 0.005)
+    else:
+        q, days = {'ozempic': (3, 28), 'mounjaro': (2, 28), 'trulicity': (2, 28), 'trelegy': (60, 30), 'revlimid': (21, 28)}[fam]
+        pk = n[(n.family == fam) & (n.qty == q) & n.big4_vs_partd.notna() & ~n.unit_flag]
+        if fam == 'ozempic':
+            pk = pk[pk.unit == 'ML']
+        check(f'patient chart {d["name"]}: 30-day price', d['price'], round((pk.partd_unit * pk.qty).median() * 30 / days, 2), 0.005)
+    # simulate 12 fills under the 2026 standard benefit
+    paid, ded_left, fills = 0.0, 615.0, []
+    for _ in range(12):
+        pay = min(d['price'], ded_left) + 0.25 * max(0.0, d['price'] - ded_left)
+        ded_left = max(0.0, ded_left - d['price'])
+        pay = min(pay, 2100.0 - paid); paid += pay; fills.append(pay)
+    check(f'patient chart {d["name"]}: first fill', d['in_ded'], round(fills[0], 2), 0.011)
+    check(f'patient chart {d["name"]}: year', d['year'], round(paid, 2), 0.011)
+    after_sim = round(0.25 * d['price'], 2) if fills[0] < 2100 else 0.0
+    check(f'patient chart {d["name"]}: fill after deductible', d['after'], min(after_sim, 2100.0), 0.011)
+
+# real-plan figures in the patient chart, pandas path (fx/px from section F are plans on 5- or 6-tier formularies)
+bc = pd.read_csv(SP + 'beneficiary cost file  PPUF_2026Q3.txt', sep='|', dtype=str)
+bc = bc[(bc.COVERAGE_LEVEL == '1') & (bc.DAYS_SUPPLY == '1')].copy()
+usep = bc.COST_TYPE_PREF != '0'
+bc['typ'] = bc.COST_TYPE_PREF.where(usep, bc.COST_TYPE_NONPREF)
+for c_ in ('AMT', 'MIN_AMT', 'MAX_AMT'):
+    bc[c_] = bc[f'COST_{c_}_PREF'].where(usep, bc[f'COST_{c_}_NONPREF']).astype(float)
+bc['TIER'] = bc.TIER.astype(int)
+pded = pd.read_csv(SP + 'plan information  PPUF_2026Q3.txt', sep='|', dtype=str, encoding='latin-1',
+                   usecols=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID', 'DEDUCTIBLE']).drop_duplicates(['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID'])
+for d in built21:
+    fam = d['name'].lower()
+    p9s = set(n.loc[n.family == fam, 'NDC'].str[:9])
+    rows_ = fx[fx.NDC.str[:9].isin(p9s)].merge(px, on='FORMULARY_ID')
+    t_ = rows_.groupby(['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID']).tier.min().rename('TIER').reset_index()
+    t_ = t_.merge(bc, on=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID', 'TIER']).merge(pded, on=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID'])
+    cost = []
+    for typ_, amt_, mn_, mx_ in zip(t_.typ, t_.AMT, t_.MIN_AMT, t_.MAX_AMT):
+        v = amt_ if typ_ == '1' else amt_ * d['price'] if typ_ == '2' else float('nan')
+        if typ_ == '2' and mx_ > 0: v = min(v, mx_)
+        if typ_ == '2' and mn_ > 0: v = max(v, mn_)
+        cost.append(min(v, 2100.0))
+    check(f'patient chart {d["name"]}: real plans covering', d['rp_plans'], len(t_))
+    check(f'patient chart {d["name"]}: real plans on tier 3+ %', d['rp_tier3'], round(100 * (t_.TIER >= 3).mean(), 1), 0.051)
+    check(f'patient chart {d["name"]}: real plans coinsurance %', d['rp_coins'], round(100 * (t_.typ == '2').mean(), 1), 0.051)
+    check(f'patient chart {d["name"]}: real plans deductible %', d['rp_ded'],
+          round(100 * ((t_.DED_APPLIES_YN == 'Y') & (t_.DEDUCTIBLE.astype(float) > 0)).mean(), 1), 0.051)
+    check(f'patient chart {d["name"]}: real plans median after deductible', d['rp_after'], round(float(pd.Series(cost).median()), 2), 0.011)
+
+# Revlimid generic (lenalidomide) in the post: coverage and tiers, pandas path
+len_rx = set(fx.loc[(fx.cat == 'ANDA') & fx.NDC.str[:9].map(cat9.NONPROPRIETARYNAME).str.contains('lenalidomide', case=False, na=False), 'RXCUI'])
+lt = fx[fx.RXCUI.isin(len_rx)].merge(px, on='FORMULARY_ID').groupby(['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID']).tier.min()
+check('lenalidomide generic: plans covering', 5295, len(lt))
+check('lenalidomide generic: plans on tier 5', 5283, int((lt == 5).sum()))
+check('lenalidomide generic: plans on tier 4', 12, int((lt == 4).sum()))
+check('lenalidomide generic: plans on tiers 1, 2 or 6', 0, int(lt.isin([1, 2, 6]).sum()))
+lc = lt.rename('TIER').reset_index().merge(bc, on=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID', 'TIER'])
+check('lenalidomide generic: coinsurance %', 99.4, round(100 * (lc.typ == '2').mean(), 1), 0.051)
+check('lenalidomide generic: median coinsurance rate', 0.25, lc[lc.typ == '2'].AMT.median())
+check('Revlimid brand: plans covering', 225, [d for d in built21 if d['name'] == 'Revlimid'][0]['rp_plans'])
 
 r = pd.DataFrame(out, columns=['check', 'built', 'recomputed', 'result'])
 r.to_csv('data/work/tieout_claude.csv', index=False)

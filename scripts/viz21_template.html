@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Patients Pay</title>
+<meta name="description" content="What a patient pays for a month of each of the 10 brand-name drugs with the most Medicare Part D spending: the VA copay and a standard Part D plan.">
+<style>
+/* Plain white scheme, painted explicitly so the page holds inside the Prismic frame. */
+:root {
+  --bg:    #ffffff;
+  --panel: #ffffff;
+  --ink:   #14181d;
+  --muted: #5b6470;
+  --grid:  #cfd4da;
+  --hair:  #e9ecef;
+  --va:    #eb6834;   /* VA copay */
+  --after: #2a78d6;   /* Part D after the deductible */
+  --ded:   #0d3b78;   /* Part D while in the deductible; same hue darker. Contrast 3.2 / 4.4 / 11.0, CVD dE >= 21 */
+  --track: #c9ced4;
+  --wash:  #f2f4f6;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.45; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 24px 24px 40px; container-type: inline-size; display: flex; flex-direction: column; }
+header.masthead { border-bottom: 1px solid var(--grid); padding-bottom: 12px; }
+.logo { height: 24px; width: auto; display: block; margin-bottom: 12px; }
+h1 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+.standfirst { font-size: 15px; color: var(--muted); margin: 0; max-width: 72ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 12px 0 4px; padding: 0; list-style: none; font-size: 14px; font-weight: 600; }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.legend .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(20,24,29,.15); }
+.legend .va .dot { background: var(--va); }
+.legend .after .dot { background: var(--after); }
+.legend .ded .dot { background: var(--ded); }
+
+.chartbox { position: relative; }
+svg.chart { display: block; width: 100%; background: var(--panel); overflow: visible; }
+.chart text { font-family: var(--sans); fill: var(--muted); font-size: 12px; }
+.chart .tick { font-variant-numeric: tabular-nums; }
+.chart .grid { stroke: var(--hair); }
+.chart .cap { stroke: var(--muted); stroke-dasharray: 4 3; }
+.chart .name { fill: var(--ink); font-size: 13px; font-weight: 600; }
+.chart .val { fill: var(--ink); font-size: 12px; font-variant-numeric: tabular-nums; }
+.chart .yr { fill: var(--ink); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.chart .colh { fill: var(--muted); font-size: 11.5px; }
+.chart .track { stroke: var(--track); stroke-width: 2; }
+.chart .dva { fill: var(--va); stroke: #fff; stroke-width: 2; }
+.chart .dafter { fill: var(--after); stroke: #fff; stroke-width: 2; }
+.chart .dded { fill: var(--ded); stroke: #fff; stroke-width: 2; }
+.chart .band { fill: transparent; }
+.chart .row.hover .band { fill: var(--wash); }
+
+.tip { position: absolute; pointer-events: none; z-index: 5; min-width: 240px; max-width: 310px; padding: 10px 12px;
+  background: var(--ink); color: #fff; border-radius: 6px; font-size: 13.5px; line-height: 1.4;
+  box-shadow: 0 6px 20px rgba(20,24,29,.25); opacity: 0; transition: opacity .1s; }
+.tip.on { opacity: 1; }
+.tip .tname { font-weight: 700; display: block; }
+.tip .tgen { color: #b8c0c9; font-size: 12.5px; display: block; margin-bottom: 6px; }
+.tip .r { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+.tip .k { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 10px; }
+.tip .k.va { background: #f4a077; }
+.tip .k.after { background: #7fb0e8; }
+.tip .k.ded { background: #4f7fc4; }
+.tip b { font-variant-numeric: tabular-nums; }
+.tip .note { color: #b8c0c9; font-size: 12px; margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+
+.source { font-size: 12.5px; color: var(--muted); margin: 14px 0 0; max-width: 90ch; }
+.source a { color: var(--ink); }
+details.tbl { margin-top: 16px; font-size: 13.5px; }
+details.tbl summary { cursor: pointer; color: var(--muted); }
+details.notes { margin-top: 12px; font-size: 13.5px; }
+details.notes summary { cursor: pointer; color: var(--muted); }
+details.notes summary:focus-visible { outline: 2px solid var(--muted); }
+details.notes .source { margin-top: 6px; }
+.tblwrap { overflow-x: auto; margin-top: 8px; border: 1px solid var(--grid); }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 4px 10px; border-bottom: 1px solid var(--hair); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { background: var(--panel); font-weight: 700; }
+
+html.embed, html.embed body { height: 100%; overflow: hidden; }
+html.embed .wrap { height: 100%; padding: 12px 14px 10px; overflow-y: auto; }
+html.embed .logo { height: 18px; margin-bottom: 6px; }
+html.embed h1 { font-size: 20px; margin-bottom: 4px; }
+html.embed .standfirst { font-size: 13px; }
+html.embed details.tbl { display: none; }
+html.embed details.notes { margin-top: 6px; font-size: 12px; }
+html.embed .source { font-size: 11.5px; margin-top: 6px; line-height: 1.35; }
+@container (max-width: 640px) { h1 { font-size: 20px; } .standfirst { font-size: 13.5px; } }
+@media (max-width: 640px) { .wrap { padding-left: 16px; padding-right: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <a href="https://www.data4thepeople.com" aria-label="Data 4 The People"><img class="logo" alt="Data 4 The People" src="__LOGO__"></a>
+    <h1>What a patient pays for a month of each drug: VA and a standard Part D plan</h1>
+    <p class="standfirst">The 10 brand-name drugs with the most Medicare Part D spending in 2024. Part D figures use the 2026 standard plan: the patient pays the full price until a $615 deductible is met, then 25% of the price, up to $2,100 for the year. Real plans vary; hover or tap a drug to see what they charge.</p>
+  </header>
+
+  <ul class="legend" aria-label="Dot colors">
+    <li class="va"><span class="dot"></span>VA copay</li>
+    <li class="ded"><span class="dot"></span>Part D, while in the deductible</li>
+    <li class="after"><span class="dot"></span>Part D, after the deductible</li>
+  </ul>
+
+  <div class="chartbox" id="chartbox">
+    <svg class="chart" id="c1" role="list" aria-label="Monthly patient cost by drug"></svg>
+    <div class="tip" id="tip" role="status" aria-live="polite"></div>
+  </div>
+
+  <details class="notes">
+    <summary>Show notes and disclaimers</summary>
+    <p class="source">
+      Part D price for 30 days, before the pharmacy's dispensing fee: for the five drugs with a 2026 Medicare
+      negotiated price (Eliquis, Jardiance, Xarelto, Farxiga, Entresto), CMS's negotiated price for a 30-day supply
+      (CMS negotiated price data file, November 2, 2026); for the others, the median Part D plan price per unit
+      (CMS Quarterly Prescription Drug Plan pricing file, 2026 Q3) times the units in a package, scaled to 30 days
+      from the days it lasts at the labeled maintenance dose (28 days for a carton of 4 weekly pens, one Ozempic
+      pen or one Revlimid cycle of 21 capsules). Standard plan amounts: CMS, 2026 Part D program instructions. The patient is assumed to take only this
+      drug. Real plans: 2026 Q3 plan formulary, plan and beneficiary cost files, plans on five- or six-tier drug
+      lists; cost for a 30-day retail fill in the initial coverage phase, with coinsurance applied to the price above. The dashed line is the $2,100 yearly limit. VA: $11 for a 30-day supply of a brand-name drug for
+      veterans who pay copays; veterans with a 50% or higher service-connected disability rating, and others, pay
+      $0 (VA copay rates, 2026). Built by <a href="https://www.data4thepeople.com">Data 4 The People</a>.
+    </p>
+  </details>
+
+  <details class="tbl">
+    <summary>Show the data as a table</summary>
+    <div class="tblwrap"><table id="tbl"></table></div>
+  </details>
+</div>
+
+<script>
+const DATA = /*__DATA__*/[];
+if (window.self !== window.top) document.documentElement.classList.add('embed');
+const NS = 'http://www.w3.org/2000/svg';
+const box = document.getElementById('chartbox');
+const tip = document.getElementById('tip');
+const usd = v => '$' + Math.round(v).toLocaleString('en-US');
+const p1 = v => (Math.round(v * 10) / 10) + '%';  // one decimal, so 99.7% never shows as 100%
+const usd2 = v => '$' + v.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+function el(tag, a, p) { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+
+function draw() {
+  const svg = document.getElementById('c1');
+  const W = svg.parentNode.clientWidth, narrow = W < 560;
+  const labW = narrow ? 70 : 90, yrW = narrow ? 58 : 92, padL = 14, top = 26, rowH = narrow ? 36 : 38, bottom = 24, max = 2200;
+  const H = top + DATA.length * rowH + bottom;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('height', H); svg.innerHTML = '';
+  const x0 = labW + padL, x1 = W - yrW - (narrow ? 34 : 44);
+  const x = v => x0 + v / max * (x1 - x0);
+  for (const t of (narrow ? [0, 1000, 2000] : [0, 500, 1000, 1500, 2000])) {
+    el('line', {class: 'grid', x1: x(t), x2: x(t), y1: top - 4, y2: H - bottom + 2}, svg);
+    const tx = el('text', {class: 'tick', x: x(t), y: H - 6, 'text-anchor': 'middle'}, svg); tx.textContent = usd(t);
+  }
+  el('line', {class: 'cap', x1: x(2100), x2: x(2100), y1: top - 4, y2: H - bottom + 2}, svg);
+  const ch = el('text', {class: 'colh', x: x(2100), y: 12, 'text-anchor': 'middle'}, svg); ch.textContent = narrow ? '$2,100 limit' : '$2,100 yearly limit';
+  const h = el('text', {class: 'colh', x: W - 2, y: 12, 'text-anchor': 'end'}, svg); h.textContent = narrow ? 'Part D year' : 'A year, Part D';
+  DATA.forEach((d, i) => {
+    const y = top + i * rowH, cy = y + rowH / 2;
+    const g = el('g', {class: 'row', tabindex: 0, role: 'listitem',
+      'aria-label': `${d.name}: VA copay ${usd(d.va)}; Part D ${usd(d.in_ded)} a month in the deductible, ${usd(d.after)} after; ${usd(d.year)} a year`}, svg);
+    el('rect', {class: 'band', x: 0, y, width: W, height: rowH}, g);
+    const nm = el('text', {class: 'name', x: labW, y: cy + 4, 'text-anchor': 'end'}, g); nm.textContent = d.name;
+    el('line', {class: 'track', x1: x(Math.min(d.va, d.after)), x2: x(d.in_ded), y1: cy, y2: cy}, g);
+    el('circle', {class: 'dafter', cx: x(d.after), cy, r: 6.5}, g);
+    el('circle', {class: 'dva', cx: x(d.va), cy, r: 6.5}, g);
+    el('circle', {class: 'dded', cx: x(d.in_ded), cy, r: 6.5}, g);
+    if (d.in_ded < 2000 || !narrow) {
+      const lb = el('text', {class: 'val', x: x(d.in_ded) + 11, y: cy + 4}, g); lb.textContent = usd(d.in_ded);
+      if (d.in_ded >= 1900) { lb.setAttribute('x', x(d.in_ded) - 11); lb.setAttribute('text-anchor', 'end'); }
+    }
+    const yr = el('text', {class: 'yr', x: W - 2, y: cy + 4, 'text-anchor': 'end'}, g); yr.textContent = usd(d.year);
+    const show = ev => { document.querySelectorAll('.row.hover').forEach(r => r.classList.remove('hover')); g.classList.add('hover'); tipShow(d, ev, svg, cy); };
+    for (const e of ['mouseenter', 'mousemove', 'focus', 'click']) g.addEventListener(e, show);
+    for (const e of ['mouseleave', 'blur']) g.addEventListener(e, hide);
+  });
+}
+
+function tipShow(d, ev, svg, cy) {
+  const capNote = d.in_ded >= 2100 ? ' The first month reaches the $2,100 yearly limit, so later months cost $0.' : '';
+  tip.innerHTML = `<span class="tname">${d.name}</span><span class="tgen">${d.generic} · ${usd(d.price)} for 30 days in Part D (${d.basis})</span>` +
+    `<div class="r"><span class="k va"></span>VA copay: <b>${usd2(d.va)}</b> a month</div>` +
+    `<div class="r"><span class="k ded"></span>Part D, in the deductible: <b>${usd2(d.in_ded)}</b></div>` +
+    `<div class="r"><span class="k after"></span>Part D, after the deductible: <b>${usd2(d.after)}</b></div>` +
+    `<div style="margin-top:4px">A year of this drug: Part D <b>${usd(d.year)}</b>, VA <b>${usd(d.va_year)}</b></div>` +
+    `<div style="margin-top:6px"><b>Real Part D plans:</b> median <b>${usd2(d.rp_after)}</b> for a 30-day fill after the deductible` +
+    ` (middle 80% of plans: ${usd(d.rp_p10)} to ${usd(d.rp_p90)}). ${p1(d.rp_tier3)} put it on tier 3 or higher, ` +
+    `${p1(d.rp_coins)} charge coinsurance, and the deductible applies in ${p1(d.rp_ded)}. ` +
+    `${d.rp_plans.toLocaleString('en-US')} plans cover it.</div>` +
+    `<div class="note">${d.neg ? 'Has a 2026 Medicare negotiated price.' : 'No Medicare negotiated price.'}${capNote}</div>`;
+  tip.classList.add('on');
+  const bx = box.getBoundingClientRect(), sv = svg.getBoundingClientRect();
+  const tw = tip.offsetWidth, th = tip.offsetHeight, bw = box.clientWidth;
+  let left = ev && ev.clientX ? ev.clientX - bx.left + 14 : bw / 2 - tw / 2;
+  if (left + tw > bw) left = Math.max(0, (ev && ev.clientX ? ev.clientX - bx.left : bw) - tw - 14);
+  let top = sv.top - bx.top + cy + 16;
+  if (top + th > box.clientHeight) top = sv.top - bx.top + cy - th - 16;
+  tip.style.left = left + 'px'; tip.style.top = Math.max(0, top) + 'px';
+}
+function hide() { tip.classList.remove('on'); document.querySelectorAll('.row.hover').forEach(r => r.classList.remove('hover')); }
+
+document.getElementById('tbl').innerHTML = '<thead><tr><th>Drug</th><th>Part D price, a month</th><th>What it is</th>' +
+  '<th>Part D, in the deductible</th><th>Part D, after</th><th>Part D, a year</th><th>Real plans: median after deductible</th><th>Plans covering</th><th>On tier 3+</th><th>Coinsurance</th><th>Deductible applies</th><th>VA, a month</th><th>VA, a year</th></tr></thead><tbody>' +
+  DATA.map(d => `<tr><td>${d.name}</td><td>${usd2(d.price)}</td><td style="text-align:left">${d.basis}</td><td>${usd2(d.in_ded)}</td>` +
+  `<td>${usd2(d.after)}</td><td>${usd2(d.year)}</td><td>${usd2(d.rp_after)}</td><td>${d.rp_plans.toLocaleString('en-US')}</td>` +
+  `<td>${d.rp_tier3.toFixed(1)}%</td><td>${d.rp_coins.toFixed(1)}%</td><td>${d.rp_ded.toFixed(1)}%</td><td>${usd2(d.va)}</td><td>${usd2(d.va_year)}</td></tr>`).join('') + '</tbody>';
+draw();
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 80); });
+</script>
+</body>
+</html>
