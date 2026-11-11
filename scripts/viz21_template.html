@@ -117,13 +117,15 @@ html.embed .source { font-size: 11.5px; margin-top: 6px; line-height: 1.35; }
     <summary>Show notes and disclaimers</summary>
     <p class="source">
       Part D price for 30 days, before the pharmacy's dispensing fee: for the five drugs with a 2026 Medicare
-      negotiated price (Eliquis, Jardiance, Xarelto, Farxiga, Entresto), CMS's negotiated price for a 30-day supply
+      negotiated price (__NEGLIST__), CMS's negotiated price for a 30-day supply
       (CMS negotiated price data file, November 2, 2026); for the others, the median Part D plan price per unit
       (CMS Quarterly Prescription Drug Plan pricing file, 2026 Q3) times the units in a package, scaled to 30 days
       from the days it lasts at the labeled maintenance dose (28 days for a carton of 4 weekly pens, one Ozempic
-      pen or one Revlimid cycle of 21 capsules). Standard plan amounts: CMS, 2026 Part D program instructions. The patient is assumed to take only this
+      pen, a carton of 2 Humira 40 mg pens or syringes, or one Revlimid cycle of 21 capsules). Standard plan amounts: CMS, 2026 Part D program instructions. The patient is assumed to take only this
       drug. Real plans: 2026 Q3 plan formulary, plan and beneficiary cost files, plans on five- or six-tier drug
-      lists; cost for a 30-day retail fill in the initial coverage phase, with coinsurance applied to the price above. The dashed line is the $2,100 yearly limit. VA: $11 for a 30-day supply of a brand-name drug for
+      lists; cost for a 30-day retail fill in the initial coverage phase. Coinsurance is applied to each plan's own price
+      for the drug in the pricing file (the negotiated price for negotiated drugs; the price above when a plan lists
+      none). The dashed line is the $2,100 yearly limit. VA: $11 for a 30-day supply of a brand-name drug for
       veterans who pay copays; veterans with a 50% or higher service-connected disability rating, and others, pay
       $0 (VA copay rates, 2026). Built by <a href="https://www.data4thepeople.com">Data 4 The People</a>.
     </p>
@@ -190,7 +192,7 @@ function tipShow(d, ev, svg, cy) {
     `<div class="r"><span class="k after"></span>Part D, after the deductible: <b>${usd2(d.after)}</b></div>` +
     `<div style="margin-top:4px">A year of this drug: Part D <b>${usd(d.year)}</b>, VA <b>${usd(d.va_year)}</b></div>` +
     `<div style="margin-top:6px"><b>Real Part D plans:</b> median <b>${usd2(d.rp_after)}</b> for a 30-day fill after the deductible` +
-    ` (middle 80% of plans: ${usd(d.rp_p10)} to ${usd(d.rp_p90)}). ${p1(d.rp_tier3)} put it on tier 3 or higher, ` +
+    ` (middle 80% of plans: ${usd(d.rp_p10)} to ${usd(d.rp_p90)}). ${p1(d.rp_tier3)} put it on tiers 3 to 5, ` +
     `${p1(d.rp_coins)} charge coinsurance, and the deductible applies in ${p1(d.rp_ded)}. ` +
     `${d.rp_plans.toLocaleString('en-US')} plans cover it.</div>` +
     `<div class="note">${d.neg ? 'Has a 2026 Medicare negotiated price.' : 'No Medicare negotiated price.'}${capNote}</div>`;
@@ -206,7 +208,7 @@ function tipShow(d, ev, svg, cy) {
 function hide() { tip.classList.remove('on'); document.querySelectorAll('.row.hover').forEach(r => r.classList.remove('hover')); }
 
 document.getElementById('tbl').innerHTML = '<thead><tr><th>Drug</th><th>Part D price, a month</th><th>What it is</th>' +
-  '<th>Part D, in the deductible</th><th>Part D, after</th><th>Part D, a year</th><th>Real plans: median after deductible</th><th>Plans covering</th><th>On tier 3+</th><th>Coinsurance</th><th>Deductible applies</th><th>VA, a month</th><th>VA, a year</th></tr></thead><tbody>' +
+  '<th>Part D, in the deductible</th><th>Part D, after</th><th>Part D, a year</th><th>Real plans: median after deductible</th><th>Plans covering</th><th>On tiers 3 to 5</th><th>Coinsurance</th><th>Deductible applies</th><th>VA, a month</th><th>VA, a year</th></tr></thead><tbody>' +
   DATA.map(d => `<tr><td>${d.name}</td><td>${usd2(d.price)}</td><td style="text-align:left">${d.basis}</td><td>${usd2(d.in_ded)}</td>` +
   `<td>${usd2(d.after)}</td><td>${usd2(d.year)}</td><td>${usd2(d.rp_after)}</td><td>${d.rp_plans.toLocaleString('en-US')}</td>` +
   `<td>${d.rp_tier3.toFixed(1)}%</td><td>${d.rp_coins.toFixed(1)}%</td><td>${d.rp_ded.toFixed(1)}%</td><td>${usd2(d.va)}</td><td>${usd2(d.va_year)}</td></tr>`).join('') + '</tbody>';

@@ -152,9 +152,9 @@ c = cmp_.groupby('family').big4_vs_partd.median()
 bc = b[b.status == 'compared'].set_index('family')
 for f in c.index:
     check(f'brand median {f}', bc.loc[f, 'big4_vs_partd_median'], c[f], 1e-12)
-check('brands compared', 90, len(c))
+check('brands compared', 89, len(c))
 check('brands VA higher', 9, int((c > 0).sum()))
-check('median brand VA vs Part D (rounded to 0.1 pt)', -0.271, round(c.median(), 3))
+check('median brand VA vs Part D (rounded to 0.1 pt)', -0.269, round(c.median(), 3))
 out.append(('brands VA higher (list)', '', ', '.join(sorted(c[c > 0].index)), 'INFO'))
 
 # ---------- E. basket from raw spending files ----------
@@ -167,7 +167,7 @@ check('basket names duplicated in 2026 Q1 file', 0, int(qt[qt.Brnd_Name.duplicat
 qt = qt.drop_duplicates('Brnd_Name').set_index('Brnd_Name').Avg_Spnd_Per_Clm
 anc = an.drop_duplicates('Brnd_Name').set_index('Brnd_Name').Tot_Clms_2024
 k2 = k.copy()
-k2['pd_raw'] = k2.brand.map(anc) * k2.brand.map(qt)
+k2['pd_raw'] = k2.brand.map(anc) * k2.brand.str.replace(r'\*+$', '', regex=True).str.strip().map(qt)  # Q1 file has no '*'
 k2['va_raw'] = k2.pd_raw * (1 + k2.big4_vs_partd)
 for r in k2[k2.in_basket].itertuples():
     check(f'basket Part D {r.brand}', r.partd_cost, r.pd_raw, 1e-9, rel=True)
@@ -254,16 +254,23 @@ mfr['m30'] = mfr['Single MFP per 30 DES'].str.replace(r'[$,]', '', regex=True).a
 top10 = b[b.status == 'compared'].nlargest(10, 'spending_2024').family.tolist()
 check('patient chart: drugs are the top 10 by 2024 spending', 1,
       int([d['name'].lower() for d in built21] == [f.lower() for f in top10]))
+month_pk = {}
 for d in built21:
     fam = d['name'].lower()
     if d['neg']:
         p30 = mfr[mfr['Selected Drug Name'].str.upper().str.startswith(d['name'].upper())].m30.unique()
         check(f'patient chart {d["name"]}: 30-day price = CMS negotiated', d['price'], float(p30[0]) if len(p30) == 1 else None, 0.005)
     else:
-        q, days = {'ozempic': (3, 28), 'mounjaro': (2, 28), 'trulicity': (2, 28), 'trelegy': (60, 30), 'revlimid': (21, 28)}[fam]
+        q, days = {'ozempic': (3, 28), 'mounjaro': (2, 28), 'trulicity': (2, 28), 'trelegy': (60, 30), 'revlimid': (21, 28),
+                   'humira': (2, 28)}[fam]
         pk = n[(n.family == fam) & (n.qty == q) & n.big4_vs_partd.notna() & ~n.unit_flag]
         if fam == 'ozempic':
             pk = pk[pk.unit == 'ML']
+        if fam == 'mounjaro':  # 2.5 mg is a starting dose only
+            pk = pk[~pk.va_name.str.contains(r'\b2\.5 ?MG', na=False)]
+        if fam == 'humira':  # 40 mg every other week
+            pk = pk[pk.va_name.str.contains('40MG', na=False)]
+        month_pk[fam] = (pk, days)
         check(f'patient chart {d["name"]}: 30-day price', d['price'], round((pk.partd_unit * pk.qty).median() * 30 / days, 2), 0.005)
     # simulate 12 fills under the 2026 standard benefit
     paid, ded_left, fills = 0.0, 615.0, []
@@ -292,14 +299,27 @@ for d in built21:
     rows_ = fx[fx.NDC.str[:9].isin(p9s)].merge(px, on='FORMULARY_ID')
     t_ = rows_.groupby(['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID']).tier.min().rename('TIER').reset_index()
     t_ = t_.merge(bc, on=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID', 'TIER']).merge(pded, on=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID'])
+    # each plan's own 30-day price from the pricing file (non-negotiated drugs); else the chart's price
+    if fam in month_pk:
+        pk, days = month_pk[fam]
+        qq = pk.groupby(pk.NDC.str[:9]).qty.median()
+        pp = con.execute(f"""select CONTRACT_ID, PLAN_ID, SEGMENT_ID, substr(NDC, 1, 9) p9, cast(UNIT_COST as double) u
+            from read_csv('{SP}pricing file PPUF_2026Q3.txt', delim='|', header=true, all_varchar=true)
+            where DAYS_SUPPLY = '30' and substr(NDC, 1, 9) in ({','.join(repr(x) for x in qq.index)})""").df()
+        pp['m'] = pp.u * pp.p9.map(qq) * 30 / days
+        ownp = pp.groupby(['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID']).m.median().rename('px').reset_index()
+        t_ = t_.merge(ownp, on=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID'], how='left')
+        t_['px'] = t_.px.fillna(d['price'])
+    else:
+        t_['px'] = d['price']
     cost = []
-    for typ_, amt_, mn_, mx_ in zip(t_.typ, t_.AMT, t_.MIN_AMT, t_.MAX_AMT):
-        v = amt_ if typ_ == '1' else amt_ * d['price'] if typ_ == '2' else float('nan')
+    for typ_, amt_, mn_, mx_, px_ in zip(t_.typ, t_.AMT, t_.MIN_AMT, t_.MAX_AMT, t_.px):
+        v = amt_ if typ_ == '1' else amt_ * px_ if typ_ == '2' else float('nan')
         if typ_ == '2' and mx_ > 0: v = min(v, mx_)
         if typ_ == '2' and mn_ > 0: v = max(v, mn_)
         cost.append(min(v, 2100.0))
     check(f'patient chart {d["name"]}: real plans covering', d['rp_plans'], len(t_))
-    check(f'patient chart {d["name"]}: real plans on tier 3+ %', d['rp_tier3'], round(100 * (t_.TIER >= 3).mean(), 1), 0.051)
+    check(f'patient chart {d["name"]}: real plans on tiers 3 to 5 %', d['rp_tier3'], round(100 * t_.TIER.between(3, 5).mean(), 1), 0.051)
     check(f'patient chart {d["name"]}: real plans coinsurance %', d['rp_coins'], round(100 * (t_.typ == '2').mean(), 1), 0.051)
     check(f'patient chart {d["name"]}: real plans deductible %', d['rp_ded'],
           round(100 * ((t_.DED_APPLIES_YN == 'Y') & (t_.DEDUCTIBLE.astype(float) > 0)).mean(), 1), 0.051)
@@ -315,6 +335,48 @@ check('lenalidomide generic: plans on tiers 1, 2 or 6', 0, int(lt.isin([1, 2, 6]
 lc = lt.rename('TIER').reset_index().merge(bc, on=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID', 'TIER'])
 check('lenalidomide generic: coinsurance %', 99.4, round(100 * (lc.typ == '2').mean(), 1), 0.051)
 check('lenalidomide generic: median coinsurance rate', 0.25, lc[lc.typ == '2'].AMT.median())
+check('lenalidomide generic: lowest coinsurance rate (post: 25% to 33%)', 0.25, lc[lc.typ == '2'].AMT.min())
+check('lenalidomide generic: highest coinsurance rate (post: 25% to 33%)', 0.33, round(lc[lc.typ == '2'].AMT.max(), 2))
+# each plan's own price per capsule (median over its lenalidomide ANDA products, 30-day), 21-capsule cycle,
+# first and second fill with the plan's deductible and cost sharing, capped at $2,100
+len9 = sorted(set(fx.loc[fx.RXCUI.isin(len_rx), 'NDC'].str[:9]) | set(cat9[cat9.NONPROPRIETARYNAME.str.contains('lenalidomide', case=False, na=False)
+                                                                         & (cat9.MARKETINGCATEGORYNAME == 'ANDA')].index))
+lp = con.execute(f"""select CONTRACT_ID, PLAN_ID, SEGMENT_ID, NDC, cast(UNIT_COST as double) u
+    from read_csv('{SP}pricing file PPUF_2026Q3.txt', delim='|', header=true, all_varchar=true)
+    where DAYS_SUPPLY = '30' and substr(NDC, 1, 9) in ({','.join(repr(x) for x in len9)})""").df()
+lnat = lp.groupby('NDC').u.median().median()
+lo = lp.groupby(['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID']).u.median().rename('unit').reset_index()
+lc = lc.merge(pded, on=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID']).merge(lo, on=['CONTRACT_ID', 'PLAN_ID', 'SEGMENT_ID'], how='left')
+lc['own'] = lc.unit.notna()
+lc['unit'] = lc.unit.fillna(lnat)
+f1, f2 = [], []
+for r_ in lc.itertuples():
+    cyc = 21 * r_.unit
+    dl = float(r_.DEDUCTIBLE) if (r_.DED_APPLIES_YN == 'Y' and float(r_.DEDUCTIBLE) > 0) else 0.0
+    paid, pays = 0.0, []
+    for _ in range(2):
+        ind = min(cyc, dl); dl -= ind
+        rest = cyc - ind
+        if r_.typ == '1':
+            sh = min(r_.AMT, rest)
+        else:
+            sh = r_.AMT * rest
+            if r_.MAX_AMT > 0: sh = min(sh, r_.MAX_AMT)
+            if r_.MIN_AMT > 0: sh = max(sh, r_.MIN_AMT)
+            sh = min(sh, rest)
+        pay = min(ind + (sh if rest > 0 else 0.0), 2100.0 - paid); paid += pay; pays.append(paid)
+    f1.append(pays[0]); f2.append(pays[1])
+lc['f1'], lc['f2'] = f1, f2
+check('lenalidomide generic: own price, % of plans with cost rows', 100.0, round(100 * lc.own.mean(), 1), 0.051)
+check('lenalidomide generic: median 21-capsule cycle at plan price (post: about $6,600)', 6600,
+      round(float((21 * lc.unit).median()), -2))
+check('lenalidomide generic: % of plans reaching $2,100 on the first fill (post: about half)', 50.1,
+      round(100 * (lc.f1 >= 2099.995).mean(), 1), 0.051)
+check('lenalidomide generic: % of plans reaching $2,100 by the second fill (post: 85%)', 85,
+      round(100 * (lc.f2 >= 2099.995).mean()), 0)
+lw = pd.read_csv('data/work/lenalidomide.csv', dtype={'PLAN_ID': str, 'SEGMENT_ID': str})
+check('lenalidomide generic: scripts/lenalidomide.py first fill median', round(float(lw.loc[lw.typ.notna(), 'fill1'].median()), 2),
+      round(float(lc.f1.median()), 2), 0.011)
 check('Revlimid brand: plans covering', 225, [d for d in built21 if d['name'] == 'Revlimid'][0]['rp_plans'])
 
 r = pd.DataFrame(out, columns=['check', 'built', 'recomputed', 'result'])

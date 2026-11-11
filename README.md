@@ -1,7 +1,7 @@
 # VA and Medicare Part D drug prices
 
 Data 4 The People. This project compares the VA's prices for brand-name drugs with the prices Medicare Part D
-plans pay, and compares what a patient pays for a month of a drug at the VA and in Part D. It covers 90 of the
+plans pay, and compares what a patient pays for a month of a drug at the VA and in Part D. It covers 89 of the
 100 brand-name drugs with the most Part D claims in 2024, using prices in effect in fall 2026.
 
 Interactive charts:
@@ -53,6 +53,7 @@ from the address in `DATASETS.md` into `data/raw/`. Then, from the project root:
 python scripts/top100.py         # drugs, packages and per-unit prices
 python scripts/basket.py         # basket cost
 python scripts/generic_tiers.py  # generic tiers table and dist/generic-tiers.html
+python scripts/lenalidomide.py   # generic lenalidomide in real plans
 python scripts/viz.py            # dist/index.html
 python scripts/viz30.py          # dist/negotiated-30day.html
 python scripts/viz19.py          # dist/part-d-rebates.html

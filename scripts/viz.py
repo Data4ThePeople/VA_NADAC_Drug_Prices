@@ -1,4 +1,4 @@
-"""Build dist/index.html: VA Big4 vs Medicare Part D, percent difference by brand (90 compared brands).
+"""Build dist/index.html: VA Big4 vs Medicare Part D, percent difference by brand (all compared brands).
 
 Run after scripts/top100.py. Reads data/work/top100_brand.csv and top100_ndc.csv, injects the rows into
 scripts/viz_template.html, writes dist/index.html.
@@ -42,13 +42,27 @@ for r in b.itertuples():
         ex_name=tidy(ex.va_name), ex_va=round(ex.va_big4_unit, 2), ex_pd=round(ex.partd_unit, 2),
         ex_unit=UNIT.get(ex.unit, 'per unit')))
 
-# spending rank among the 90 drugs shown (2024 Part D gross spending, annual file)
+# spending rank among the drugs shown (2024 Part D gross spending, annual file)
 for i, d in enumerate(sorted(rows, key=lambda d: -d['spend']), 1):
     d['srank'] = i
 rows.sort(key=lambda d: d['pct'])
+# the top-100 brands not shown, and why
+st = pd.read_csv('data/work/top100_brand.csv')
+st = st[st.status != 'compared']
+why = {'no Big4 price': ('has no Big4 price', 'have no Big4 price'),
+       'not in Part D pricing file': ('has no Part D price', 'have no Part D price'),
+       'kit or starter packs only': ('is sold only in kit or starter packs', 'are sold only in kit or starter packs'),
+       'no current VA price': ('has no current VA price', 'have no current VA price')}
+parts = []
+for s_, k_n in st.status.value_counts().items():
+    names = ', '.join(sorted(st.loc[st.status == s_, 'family'].str.capitalize()))
+    parts.append(f"{k_n} {why[s_][k_n > 1]}" + (f' ({names})' if k_n <= 3 else ''))
+not_shown = (f"{len(st)} of the 100 drugs are not shown: " + '; '.join(parts) + '.') if len(st) else ''
 tpl = open('scripts/viz_template.html').read()
 html = (tpl.replace('/*__DATA__*/[]', json.dumps(rows, separators=(',', ':')))
-           .replace('__LOGO__', open('assets/d4tp-logo.datauri').read().strip()))
+           .replace('__LOGO__', open('assets/d4tp-logo.datauri').read().strip())
+           .replace('__NBRANDS__', str(len(rows)))
+           .replace('__NOTSHOWN__', not_shown))
 open('dist/index.html', 'w').write(html)
 print(len(rows), 'brands;', sum(d['pct'] > 0 for d in rows), 'VA higher;', sum(d['neg'] for d in rows), 'negotiated')
 print(', '.join(d['name'] for d in rows))

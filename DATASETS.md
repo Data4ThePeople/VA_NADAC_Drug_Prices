@@ -256,8 +256,9 @@ tax, excludes rebates). The documentation does not say whether 2026 spending ref
 The data shows it does: Eliquis spending per claim fell from $912 in 2025 to $399 in 2026 Q1.
 
 **Known quirks.** 74 brand names appear on more than one `Overall` row; none is in our basket. Five
-basket rows have no 2026 Q1 row (Humalog Mix 50-50, Repatha Pushtronex, Premarin*, Tivicay Pd, Abilify
-Mycite) and are left out of the basket.
+basket rows have no 2026 Q1 row (Humalog Mix 50-50, Repatha Pushtronex, Humira(CF) Pen Psor-Uv-Adol HS,
+Tivicay Pd, Abilify Mycite) and are left out of the basket. The quarterly file never uses the annual file's
+trailing asterisk ("Premarin" for "Premarin*"), so names are matched without it.
 
 **Uncertainty.** Claims maturity as above. Nothing else published.
 
@@ -325,7 +326,7 @@ Fields used: `NDC`, `Year`, `Quarter`, `Unit Type`, `Units Per Pkg Size` (latest
 **Version and vintage.** Quarterly; 2026 Q2 was the latest posted on November 9, 2026 (a Q3 file was
 not yet at the expected address).
 
-**Coverage.** Drugs from manufacturers in the Medicaid rebate program. 413 of the 414 compared NDCs
+**Coverage.** Drugs from manufacturers in the Medicaid rebate program. 414 of the 415 compared NDCs
 appear.
 
 **Changes over time.** Rows repeat by quarter; we take the latest row per NDC.
@@ -563,7 +564,7 @@ current indexed dollar amounts were not checked.
 ## Method
 
 Scripts, run in order from the project root: `scripts/top100.py`, `scripts/basket.py`,
-`scripts/generic_tiers.py`, `scripts/tieout.py`. Charts: `scripts/viz.py` (`dist/index.html`),
+`scripts/generic_tiers.py`, `scripts/lenalidomide.py`, then the charts, then `scripts/tieout.py`. Charts: `scripts/viz.py` (`dist/index.html`),
 `scripts/viz30.py` (`dist/negotiated-30day.html`), `scripts/viz19.py` (`dist/part-d-rebates.html`),
 `scripts/viz21.py` (`dist/patient-cost.html`); `scripts/generic_tiers.py` also writes
 `dist/generic-tiers.html`. Python virtual environment `.venv` with `duckdb`, `pandas`, `openpyxl`.
@@ -579,20 +580,37 @@ Scripts, run in order from the project root: `scripts/top100.py`, `scripts/baske
    - the first word of `Brnd_Name` differs from the first word of `Gnrc_Name` (first words only;
      comparing full names would let 8 generics into the top 100);
    - the FDA NDC Directory lists a prescription product whose name starts with that word under an NDA or
-     BLA, and whose first word differs from its generic name's first word;
-   - those FDA products' active ingredients include the first word of the CMS generic name; and
+     BLA, whose first word differs from its generic name's first word, and which is sold under its
+     application's own drug name in Drugs@FDA (this drops "PEG-3350, Electrolytes, and Ascorbate", an
+     unbranded product under MoviPrep's NDA, which would otherwise make the generic bowel prep "PEG
+     3350-Electrolyte" a brand);
+   - those FDA products' active ingredients include the first word of the CMS generic name
+     (`SUBSTANCENAME`, or `NONPROPRIETARYNAME` when FDA leaves `SUBSTANCENAME` blank, as it does for
+     Humira and Paxlovid); and
    - Drugs@FDA does not list that exact drug name only under ANDAs. This drops Klor-Con M10, M15 and M20,
      Ery-Tab, E.E.S. 200 and 400, and Dexedrine. Klor-Con stays in the top 100 on its NDA products.
 4. Rank families by total 2024 claims and keep the top 100.
 
+Vaccines are not counted: the NDC Directory lists them as vaccines, not prescription drugs (Shingrix and
+Arexvy, with 3.9 million and 2.8 million 2024 claims, would otherwise rank high), and Part D covers
+recommended adult vaccines with no cost sharing. FDA also names the new oral semaglutide tablets (1.5, 4
+and 9 mg) Ozempic, under Rybelsus's NDA 213051, so they count in the Ozempic family: 3 of its 6 compared
+NDCs are tablets. All six are 26.5% to 27.0% below Part D. The 2024 Ozempic claims are pens. Rybelsus is
+not compared because none of its NDCs is in the Part D pricing file.
+
 ### Per-unit prices (`scripts/top100.py`)
 
 1. **NDCs for each brand:** FDA package NDCs of the brand's NDA/BLA products, plus VA NDCs whose
-   `TradeName` starts with the brand name. Kits and starter, titration or initiation packs are dropped.
-   FDA lists the long-acting injections Invega Sustenna, Invega Trinza and Abilify Maintena as kits
-   (syringe plus needles), so they are not priced per unit; see the basket for how they are handled.
+   `TradeName` starts with the brand name. Packages whose FDA text mentions a kit (for example "1 SYRINGE
+   in 1 KIT") and starter, titration or initiation packs ("START",
+   "STARTER", "INITIATION", "TITRATION" in the VA name) are dropped, except a carton of kits that each hold
+   one syringe or pen ("2 KIT in 1 CARTON / 1 KIT in 1 KIT * 1 SYRINGE in 1 TRAY"), which is billed and
+   priced per kit (Humira, 7 NDCs). FDA lists the long-acting injections Invega Sustenna, Invega Trinza and
+   Abilify Maintena as kits (syringe plus needles or diluent), so they are not priced per unit; see the
+   basket for how they are handled. Paxlovid is sold only in dose packs that FDA lists as kits, so it is
+   not compared.
    Every compared NDC must trace to an NDA or BLA in Drugs@FDA, through the NDC Directory's application
-   number. Result: 342 NDA, 72 BLA. Two Humulin R packages are no longer in the NDC Directory; Drugs@FDA
+   number. Result: 338 NDA, 77 BLA. Two Humulin R packages are no longer in the NDC Directory; Drugs@FDA
    lists every Humulin R product under Lilly's BLA 018780.
 2. **VA price:** lowest current Big4 price per NDC (current on November 1, 2026; above $0.01).
 3. **Part D price:** median `UNIT_COST` across plans for a 30-day supply, for the exact NDC, or, if the
@@ -609,17 +627,20 @@ Scripts, run in order from the project root: `scripts/top100.py`, `scripts/baske
    The quantity used is the value at least two sources agree on (within 1%). If only one source has a
    value, that value is used. If the sources disagree with no majority, the value that puts the VA Big4
    unit price between 0.3 and 1.1 times NADAC is used, when exactly one does; otherwise the NDC is dropped.
-   Result for the 414 NDCs with both a Big4 and a Part D price: 187 agreed by all three sources, 225 by
-   two, and 2 (Enbrel 4-syringe cartons, 4 mL) set by the NADAC tie-break. The Enbrel count is also
-   consistent with CMS's negotiated price: four 1 mL syringes at the Part D unit cost of $583.6 per mL is
-   $2,334, against $2,355 for a 30-day supply.
+   Result for the 415 NDCs with both a Big4 and a Part D price: 189 agreed by all three sources, 224 by
+   two, and 2 (Enbrel 4-syringe cartons, 4 mL) set by the NADAC tie-break. The Enbrel count is confirmed
+   by the VA package count (4 syringes) times the FDA volume per syringe (1 mL), and the VA price per mL at
+   that count is within 3% of the other Enbrel packages. It is also consistent with CMS's negotiated
+   price: four 1 mL syringes at the Part D unit cost of $583.6 per mL is $2,334, against $2,355 for a
+   30-day supply. How many sources "agree" depends on how VA package strings are read; the third independent
+   check read more of them ("30PKT", "1X10ML") and got 201 / 212 / 2, with the same quantities.
    The vote can lock in a wrong count when two sources make the same error. For Invega Trinza, FDA and the
    VA both show 1 mL, but the products hold 0.875 to 2.625 mL. Trinza is not priced per unit (kit rule).
 6. **Unit check:** an NDC is dropped if its VA unit price is more than 2 times or less than 0.2 times its
    NADAC unit price. When NADAC has no rate, the Part D price is used instead, but only if the package
    count rests on one source. A count two sources agree on is not overridden by Part D, because for the
    negotiated drugs Part D is capped at the negotiated price and the check would drop the high VA prices
-   being measured. The check drops none of the 414. All 414 NDCs are compared.
+   being measured. The check drops none of the 415. All 415 NDCs are compared.
 7. **Per NDC:** VA vs Part D = (Big4 / quantity) / Part D unit price - 1.
 8. **Per brand:** median of that ratio across the brand's NDCs, with the minimum and maximum.
 
@@ -644,12 +665,13 @@ is not an estimate of what Medicare or the VA spends.
      excludes Respimat NDCs);
    - insulin rows marked U-200, U-300 or U-500 match only NDCs of that strength, and other rows exclude
      concentrated NDCs.
-   If no NDC matches, the brand's median ratio is used. Six rows use it: Invega Sustenna and Invega Trinza
-   (Invega median, VA 25.2% lower), Abilify Maintena (Abilify median, 23.2% lower), Fiasp Pumpcart,
-   Ingrezza Initiation Pk and Austedo XR Titration Kt. Together they are $3.21 billion, 2.9% of the Part D
-   basket. The independent tie-out priced the Invega Sustenna and Abilify Maintena packages directly and got
+   If no NDC matches, the brand's median ratio is used. Seven rows use it: Invega Sustenna and Invega
+   Trinza (Invega median, VA 25.2% lower), Abilify Maintena (Abilify median, 23.2% lower), Humira(CF) Pen
+   Crohn's-UC-HS (a starter pack; Humira median, 24.7% lower), Fiasp Pumpcart, Ingrezza Initiation Pk and
+   Austedo XR Titration Kt. Together they are $3.27 billion, 2.8% of the Part D basket. The independent tie-out priced the Invega Sustenna and Abilify Maintena packages directly and got
    about 25% to 26% and 27% lower, close to the medians used.
-3. Rows with no 2026 Q1 spending row are left out.
+3. Rows with no 2026 Q1 spending row are left out. Names are matched without the annual file's trailing
+   asterisk, which the quarterly file does not use (Premarin).
 4. Totals: all brands, the 2026 negotiated drugs, and all other brands. A row counts as negotiated when
    its drug is on CMS's 2026 list. NovoLog Mix 70/30 rows are not (CMS's drug is insulin aspart, NovoLog
    and Fiasp), so they count with the other brands.
@@ -682,10 +704,16 @@ the same.
    approval (`Submissions.txt`, ORIG, AP) for that active ingredient and form across all ANDAs. Years are
    counted to October 1, 2026. Groups: under 2, 2 to 5, 5 to 10, 10 to 20, 20 or more. A date was found
    for 3,070 of the 3,074 products.
+   FDA NDC Directory vintage: these counts use the November 6, 2026 file. The independent tie-out's
+   November 10 file gave 3,072 generic products and 12,325,156 placements (52.7%, the same when rounded);
+   no published rounded figure changes.
 8. **Patient cost by tier:** from the beneficiary cost file, for the same plans: initial coverage
    (`COVERAGE_LEVEL` 1), 30-day supply (`DAYS_SUPPLY` 1), at a preferred retail pharmacy when the plan
    offers one (`COST_TYPE_PREF` not 0), otherwise a standard retail pharmacy. Measures: share of plans
-   charging coinsurance (type 2) on each tier, and share where the deductible applies.
+   charging coinsurance (type 2) on each tier, and share where the deductible applies. The base is plans
+   with a cost row for that tier (5,276 of the 5,295 for most tiers; the other 19 are suppressed plans with
+   no cost rows). Counting all 5,295 gives 90% instead of 91% coinsurance on tier 4 and 86% instead of 87%
+   for the deductible on tiers 4 and 5.
 
 Results: 52.7% of generic placements are on tiers 3 to 5 (tier 3 18.2%, tier 4 27.9%, tier 5 6.6%),
 against 94% for brand-name drugs. 1,873 of the 3,074 generic products are on tiers 3 to 5 in at least half
@@ -705,33 +733,60 @@ DIR as a share of total Part D drug costs, 2016 to 2026, transcribed from the Tr
 ### Patient cost chart (`scripts/viz21.py`)
 
 What a patient pays for a 30-day supply of each of the 10 compared brands with the most 2024 Part D
-spending, under the 2026 standard benefit, compared with the VA copay.
+spending, under the 2026 standard benefit, compared with the VA copay. These are also the 10 brand families
+with the most 2024 Part D spending overall.
 
 1. **30-day price, Part D, before the dispensing fee.**
-   - Drugs with a 2026 negotiated price (Eliquis, Jardiance, Xarelto, Farxiga, Entresto): CMS's negotiated
+   - Drugs with a 2026 negotiated price (Eliquis, Jardiance, Xarelto, Farxiga): CMS's negotiated
      price per 30-day equivalent supply (MFP data file, in effect November 1, 2026).
    - Others: the Part D median unit cost times the units in the package that lasts about a month at the
      labeled maintenance dose, median across that drug's packages, then times 30 divided by the days the
      package lasts. Ozempic: one 3 mL pen, 4 weekly maintenance doses, 28 days. Mounjaro and Trulicity: a
-     carton of 4 weekly pens, 28 days. Trelegy: one 30-dose inhaler, one dose a day, 30 days. Revlimid: 21
-     capsules, one 28-day cycle. A 28-day package is scaled to 30 days, the same basis as CMS's prices.
+     carton of 4 weekly pens, 28 days; Mounjaro's 2.5 mg pens are left out because the label calls 2.5 mg a
+     starting dose only. Humira: a carton of 2 pens or syringes of 40 mg, one every other
+     week, 28 days. Trelegy: one 30-dose inhaler, one dose a day, 30 days. Revlimid: 21 capsules, one 28-day
+     cycle. A 28-day package is scaled to 30 days, the same basis as CMS's prices.
 2. **Patient cost, standard benefit, one drug only.** A fill while in the deductible = the price up to the
    deductible still owed plus 25% of the rest; a fill after the deductible = 25% of the price; a year =
    twelve fills, with the deductible of $615 applied first, capped at $2,100. If the first fill reaches
-   the cap, later fills cost $0 (Revlimid).
+   the cap, later fills cost $0 (Humira, Revlimid).
 3. **VA:** $11 per 30-day supply (Tier 3, brand-name), $132 for a year; $0 for exempt veterans.
 4. **Real plans (hover and table):** for plans on five- or six-tier formularies that cover the drug
    (any of its products, matched by the first 9 NDC digits), the drug's tier is the lowest tier among its
    products on that formulary. That tier's cost sharing for a 30-day retail fill in the initial coverage
    phase (preferred pharmacy if offered, else standard) gives the cost after the deductible: the copay, or
-   the coinsurance rate times the 30-day price above, within any minimum or maximum the plan sets, capped
-   at $2,100. Reported: plans covering the drug, share on tier 3 or higher, share charging coinsurance,
+   the coinsurance rate times the plan's 30-day price, within any minimum or maximum the plan sets, capped
+   at $2,100. The plan's 30-day price: for negotiated drugs, the negotiated price (every plan pays it); for
+   the others, the plan's own unit cost in the pricing file (30-day) for the month packages' products,
+   times the package quantity and 30 / days, median across its rows, or the price in step 1 when the plan
+   lists none (24% of Humira plans; no plans for the other drugs). Reported: plans covering the drug,
+   share on tiers 3 to 5, share charging coinsurance,
    share where the deductible applies (the tier's `DED_APPLIES_YN` is Y and the plan deductible is above
    $0), and the median and 10th and 90th percentile cost after the deductible. Only 225 plans cover brand
    Revlimid.
 
 `scripts/tieout.py` checks the prices against the MFP file by drug name and the package rule,
 recomputes the patient costs by simulating twelve fills, and recomputes the real-plan figures with pandas.
+
+### Generic lenalidomide in real plans (`scripts/lenalidomide.py`)
+
+For the post's Revlimid paragraph. Same plans as above (five- or six-tier formularies).
+1. **Coverage and tier:** formulary rows whose proxy NDC is a lenalidomide ANDA product in the FDA NDC
+   Directory (package code, else product code); the plan's tier is the lowest among them. Brand Revlimid
+   coverage uses the NDA products the same way.
+2. **Cost sharing:** that tier, initial coverage phase, 30-day retail fill, preferred pharmacy if offered,
+   else standard; deductible applies when `DED_APPLIES_YN` is Y and the plan's deductible is above $0.
+3. **Price:** the plan's own unit cost per capsule in the pricing file (30-day), median across its
+   lenalidomide ANDA products. One cycle is 21 capsules (28 days).
+4. **Patient cost:** the first and second cycle of the year with only this drug: the deductible first,
+   then the copay or coinsurance (within any minimum or maximum), capped at $2,100 for the year.
+
+Results: brand Revlimid is covered by 225 of 5,295 plans; generic lenalidomide by all 5,295, on tier 5 in
+5,283 and tier 4 in 12. Of the 5,276 plans with cost rows, 99.4% charge coinsurance, from 25% (51.7% of
+them) to 33%; 31 charge a $0 copay. Every one of them lists its own price. A 21-capsule cycle at the
+plan's price: median $6,583 (10th to 90th percentile $3,071 to $12,319). The patient reaches the $2,100
+limit on the first fill in 50.1% of plans and by the second fill in 84.6%; the first fill is under
+$1,600 in 28.2% of plans. Output: `data/work/lenalidomide.csv` (one row per plan).
 
 ### 2026 negotiated drugs
 
@@ -751,8 +806,8 @@ Imbruvica and Stelara are not in the top 100 by claims.
   and spending per claim from 2026 Q1.
 - **Dispensing fees:** the basket's Part D cost per claim includes dispensing fees and sales tax, and the
   VA cost applies an ingredient-price ratio to that total.
-- **Coverage:** brands with no current Big4 price, or with no NDC in the Part D pricing file, are not
-  compared.
+- **Coverage:** brands with no current Big4 price, with no NDC in the Part D pricing file, or sold only as
+  kits or starter packs (Paxlovid) are not compared.
 - **Generic tier counts:** counted by product and plan, not by prescriptions or enrollees. Common generics
   (lisinopril, amlodipine, metformin tablets) sit on tiers 1 and 2 in nearly every plan, so a count
   weighted by prescriptions would show a much lower share. Tier labels are the usual Plan Finder names,
@@ -762,4 +817,6 @@ Imbruvica and Stelara are not in the top 100 by claims.
   some tiers and lower deductibles, and many enrollees take more than one drug, so they reach the
   deductible and the cap sooner. Prices exclude the dispensing fee. The 30-day package rule uses the
   labeled maintenance dose; starting doses (Ozempic) and other dosing schedules (Revlimid has 28-capsule
-  regimens) would change the price.
+  regimens; Humira can be taken weekly) would change the price. Plan prices for the same drug vary widely
+  (generic lenalidomide runs from about $146 to $587 a capsule between the 10th and 90th percentile plan),
+  so the standard-plan dots use one national price, while the real-plan figures use each plan's own price.

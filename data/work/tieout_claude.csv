@@ -19,6 +19,7 @@ claims_2024 ventolin,2272575,2272575,OK
 claims_2024 repatha,2245760,2245760,OK
 claims_2024 tresiba,2227336,2227336,OK
 claims_2024 novolog,2154741,2154741,OK
+claims_2024 paxlovid,1956793,1956793,OK
 claims_2024 symbicort,1913647,1913647,OK
 claims_2024 spiriva,1895519,1895519,OK
 claims_2024 basaglar,1779494,1779494,OK
@@ -43,6 +44,7 @@ claims_2024 levemir,707782,707782,OK
 claims_2024 invega,698813,698813,OK
 claims_2024 stiolto,695441,695441,OK
 claims_2024 arnuity,659581,659581,OK
+claims_2024 humira,652028,652028,OK
 claims_2024 dupixent,621396,621396,OK
 claims_2024 premarin,610592,610592,OK
 claims_2024 trintellix,610008,610008,OK
@@ -97,13 +99,11 @@ claims_2024 vyvanse,212410,212410,OK
 claims_2024 wegovy,211575,211575,OK
 claims_2024 qulipta,209816,209816,OK
 claims_2024 atrovent,200254,200254,OK
-claims_2024 admelog,198533,198533,OK
-claims_2024 rinvoq,193904,193904,OK
 rank order is descending by claims,1,1,OK
 "rows starting with ""klor"" not counted",,Klor-Con M10; Klor-Con M15; Klor-Con M20,INFO
 one row per brand in brand file,100,100,OK
 no CMS row counted in two brands,0,0,OK
-one row per NDC in NDC file,514,514,OK
+one row per NDC in NDC file,515,515,OK
 Big4 00003089321,343.85,343.85,OK
 Part D unit 00003089321,4.1451,4.1451,OK
 ratio 00003089321,0.3825561104275732,0.3825561104275732,OK
@@ -674,6 +674,27 @@ ratio 00173087614,-0.4081952029638146,-0.4081952029638146,OK
 Big4 00173088810,152.98,152.98,OK
 Part D unit 00173088810,6.6787,6.6787,OK
 ratio 00173088810,-0.2364781569267472,-0.23647815692674723,OK
+Big4 00074012402,9929.53,9929.53,OK
+Part D unit 00074012402,6592.754199999999,6592.754199999999,OK
+ratio 00074012402,-0.2469361287578413,-0.24693612875784132,OK
+Big4 00074024302,4973.47,4973.47,OK
+Part D unit 00074024302,3302.2595,3302.2595,OK
+ratio 00074024302,-0.2469595439122819,-0.24695954391228192,OK
+Big4 00074055402,4966.97,4966.97,OK
+Part D unit 00074055402,3297.8319,3297.8319,OK
+ratio 00074055402,-0.2469340235322485,-0.24693402353224858,OK
+Big4 00074061602,4970.32,4970.32,OK
+Part D unit 00074061602,3458.7337,3458.7337,OK
+ratio 00074061602,-0.2814826998678736,-0.28148269986787366,OK
+Big4 00074081702,4958.58,4958.58,OK
+Part D unit 00074081702,3481.6064,3481.6064,OK
+ratio 00074081702,-0.2878890617848129,-0.2878890617848129,OK
+Big4 00074379902,4968.88,4968.88,OK
+Part D unit 00074379902,3295.9768,3295.9768,OK
+ratio 00074379902,-0.2462204224253034,-0.2462204224253034,OK
+Big4 00074433902,4944.95,4944.95,OK
+Part D unit 00074433902,3299.3524,3299.3523999999998,OK
+ratio 00074433902,-0.2506180909926444,-0.2506180909926444,OK
 Big4 00024591401,2802.9,2802.9,OK
 Part D unit 00024591401,1012.46725,1012.4672499999999,OK
 ratio 00024591401,-0.307903539595972,-0.30790353959597205,OK
@@ -1328,27 +1349,9 @@ ratio 00074709630,-0.372169828852166,-0.372169828852166,OK
 Big4 00597008717,254.3,254.3,OK
 Part D unit 00597008717,22.6921,22.6921,OK
 ratio 00597008717,-0.1312757173389133,-0.1312757173389133,OK
-Big4 00024592410,66.67,66.67,OK
-Part D unit 00024592410,9.1555,9.1555,OK
-ratio 00024592410,-0.2718038337611271,-0.27180383376112716,OK
-Big4 00024592505,128.94,128.94,OK
-Part D unit 00024592505,11.7897,11.7897,OK
-ratio 00024592505,-0.2708889963273027,-0.2708889963273027,OK
-Big4 00074104328,8862.38,8862.38,OK
-Part D unit 00074104328,453.8820500000001,453.88205000000005,OK
-ratio 00074104328,-0.3026523709660441,-0.30265237096604414,OK
-Big4 00074230630,4772.77,4772.77,OK
-Part D unit 00074230630,227.3208,227.32080000000002,OK
-ratio 00074230630,-0.300141767346704,-0.30014176734670406,OK
-Big4 00074231030,4767.61,4767.61,OK
-Part D unit 00074231030,227.3506,227.3506,OK
-ratio 00074231030,-0.3009900421053063,-0.30099004210530633,OK
-Big4 00074232001,2344.4,2344.4,OK
-Part D unit 00074232001,18.9581,18.9581,OK
-ratio 00074232001,-0.3129878814625704,-0.3129878814625704,OK
 "qty tie-break 58406002104 ENBREL 50 MG/ML PREFILLED SYRINGE: VA count x FDA mL per item = 4 x 1; VA $/unit 1,324.95 vs agreed packages 1,359.11",4.0,FDA (NADAC tie-break),OK
 "qty tie-break 58406003204 ENBREL 50MG/ML SURECLICK AUTOINJECTOR: VA count x FDA mL per item = 4 x 1; VA $/unit 1,342.44 vs agreed packages 1,359.11",4.0,FDA (NADAC tie-break),OK
-compared NDCs with qty from 2+ sources,412,412,OK
+compared NDCs with qty from 2+ sources,413,413,OK
 "MFP file: one per-unit price per NDC-9 on Nov 1, 2026",0,0,OK
 Part D unit = MFP per unit 00003089321 ELIQUIS 2.5MG TAB,4.1451,4.145072,OK
 Part D unit = MFP per unit 00003089331 ELIQUIS 2.5MG TAB,4.1451,4.145072,OK
@@ -1623,6 +1626,13 @@ NDA/BLA 00173087414,1,1,OK
 NDA/BLA 00173087610,1,1,OK
 NDA/BLA 00173087614,1,1,OK
 NDA/BLA 00173088810,1,1,OK
+NDA/BLA 00074012402,1,1,OK
+NDA/BLA 00074024302,1,1,OK
+NDA/BLA 00074055402,1,1,OK
+NDA/BLA 00074061602,1,1,OK
+NDA/BLA 00074081702,1,1,OK
+NDA/BLA 00074379902,1,1,OK
+NDA/BLA 00074433902,1,1,OK
 NDA/BLA 00024591401,1,1,OK
 NDA/BLA 00024591502,1,1,OK
 NDA/BLA 00024591801,1,1,OK
@@ -1841,15 +1851,8 @@ NDA/BLA 00074709430,1,1,OK
 NDA/BLA 00074709530,1,1,OK
 NDA/BLA 00074709630,1,1,OK
 NDA/BLA 00597008717,1,1,OK
-NDA/BLA 00024592410,1,1,OK
-NDA/BLA 00024592505,1,1,OK
-NDA/BLA 00074104328,1,1,OK
-NDA/BLA 00074230630,1,1,OK
-NDA/BLA 00074231030,1,1,OK
-NDA/BLA 00074232001,1,1,OK
 counted CMS rows that are ANDA-only in Drugs@FDA,0,0,OK
 brand median abilify,-0.2318060954260318,-0.2318060954260318,OK
-brand median admelog,-0.2713464150442149,-0.27134641504421486,OK
 brand median advair,-0.4039278741242678,-0.4039278741242678,OK
 brand median aimovig,-0.2431789382840015,-0.24317893828400144,OK
 brand median alphagan,-0.441729154640652,-0.441729154640652,OK
@@ -1878,6 +1881,7 @@ brand median farxiga,1.0492839979367097,1.0492839979367097,OK
 brand median fiasp,0.0242382967321286,0.0242382967321286,OK
 brand median gemtesa,-0.2588099352906422,-0.2588099352906422,OK
 brand median humalog,-0.4251616309472047,-0.4251616309472047,OK
+brand median humira,-0.2469595439122819,-0.2469595439122819,OK
 brand median humulin,-0.5408985063699507,-0.5408985063699507,OK
 brand median incruse,-0.4167465506505424,-0.41674655065054245,OK
 brand median ingrezza,-0.3083083247973251,-0.30830832479732506,OK
@@ -1909,7 +1913,6 @@ brand median restasis,-0.2133931666918957,-0.2133931666918957,OK
 brand median revlimid,-0.2813447473044643,-0.2813447473044643,OK
 brand median rexulti,-0.2639418510927088,-0.26394185109270885,OK
 brand median rhopressa,-0.3018442918897582,-0.3018442918897582,OK
-brand median rinvoq,-0.3018212065356752,-0.3018212065356752,OK
 brand median rocklatan,-0.3002949608064309,-0.3002949608064309,OK
 brand median rytary,-0.2286287898919928,-0.22862878989199276,OK
 brand median simbrinza,-0.3169628291162065,-0.3169628291162065,OK
@@ -1938,9 +1941,9 @@ brand median xifaxan,-0.4894283090281923,-0.4894283090281923,OK
 brand median xigduo,-0.2268868170217199,-0.2268868170217199,OK
 brand median xiidra,-0.251639320190803,-0.251639320190803,OK
 brand median zenpep,-0.2751963372509661,-0.27519633725096615,OK
-brands compared,90,90,OK
+brands compared,89,89,OK
 brands VA higher,9,9,OK
-median brand VA vs Part D (rounded to 0.1 pt),-0.271,-0.271,OK
+median brand VA vs Part D (rounded to 0.1 pt),-0.269,-0.269,OK
 brands VA higher (list),,"eliquis, enbrel, entresto, farxiga, fiasp, januvia, jardiance, tresiba, xarelto",INFO
 basket names duplicated in annual file,0,0,OK
 basket names duplicated in 2026 Q1 file,0,0,OK
@@ -2015,8 +2018,14 @@ basket Part D Invega Sustenna,1951297175.58,1951297175.58,OK
 basket Part D Invega Trinza,574524738.95,574524738.95,OK
 basket Part D Stiolto Respimat,450381500.42,450381500.42,OK
 basket Part D Arnuity Ellipta,205334161.11,205334161.11,OK
+basket Part D Humira,211408562.90999997,211408562.90999997,OK
+basket Part D Humira Pen,709143877.1700001,709143877.1700001,OK
+basket Part D Humira(Cf),402382348.2000001,402382348.20000005,OK
+basket Part D Humira(Cf) Pen,4303595358.26,4303595358.26,OK
+basket Part D Humira(Cf) Pen Crohn'S-Uc-Hs,55912772.2,55912772.199999996,OK
 basket Part D Dupixent Pen,2000646302.94,2000646302.9399998,OK
 basket Part D Dupixent Syringe,760955875.4,760955875.4,OK
+basket Part D Premarin*,239333746.24,239333746.24,OK
 basket Part D Trintellix,396401498.6400001,396401498.64000005,OK
 basket Part D Combivent Respimat,404627723.5,404627723.5,OK
 basket Part D Rexulti,815110194.48,815110194.48,OK
@@ -2077,19 +2086,15 @@ basket Part D Vyvanse,85998436.7,85998436.7,OK
 basket Part D Wegovy,306081321.0,306081321.0,OK
 basket Part D Qulipta,284090864.0,284090864.0,OK
 basket Part D Atrovent HFA,70090902.53999999,70090902.53999999,OK
-basket Part D Admelog,8573284.72,8573284.72,OK
-basket Part D Admelog Solostar,31668327.75,31668327.75,OK
-basket Part D Rinvoq,1546249570.8,1546249570.8,OK
-basket Part D Rinvoq Lq,350864.80000000005,350864.80000000005,OK
-basket all Part D $B,112.46,112.46,OK
-basket all VA $B,100.26,100.26,OK
-basket all VA vs Part D,,-10.8%,INFO
+basket all Part D $B,116.79,116.79,OK
+basket all VA $B,103.61,103.61,OK
+basket all VA vs Part D,,-11.3%,INFO
 basket negotiated Part D $B,22.0,22.0,OK
 basket negotiated VA $B,35.69,35.69,OK
 basket negotiated VA vs Part D,,+62.2%,INFO
-basket other Part D $B,90.45,90.45,OK
-basket other VA $B,64.57,64.57,OK
-basket other VA vs Part D,,-28.6%,INFO
+basket other Part D $B,94.79,94.79,OK
+basket other VA $B,67.92,67.92,OK
+basket other VA vs Part D,,-28.3%,INFO
 basket brand count,89,89,OK
 negotiated flag matches CMS list,1,1,OK
 NovoLog Mix rows not flagged negotiated,0,0,OK
@@ -2147,14 +2152,18 @@ patient chart Jardiance: 30-day price = CMS negotiated,197.0,197.0,OK
 patient chart Jardiance: first fill,197.0,197.0,OK
 patient chart Jardiance: year,1052.25,1052.25,OK
 patient chart Jardiance: fill after deductible,49.25,49.25,OK
-patient chart Mounjaro: 30-day price,1144.03,1144.03,OK
-patient chart Mounjaro: first fill,747.26,747.26,OK
+patient chart Mounjaro: 30-day price,1143.74,1143.74,OK
+patient chart Mounjaro: first fill,747.18,747.18,OK
 patient chart Mounjaro: year,2100.0,2100.0,OK
-patient chart Mounjaro: fill after deductible,286.01,286.01,OK
+patient chart Mounjaro: fill after deductible,285.93,285.94,OK
 patient chart Xarelto: 30-day price = CMS negotiated,197.0,197.0,OK
 patient chart Xarelto: first fill,197.0,197.0,OK
 patient chart Xarelto: year,1052.25,1052.25,OK
 patient chart Xarelto: fill after deductible,49.25,49.25,OK
+patient chart Humira: 30-day price,7068.41,7068.41,OK
+patient chart Humira: first fill,2100.0,2100.0,OK
+patient chart Humira: year,2100.0,2100.0,OK
+patient chart Humira: fill after deductible,0.0,0.0,OK
 patient chart Trulicity: 30-day price,1034.94,1034.94,OK
 patient chart Trulicity: first fill,719.99,719.99,OK
 patient chart Trulicity: year,2100.0,2100.0,OK
@@ -2171,64 +2180,67 @@ patient chart Revlimid: 30-day price,19314.67,19314.67,OK
 patient chart Revlimid: first fill,2100.0,2100.0,OK
 patient chart Revlimid: year,2100.0,2100.0,OK
 patient chart Revlimid: fill after deductible,0.0,0.0,OK
-patient chart Entresto: 30-day price = CMS negotiated,295.0,295.0,OK
-patient chart Entresto: first fill,295.0,295.0,OK
-patient chart Entresto: year,1346.25,1346.25,OK
-patient chart Entresto: fill after deductible,73.75,73.75,OK
 patient chart Eliquis: real plans covering,5276,5276,OK
-patient chart Eliquis: real plans on tier 3+ %,99.7,99.7,OK
+patient chart Eliquis: real plans on tiers 3 to 5 %,99.7,99.7,OK
 patient chart Eliquis: real plans coinsurance %,69.9,69.9,OK
 patient chart Eliquis: real plans deductible %,81.0,81.0,OK
 patient chart Eliquis: real plans median after deductible,47.0,47.0,OK
 patient chart Ozempic: real plans covering,5225,5225,OK
-patient chart Ozempic: real plans on tier 3+ %,99.8,99.8,OK
+patient chart Ozempic: real plans on tiers 3 to 5 %,98.9,98.9,OK
 patient chart Ozempic: real plans coinsurance %,69.4,69.4,OK
 patient chart Ozempic: real plans deductible %,81.1,81.1,OK
-patient chart Ozempic: real plans median after deductible,211.41,211.41,OK
+patient chart Ozempic: real plans median after deductible,212.13,212.13,OK
 patient chart Jardiance: real plans covering,5276,5276,OK
-patient chart Jardiance: real plans on tier 3+ %,99.9,99.9,OK
+patient chart Jardiance: real plans on tiers 3 to 5 %,99.4,99.4,OK
 patient chart Jardiance: real plans coinsurance %,69.9,69.9,OK
 patient chart Jardiance: real plans deductible %,81.0,81.0,OK
 patient chart Jardiance: real plans median after deductible,47.0,47.0,OK
 patient chart Mounjaro: real plans covering,5123,5123,OK
-patient chart Mounjaro: real plans on tier 3+ %,99.7,99.7,OK
+patient chart Mounjaro: real plans on tiers 3 to 5 %,98.5,98.5,OK
 patient chart Mounjaro: real plans coinsurance %,70.5,70.5,OK
 patient chart Mounjaro: real plans deductible %,82.4,82.4,OK
-patient chart Mounjaro: real plans median after deductible,228.81,228.81,OK
+patient chart Mounjaro: real plans median after deductible,231.13,231.13,OK
 patient chart Xarelto: real plans covering,5276,5276,OK
-patient chart Xarelto: real plans on tier 3+ %,99.8,99.8,OK
+patient chart Xarelto: real plans on tiers 3 to 5 %,99.8,99.8,OK
 patient chart Xarelto: real plans coinsurance %,69.9,69.9,OK
 patient chart Xarelto: real plans deductible %,81.0,81.0,OK
 patient chart Xarelto: real plans median after deductible,47.0,47.0,OK
+patient chart Humira: real plans covering,2776,2776,OK
+patient chart Humira: real plans on tiers 3 to 5 %,100.0,100.0,OK
+patient chart Humira: real plans coinsurance %,99.7,99.7,OK
+patient chart Humira: real plans deductible %,86.7,86.7,OK
+patient chart Humira: real plans median after deductible,1786.12,1786.12,OK
 patient chart Trulicity: real plans covering,5045,5045,OK
-patient chart Trulicity: real plans on tier 3+ %,99.7,99.7,OK
+patient chart Trulicity: real plans on tiers 3 to 5 %,98.5,98.5,OK
 patient chart Trulicity: real plans coinsurance %,70.6,70.6,OK
 patient chart Trulicity: real plans deductible %,82.8,82.8,OK
-patient chart Trulicity: real plans median after deductible,206.99,206.99,OK
+patient chart Trulicity: real plans median after deductible,209.72,209.72,OK
 patient chart Trelegy: real plans covering,5276,5276,OK
-patient chart Trelegy: real plans on tier 3+ %,99.8,99.8,OK
+patient chart Trelegy: real plans on tiers 3 to 5 %,99.8,99.8,OK
 patient chart Trelegy: real plans coinsurance %,70.2,70.2,OK
 patient chart Trelegy: real plans deductible %,81.1,81.1,OK
-patient chart Trelegy: real plans median after deductible,134.01,134.01,OK
+patient chart Trelegy: real plans median after deductible,134.85,134.85,OK
 patient chart Farxiga: real plans covering,3074,3074,OK
-patient chart Farxiga: real plans on tier 3+ %,100.0,100.0,OK
+patient chart Farxiga: real plans on tiers 3 to 5 %,99.4,99.4,OK
 patient chart Farxiga: real plans coinsurance %,62.6,62.6,OK
 patient chart Farxiga: real plans deductible %,78.5,78.5,OK
 patient chart Farxiga: real plans median after deductible,42.84,42.84,OK
 patient chart Revlimid: real plans covering,225,225,OK
-patient chart Revlimid: real plans on tier 3+ %,100.0,100.0,OK
+patient chart Revlimid: real plans on tiers 3 to 5 %,100.0,100.0,OK
 patient chart Revlimid: real plans coinsurance %,100.0,100.0,OK
 patient chart Revlimid: real plans deductible %,92.9,92.9,OK
 patient chart Revlimid: real plans median after deductible,2100.0,2100.0,OK
-patient chart Entresto: real plans covering,5276,5276,OK
-patient chart Entresto: real plans on tier 3+ %,99.8,99.8,OK
-patient chart Entresto: real plans coinsurance %,69.9,69.9,OK
-patient chart Entresto: real plans deductible %,81.0,81.0,OK
-patient chart Entresto: real plans median after deductible,59.0,59.0,OK
 lenalidomide generic: plans covering,5295,5295,OK
 lenalidomide generic: plans on tier 5,5283,5283,OK
 lenalidomide generic: plans on tier 4,12,12,OK
 "lenalidomide generic: plans on tiers 1, 2 or 6",0,0,OK
 lenalidomide generic: coinsurance %,99.4,99.4,OK
 lenalidomide generic: median coinsurance rate,0.25,0.25,OK
+lenalidomide generic: lowest coinsurance rate (post: 25% to 33%),0.25,0.25,OK
+lenalidomide generic: highest coinsurance rate (post: 25% to 33%),0.33,0.33,OK
+"lenalidomide generic: own price, % of plans with cost rows",100.0,100.0,OK
+"lenalidomide generic: median 21-capsule cycle at plan price (post: about $6,600)",6600,6600.0,OK
+"lenalidomide generic: % of plans reaching $2,100 on the first fill (post: about half)",50.1,50.1,OK
+"lenalidomide generic: % of plans reaching $2,100 by the second fill (post: 85%)",85,85,OK
+lenalidomide generic: scripts/lenalidomide.py first fill median,2100.0,2100.0,OK
 Revlimid brand: plans covering,225,225,OK

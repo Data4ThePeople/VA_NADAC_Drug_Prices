@@ -37,7 +37,13 @@ prod = prod[prod.PRODUCTTYPENAME.str.contains('PRESCRIPTION', na=False)]
 prod['family'] = prod.PROPRIETARYNAME.map(fam)
 prod['is_brand'] = (prod.MARKETINGCATEGORYNAME.isin(['NDA', 'BLA'])
                     & (prod.family != prod.NONPROPRIETARYNAME.map(fam)))
-brand_fams = set(prod.loc[prod.is_brand, 'family'])
+# A brand family needs at least one such product sold under its application's own drug name in Drugs@FDA.
+# This drops "PEG-3350, Electrolytes, and Ascorbate", an unbranded product under MoviPrep's NDA 021881.
+_dp = pd.read_csv(DAFDA + 'Products.txt', sep='\t', dtype=str, encoding='latin-1', on_bad_lines='skip')
+_appl_names = _dp.assign(a=_dp.ApplNo.str.lstrip('0'), f=_dp.DrugName.map(fam)).groupby('a').f.agg(set)
+prod['name_ok'] = [f in _appl_names.get(re.sub(r'^\D+', '', str(a)).lstrip('0'), set())
+                   for f, a in zip(prod.family, prod.APPLICATIONNUMBER)]
+brand_fams = set(prod.loc[prod.is_brand & prod.name_ok, 'family'])
 
 pkg = pd.read_csv(FDA_PKG, sep='\t', dtype=str, encoding='latin-1')
 pkg = pkg.merge(prod[['PRODUCTID', 'family', 'is_brand', 'PROPRIETARYNAME', 'DOSAGEFORMNAME', 'APPLICATIONNUMBER']],
@@ -80,9 +86,10 @@ sp = pd.read_csv(SPEND)
 sp = sp[sp.Mftr_Name == 'Overall'].copy()
 sp['family'] = sp.Brnd_Name.map(fam)
 sp = sp[(sp.family != sp.Gnrc_Name.map(fam)) & sp.family.isin(brand_fams)]
-# the brand's FDA products must contain the CMS generic's first ingredient word
-subs = (prod[prod.is_brand].groupby('family').SUBSTANCENAME
-        .agg(lambda x: ' '.join(x.dropna()).lower()))
+# the brand's FDA products must contain the CMS generic's first ingredient word. FDA leaves SUBSTANCENAME
+# blank on some products (Humira, Paxlovid); those use NONPROPRIETARYNAME instead.
+subs = (prod[prod.is_brand].assign(ingr=lambda d: d.SUBSTANCENAME.fillna(d.NONPROPRIETARYNAME))
+        .groupby('family').ingr.agg(lambda x: ' '.join(x.dropna()).lower()))
 sp = sp[[fam(g) in subs.get(f, '') for f, g in zip(sp.family, sp.Gnrc_Name)]]
 # Drugs@FDA: drop a CMS brand row whose exact name is approved only under ANDAs (a generic sold under a
 # brand-style name, e.g. Klor-Con M20). Rows with no exact name match in Drugs@FDA are kept.
@@ -143,7 +150,13 @@ nd = pd.concat([fda_ndcs, va_ndcs]).drop_duplicates('NDC')
 nd = nd.drop(columns=['PACKAGEDESCRIPTION', 'PROPRIETARYNAME']).merge(
     pkg[['NDC', 'PACKAGEDESCRIPTION', 'PROPRIETARYNAME', 'APPLICATIONNUMBER']], on='NDC', how='left')
 nd = nd.merge(vp, on='NDC', how='inner')            # must have a current VA price
-kit = nd.PACKAGEDESCRIPTION.str.contains(r'KIT', na=False) | nd.va_name.str.contains(r'STARTER|INITIATION|TITRATION', na=False)
+# Kits and starter, titration or initiation packs are dropped, except a carton of kits that each hold one
+# syringe or pen ("2 KIT in 1 CARTON / 1 KIT in 1 KIT * 1 SYRINGE in 1 TRAY ..."), billed per kit (Humira).
+one_syr_kit = nd.PACKAGEDESCRIPTION.str.contains(r'^\d+ KIT in 1 CARTON .*/\s*1 KIT in 1 KIT\s*\*\s*1 SYRINGE in 1 TRAY',
+                                                 na=False)
+kit = ((nd.PACKAGEDESCRIPTION.str.contains(r'KIT', na=False) & ~one_syr_kit)
+       | nd.va_name.str.contains(r'STARTER|\bSTART\b|INITIATION|TITRATION', na=False))
+kit_fams = set(nd.loc[kit, 'family'])
 nd = nd[~kit]
 nd = nd.merge(na, on='NDC', how='left')
 nd['prod9'] = nd.NDC.str[:9]
@@ -271,6 +284,8 @@ for f in out.family:
     sub = nd[nd.family == f]
     if f in set(br.family):
         status.append('compared')
+    elif f in kit_fams and (sub.empty or sub.partd_unit.isna().all()):
+        status.append('kit or starter packs only')
     elif sub.empty:
         status.append('no current VA price')
     elif sub.get('Big4', pd.Series(dtype=float)).notna().sum() == 0:

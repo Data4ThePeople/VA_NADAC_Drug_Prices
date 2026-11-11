@@ -97,7 +97,7 @@ html.embed .source { font-size: 11.5px; margin-top: 6px; line-height: 1.35; }
   <header class="masthead">
     <a href="https://www.data4thepeople.com" aria-label="Data 4 The People"><img class="logo" alt="Data 4 The People" src="__LOGO__"></a>
     <h1>How often Part D plans put generic drugs on brand-level tiers</h1>
-    <p class="standfirst">Share of Medicare Part D plan drug-list entries for generic drugs that sit on tier 3 or higher, by years since the first generic of that drug was approved. Each strength and form of a drug counts once per plan. __NPLANS__ plans, fall 2026. Hover or tap a bar for details.</p>
+    <p class="standfirst">Share of Medicare Part D plan drug-list entries for generic drugs that sit on tiers 3 to 5, by years since the first generic of that drug was approved. Each strength and form of a drug counts once per plan. __NPLANS__ plans, fall 2026. Hover or tap a bar for details.</p>
   </header>
 
   <ul class="legend" aria-label="Bar colors">
@@ -107,7 +107,7 @@ html.embed .source { font-size: 11.5px; margin-top: 6px; line-height: 1.35; }
   </ul>
 
   <div class="chartbox" id="chartbox">
-    <svg class="chart" id="c1" role="list" aria-label="Share of generic drug listings on tier 3 or higher"></svg>
+    <svg class="chart" id="c1" role="list" aria-label="Share of generic drug listings on tiers 3 to 5"></svg>
     <div class="tip" id="tip" role="status" aria-live="polite"></div>
   </div>
 
@@ -163,7 +163,7 @@ function draw() {
     if (i === 2) { const hd = el('text', {class: 'sub', x: 0, y: y - 4, 'text-anchor': 'start', 'font-weight': 700}, svg); hd.textContent = 'By years since the first generic was approved'; }
     const tot = d.t3 + d.t45;
     const g = el('g', {class: 'row', tabindex: 0, role: 'listitem',
-      'aria-label': `${d.label}${d.sub ? ' (' + d.sub + ')' : ''}: ${pct(tot)} on tier 3 or higher; tier 3 ${pct(d.t3)}, tiers 4 and 5 ${pct(d.t45)}`}, svg);
+      'aria-label': `${d.label}${d.sub ? ' (' + d.sub + ')' : ''}: ${pct(tot)} on tiers 3 to 5; tier 3 ${pct(d.t3)}, tiers 4 and 5 ${pct(d.t45)}`}, svg);
     el('rect', {class: 'band', x: 0, y, width: W, height: rowH}, g);
     const nm = el('text', {class: 'name', x: labW, y: d.sub ? cy - 1 : cy + 5, 'text-anchor': 'end'}, g); nm.textContent = d.label;
     if (d.sub) { const sb = el('text', {class: 'sub', x: labW, y: cy + 13, 'text-anchor': 'end'}, g); sb.textContent = d.sub; }
@@ -186,7 +186,7 @@ function tipShow(d, ev, svg, cy) {
     `<div class="r"><span class="k t3"></span>Tier 3: <b>${pct(d.t3)}</b></div>` +
     `<div class="r"><span class="k t45"></span>Tiers 4 and 5: <b>${pct(d.t45)}</b></div>` +
     `<div class="note">${num(d.products)} ${what}, ${num(d.placements)} plan listings.` +
-    (d.majority != null ? ` ${num(d.majority)} of the ${num(d.products)} are on tier 3 or higher in at least half of the plans that cover them.` : '') + `</div>`;
+    (d.majority != null ? ` ${num(d.majority)} of the ${num(d.products)} are on tiers 3 to 5 in at least half of the plans that cover them.` : '') + `</div>`;
   tip.classList.add('on');
   const bx = box.getBoundingClientRect(), sv = svg.getBoundingClientRect();
   const tw = tip.offsetWidth, th = tip.offsetHeight, bw = box.clientWidth;

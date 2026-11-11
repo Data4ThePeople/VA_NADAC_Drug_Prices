@@ -28,7 +28,9 @@ n['names'] = (n.va_name.fillna('') + ' ' + n.PROPRIETARYNAME.fillna('')).str.upp
 an = pd.read_csv(ANNUAL)
 an = an[an.Mftr_Name == 'Overall'].set_index('Brnd_Name')
 qt = pd.read_csv(QUARTER)
-qt = qt[(qt.Mftr_Name == 'Overall') & (qt.Year == '2026 (Q1)')].set_index('Brnd_Name')
+qt = qt[(qt.Mftr_Name == 'Overall') & (qt.Year == '2026 (Q1)')]
+# the annual file marks mixed-route names with a trailing asterisk ("Premarin*"); the quarterly file never does
+qt = qt.assign(key=qt.Brnd_Name.str.rstrip('*').str.strip()).set_index('key')
 
 
 def words(name):
@@ -60,7 +62,8 @@ for f, names, fam_ratio in zip(b.family, b.brand_names, b.big4_vs_partd_median):
                 sub = sub[~sub.names.map(lambda x: any(re.search(rf'\b{o}\b', x) for o in others))]
         ratio = sub.big4_vs_partd.median() if len(sub) else fam_ratio
         claims = an.loc[brand, 'Tot_Clms_2024']
-        per_clm = qt.loc[brand, 'Avg_Spnd_Per_Clm'] if brand in qt.index else None
+        key = brand.rstrip('*').strip()
+        per_clm = qt.loc[key, 'Avg_Spnd_Per_Clm'] if key in qt.index else None
         rows.append(dict(family=f, brand=brand, ndcs_matched=len(sub),
                          ratio_source='row NDCs' if len(sub) else 'brand median',
                          big4_vs_partd=ratio, claims_2024=claims, partd_per_claim_2026q1=per_clm))

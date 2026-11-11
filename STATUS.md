@@ -6,15 +6,15 @@ Process: ~/.claude/d4tp-process/PROCESS.md
 ## Current
 
 Post: va-vs-medicare-drug-prices
-Step: 2a
-Since: 2026-11-10
+Step: 2b
+Since: 2026-11-11
 
 ## Steps
 
 | Step | What | Confirmed | Notes |
 |---|---|---|---|
-| 1  | Exploration and analysis | 2026-11-10 | 90 brands, 414 NDCs; dist/index.html, dist/negotiated-30day.html |
-| 2a | Draft with brackets resolved | | |
+| 1  | Exploration and analysis | 2026-11-11 | Re-confirmed after the Humira fix (first confirmed 2026-11-10). 89 brands, 415 NDCs; dist/index.html, dist/negotiated-30day.html, dist/part-d-rebates.html, dist/generic-tiers.html, dist/patient-cost.html |
+| 2a | Draft with brackets resolved | 2026-11-11 | Edits 1-17, 22-30 accepted; four chart embeds; repo public, Pages on |
 | 2b | Eric's edit, Claude's look-over | | |
 | 2c | Slice markup | | |
 | 2d | Hero 1680x1080 + alt text | | |
@@ -52,3 +52,21 @@ None.
   blurb, drop cap on the first story paragraph, chart 21 block moved below "But the 58 million ... do."
   Notes in every viz folded into "Show notes and disclaimers". README.md drafted. Iframes point at GitHub
   Pages, which needs the repo made public. Independent tie-out of the new charts running.
+- 2026-11-11 Eric accepted edits 25 (Medicaid "mostly") and 26 (SNAP post link). Repo made public at Eric's
+  request; GitHub Pages on from main, root. All four embeds load from data4thepeople.github.io (HTTP 200).
+- 2026-11-11 Second independent tie-out (charts 19-21, 30-day chart, post claims): nearly all matched. It found
+  a Step 1 bug: FDA leaves SUBSTANCENAME blank for Humira and Paxlovid, so the brand filter dropped them.
+  Fixed (NONPROPRIETARYNAME fallback; Drugs@FDA application-name rule drops the generic "PEG 3350-Electrolyte").
+  Humira priced per kit (cartons of single-syringe kits); Paxlovid out (kit dose packs). Top 100 now has
+  Humira and Paxlovid; Admelog and Rinvoq drop out. 89 brands compared, 415 NDCs; basket Part D $116.55B,
+  VA $103.43B (11.3% lower). Patient-cost chart: Humira replaces Entresto; real plans priced at each plan's own
+  price; tiers 3 to 5. New scripts/lenalidomide.py; Revlimid paragraph corrected (at least $1,600 was wrong
+  for 28% of plans). Own tie-out 2,235 OK, 0 DIFF. Step 1 results changed, so Step 1 needs re-confirming
+  with 2a. Third independent check of the fixes running. Not yet pushed: live Pages charts are the old build.
+- 2026-11-11 Third independent check of the fixes: every chart value matched. Fixed what it found: Premarin
+  now in the basket (asterisk name mismatch; basket 89 brands, $116.79B vs $103.61B, $13.18B or 11.3% lower),
+  Mounjaro 2.5 mg starting pens left out of the 30-day price, chart 18 "not shown" note built from data (11).
+  Disclosed Ozempic tablets, vaccines, source-agreement counts. Own tie-out 2,236 OK, 0 DIFF.
+- 2026-11-11 Eric accepted edits 27-30 (basket now "89 ... about $13 billion, or 11%", "89 top brand-name
+  drugs", "rarely see a dime", "tiers usually used for"). Step 1 re-confirmed and Step 2a confirmed by Eric.
+  Next: 2b, Eric edits POST.md and asks for a look-over.
