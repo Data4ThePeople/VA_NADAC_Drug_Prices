@@ -5,7 +5,7 @@ slug: va-vs-medicare-drug-prices
 date:
 section: Data 4 Thought
 hero: images/va-vs-medicare-drug-prices-hero-1680x1080.png
-hero_alt:
+hero_alt: AI-generated image of two lines of young American soldiers from the Korean War era, in olive green rain ponchos and steel helmets and carrying rifles, walking down the main aisle of a large, brightly lit pharmacy. Shelves of white and amber pill bottles and medicine boxes line both sides, and an empty pharmacy counter glows at the far end.
 meta_title:
 description:
 keywords:

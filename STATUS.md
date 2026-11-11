@@ -6,7 +6,7 @@ Process: ~/.claude/d4tp-process/PROCESS.md
 ## Current
 
 Post: va-vs-medicare-drug-prices
-Step: 2d
+Step: 2e
 Since: 2026-11-11
 
 ## Steps
@@ -17,7 +17,7 @@ Since: 2026-11-11
 | 2a | Draft with brackets resolved | 2026-11-11 | Edits 1-17, 22-30 accepted; four chart embeds; repo public, Pages on |
 | 2b | Eric's edit, Claude's look-over | 2026-11-11 | Edits 31-40, 42, 43 accepted (41 folded into 40); section headers; 46brooklyn link; new CMS enrollment source |
 | 2c | Slice markup | 2026-11-11 | 41 slices; no markup changes needed |
-| 2d | Hero 1680x1080 + alt text | | |
+| 2d | Hero 1680x1080 + alt text | 2026-11-11 | Gemini image from prompt 1, center crop; alt 341 characters |
 | 2e | SEO | | |
 | 2f | Pushed to Prismic (draft) | | |
 | 2g | Mailchimp teaser | | |
@@ -80,3 +80,5 @@ None.
   headings with 5px spacers, 20px after embeds and 40px before a heading). No markup changes needed. Step 2c
   confirmed by Eric. Next: 2d, hero. Eric's idea: Korean War soldiers walking through a large pharmacy. The
   memorial's statues are under copyright (Gaylord v. United States, 2010), so the prompt uses new figures.
+- 2026-11-11 Step 2d: Eric generated prompt 1 in Gemini (2752x1536, no visible watermark); `hero fit` center
+  crop to 1680x1080; source kept; alt text 341 characters. Step 2d confirmed by Eric. Next: 2e, SEO.
