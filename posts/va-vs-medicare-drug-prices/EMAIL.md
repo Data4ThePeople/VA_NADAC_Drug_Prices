@@ -35,7 +35,7 @@ But here’s the rub. There are all sorts of data available in the public domain
 Except the analysis still matters, not for the government and insurers, who get the rebates and discounts, or veterans, who only have copays for their drugs (and therefore are not subjected to inflated pre-rebate prices), but for the Americans in the booming Medicare Part D program (thanks to the aging of America) which now provides drug coverage for about 58 million people. Why? Because here our elderly pay for drugs based on
 1. a byzantine five- or six-tier system where insurers collect money from them based on the drug’s inflated pre-rebate price;
 2. the insurers freely setting their own prices for drugs, which can differ across their own plans;
-3. put off-patent generic drugs in tiers usually used for more expensive brand-name drugs, causing further inflated prices.
+3. the insurers putting off-patent generic drugs in tiers usually used for more expensive brand-name drugs, forcing patients to pay more for them.
 
 Here is how often Part D plans put generic drugs on the tiers usually used for brand-name drugs.
 ```
